@@ -1,0 +1,332 @@
+---
+description: 'Project Context Management: Initialize .context directory, log decision logs, compress and archive, view history'
+---
+
+# Context - Project Context Management
+
+Manage the `.context/` directory structure to provide a decision audit chain for LLM tools.
+
+## Usage
+
+```bash
+/context <subcommand> [options]
+```
+
+## Subcommands
+
+| Subcommand | Description |
+|------------|-------------|
+| `init` | Initialize the `.context/` directory structure |
+| `log <message>` | (Optional) Manually append notes to session.log; these will be merged during commit |
+| `show` | View the session.log of the current branch |
+| `compress` | Compress session.log → uncommit.md (for manual preview) |
+| `history` | View history/commits.md |
+| `squash <ids...>` | Merge multiple history records (use with git squash) |
+
+> **Core Usage**: Run `init` once, then focus on development. `/ccg:commit` automatically analyzes decisions from git diff and archives them to history/ during commit. Use `log` only when you want to manually supplement notes.
+
+---
+
+## Execution Workflow
+
+### Subcommand: init
+
+`[Mode: Initialization]`
+
+Create the `.context/` structure in the current project root:
+
+1. Detect project root directory (search for `.git/`)
+2. If `.context/` already exists, skip existing files and only complete the missing ones.
+3. Create the following structure:
+
+```
+.context/
+├── .gitignore
+├── .gitattributes
+├── prefs/
+│   ├── coding-style.md
+│   └── workflow.md
+├── current/
+│   └── branches/
+│       └── .gitkeep
+└── history/
+    ├── commits.jsonl
+    ├── commits.md
+    └── archives/
+        └── .gitkeep
+```
+
+4. **Create `.context/.gitignore`**:
+
+```gitignore
+# Ephemeral workspace — never commit
+current/
+
+# Raw interaction logs — always local only
+**/session.log
+**/session.raw.log
+**/*.session.log
+**/*.raw.log
+
+# Editor / temp
+**/*.tmp
+**/*.bak
+**/*.swp
+```
+
+5. **Create `.context/.gitattributes`**:
+
+```
+# JSONL append-only: 'union' merge reduces conflicts
+history/commits.jsonl merge=union
+history/archives/*.jsonl merge=union
+```
+
+6. **Create `.context/prefs/coding-style.md`** (Team coding standard template):
+
+```markdown
+# Coding Style Guide
+
+> This file defines team coding standards that all LLM tools must follow when modifying code.
+> Committed to Git and shared by the team.
+
+## General
+- Prefer small, reviewable changes; avoid unrelated refactors.
+- Keep functions short (<50 lines); avoid deep nesting (≤3 levels).
+- Name things explicitly; no single-letter variables except loop counters.
+- Handle errors explicitly; never swallow errors silently.
+
+## Language-Specific
+<!-- Supplement based on project language, for example: -->
+<!-- ### TypeScript -->
+<!-- - Use strict mode; prefer `interface` over `type` for object shapes. -->
+
+## Git Commits
+- Conventional Commits, imperative mood.
+- Atomic commits: one logical change per commit.
+
+## Testing
+- Every feat/fix MUST include corresponding tests.
+- Coverage must not decrease.
+- Fix flow: write failing test FIRST, then fix code.
+
+## Security
+- Never log secrets (tokens/keys/cookies/JWT).
+- Validate inputs at trust boundaries.
+```
+
+7. **Create `.context/prefs/workflow.md`** (LLM workflow rules):
+
+```markdown
+# Development Workflow Rules
+
+> This file defines mandatory rules for the LLM development workflow.
+> All LLM tools must follow these rules when executing tasks and must not skip any steps.
+
+## Full Flow (MUST follow, no exceptions)
+
+### feat (New feature)
+1. Understand requirements, analyze impact scope.
+2. Read existing code, understand patterns.
+3. Write implementation code.
+4. Write corresponding tests.
+5. Run tests, fix failures.
+6. Update documentation (if API changes).
+7. Self-check lint / type-check.
+
+### fix (Bug fix)
+1. Reproduce issue, confirm symptoms.
+2. Locate root cause.
+3. Write failing test (red light first).
+4. Fix code.
+5. Verify test pass (green light).
+6. Regression testing.
+
+### refactor (Refactor)
+1. Ensure existing tests pass.
+2. Small refactor steps, each verifiable.
+3. All tests must pass after refactor.
+4. Do not change external behavior.
+
+## Context Logging (Decision recording)
+
+When you make the following decisions, you MUST append them to `.context/current/branches/<current_branch>/session.log`:
+
+1. **Option Selection**: Why you chose A instead of B.
+2. **Bug Discovery & Fix**: Root cause + fix method + lessons learned.
+3. **API/Architecture Decisions**: Interface design choices.
+4. **Discarded Solutions**: Why you gave them up.
+
+Append format:
+
+## <ISO-8601 Timestamp>
+**Decision**: <What you chose>
+**Alternatives**: <Excluded options>
+**Reason**: <Why>
+**Risk**: <Potential risks>
+```
+
+8. **Create `.context/history/commits.jsonl`** (empty file)
+
+9. **Create `.context/history/commits.md`** (Human-readable view template):
+
+```markdown
+# Commit Decision History
+
+> This file is a human-readable view of `commits.jsonl` and can be regenerated by tools.
+> Canonical store: `commits.jsonl` (JSONL, append-only)
+
+| Date | Context-Id | Commit | Summary | Decisions | Bugs | Risk |
+|------|-----------|--------|---------|-----------|------|------|
+```
+
+10. **Inject CLAUDE.md reference** (if CLAUDE.md exists in the project):
+
+Check for `CLAUDE.md` in the project root; if present, append to the end:
+
+```markdown
+
+## .context Project Context
+
+> This project uses `.context/` to manage development decision context.
+
+- Coding standards: `.context/prefs/coding-style.md`
+- Workflow rules: `.context/prefs/workflow.md`
+- Decision history: `.context/history/commits.md`
+
+**Rules**: Read prefs/ before modifying code; record logs according to workflow.md rules when making decisions.
+```
+
+11. Output initialization result summary.
+
+---
+
+### Subcommand: log
+
+`[Mode: Recording]`
+
+1. Get current Git branch name: `git branch --show-current`
+2. Ensure `.context/current/branches/<branch>/` directory exists.
+3. Append `<message>` in a structured format to `session.log`:
+
+```markdown
+## <ISO-8601 Current Time>
+<message>
+```
+
+---
+
+### Subcommand: show
+
+`[Mode: Viewing]`
+
+1. Get current branch name.
+2. Read `.context/current/branches/<branch>/session.log`.
+3. If not existing, prompt "No decision log for the current branch."
+4. Output content.
+
+---
+
+### Subcommand: compress
+
+`[Mode: Compression]`
+
+Compress `session.log` into a structured `uncommit.md` for pre-commit review.
+
+1. Read `.context/current/branches/<branch>/session.log`.
+2. If empty, prompt no content to compress.
+3. **Redaction**: Scan and replace potential sensitive information (token/key/password → `[REDACTED]`).
+4. **Structured extraction**: Extract decisions / bugs / alternatives from the log.
+5. **Generate uncommit.md**:
+
+```markdown
+# Pre-commit Summary: <branch-name>
+
+| Time | Summary | Decision | Method | Result & Bug |
+|------|---------|----------|--------|--------------|
+| ... | ... | ... | ... | ... |
+```
+
+6. Output compression results for user review.
+7. Prompt user: Can execute `/ccg:commit` to submit after confirmation.
+
+---
+
+### Subcommand: history
+
+`[Mode: Viewing]`
+
+1. Read `.context/history/commits.md`.
+2. If not existing, prompt "No history records yet, please use /ccg:context init first."
+3. Output content.
+4. If a file path is specified by the user, retrieve entries from `commits.jsonl` where `changes.files` contains that path.
+
+---
+
+### Subcommand: squash
+
+`[Mode: Merging]`
+
+Use with `git squash` to merge multiple ContextEntries.
+
+1. Receive list of Context-Ids.
+2. Read corresponding entries from `commits.jsonl`.
+3. Generate a new aggregated ContextEntry:
+   - New `context_id` (UUIDv7)
+   - `Context-Refs` = All squashed ids
+   - Merge decisions / bugs / changes
+4. Append to `commits.jsonl`.
+5. Regenerate `commits.md`.
+
+---
+
+## ContextEntry Schema (v1.0.0)
+
+Each JSONL record format:
+
+```json
+{
+  "schema_version": "1.0.0",
+  "context_id": "<UUIDv7>",
+  "created_at": "<ISO-8601>",
+  "producer": {
+    "tool": "<tool-name>",
+    "llm": { "provider": "<provider>", "model": "<model>" }
+  },
+  "git": {
+    "branch": "<branch>",
+    "commit_sha": "<short-sha>",
+    "trailers": { "Context-Id": "<uuid>" }
+  },
+  "summary": "<one-line summary>",
+  "decisions": [{
+    "title": "<decision title>",
+    "rationale": "<why>",
+    "tradeoffs": ["<tradeoff>"],
+    "assumptions": ["<assumption>"],
+    "rejected_alternatives": [{ "option": "<alt>", "reason": "<why rejected>" }],
+    "side_effects": ["<side effect>"]
+  }],
+  "bugs": [{
+    "symptom": "<what happened>",
+    "root_cause": "<why>",
+    "fix": "<how fixed>",
+    "lesson": "<takeaway>"
+  }],
+  "changes": { "files": ["<path>"] },
+  "tests": [{ "command": "<cmd>", "result": "<pass/fail>", "coverage": "<pct>" }],
+  "privacy": { "classification": "internal", "redactions_applied": true }
+}
+```
+
+---
+
+## Key rules
+
+1. **prefs/ Committed to Git** — Team-shared coding standards.
+2. **current/ Never Committed** — Raw logs are local only.
+3. **history/ Committed to Git** — Permanent decision archive.
+4. **commits.jsonl is Canonical** — commits.md can be regenerated.
+5. **UUIDv7 as Primary Key** — Rebase-safe, doesn't depend on commit SHA.
+6. **merge=union** — Automatic merging of JSONL append conflicts.
+7. **Redaction Above All Else** — Must redact before writing to history.
