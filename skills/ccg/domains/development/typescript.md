@@ -1,35 +1,35 @@
 ---
 name: typescript
-description: TypeScript/JavaScript 开发。前后端、Node.js、React、Vue。当用户提到 TypeScript、JavaScript、Node、React、Vue、Next.js 时使用。
+description: TypeScript/JavaScript Development. Frontend/Backend, Node.js, React, Vue. Use when the user mentions TypeScript, JavaScript, Node, React, Vue, or Next.js.
 ---
 
-# 📜 符箓秘典 · TypeScript/JavaScript
+# 📜 Talisman Grimoire · TypeScript/JavaScript
 
 
-## TypeScript 基础
+## TypeScript Basics
 
-### 类型系统
+### Type System
 ```typescript
-// 基础类型
+// Basic Types
 let name: string = "Alice";
 let age: number = 25;
 let active: boolean = true;
 let items: string[] = ["a", "b"];
 let tuple: [string, number] = ["hello", 10];
 
-// 接口
+// Interfaces
 interface User {
   id: number;
   name: string;
-  email?: string;  // 可选
-  readonly createdAt: Date;  // 只读
+  email?: string;  // Optional
+  readonly createdAt: Date;  // Readonly
 }
 
-// 类型别名
+// Type Aliases
 type ID = string | number;
 type Status = "pending" | "active" | "inactive";
 
-// 泛型
+// Generics
 function identity<T>(arg: T): T {
   return arg;
 }
@@ -39,14 +39,14 @@ interface Response<T> {
   status: number;
 }
 
-// 工具类型
+// Utility Types
 type Partial<T> = { [P in keyof T]?: T[P] };
 type Required<T> = { [P in keyof T]-?: T[P] };
 type Pick<T, K extends keyof T> = { [P in K]: T[P] };
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 ```
 
-## Node.js 后端
+## Node.js Backend
 
 ### Express
 ```typescript
@@ -55,7 +55,7 @@ import express, { Request, Response, NextFunction } from 'express';
 const app = express();
 app.use(express.json());
 
-// 中间件
+// Middleware
 const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.authorization;
   if (!token) {
@@ -64,7 +64,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
-// 路由
+// Routes
 app.get('/api/users/:id', async (req: Request, res: Response) => {
   const { id } = req.params;
   const user = await getUserById(id);
@@ -76,7 +76,7 @@ app.post('/api/users', async (req: Request, res: Response) => {
   res.status(201).json(user);
 });
 
-// 错误处理
+// Error Handling
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Internal Server Error' });
@@ -101,7 +101,7 @@ fastify.listen({ port: 3000 });
 
 ## React
 
-### 函数组件
+### Function Components
 ```tsx
 import React, { useState, useEffect, useCallback } from 'react';
 
@@ -147,7 +147,7 @@ export default UserCard;
 
 ### Hooks
 ```tsx
-// 自定义 Hook
+// Custom Hook
 function useFetch<T>(url: string) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
@@ -164,7 +164,7 @@ function useFetch<T>(url: string) {
   return { data, loading, error };
 }
 
-// 使用
+// Usage
 const { data, loading } = useFetch<User[]>('/api/users');
 ```
 
@@ -213,7 +213,7 @@ const handleClick = () => {
 </template>
 ```
 
-## 测试
+## Testing
 
 ### Jest/Vitest
 ```typescript
@@ -244,7 +244,7 @@ vi.mock('./api', () => ({
 }));
 ```
 
-## 项目结构
+## Project Structure
 
 ```
 myproject/
@@ -261,17 +261,16 @@ myproject/
 └── public/
 ```
 
-## 常用库
+## Common Libraries
 
-| 库 | 用途 |
+| Library | Purpose |
 |---|------|
-| Express/Fastify | Node.js 框架 |
-| React/Vue | 前端框架 |
-| Next.js/Nuxt | 全栈框架 |
+| Express/Fastify | Node.js Frameworks |
+| React/Vue | Frontend Frameworks |
+| Next.js/Nuxt | Full-stack Frameworks |
 | Prisma | ORM |
-| Zod | 数据验证 |
-| Vitest/Jest | 测试 |
-| ESLint/Prettier | 代码规范 |
+| Zod | Data Validation |
+| Vitest/Jest | Testing |
+| ESLint/Prettier | Code Formatting |
 
 ---
-

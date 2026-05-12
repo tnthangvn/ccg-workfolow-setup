@@ -1,285 +1,285 @@
 ---
 name: security-arch
-description: 安全架构设计。零信任、身份认证、威胁建模。当用户提到安全架构、零信任、IAM、身份认证、威胁建模时使用。
+description: Security architecture design. Zero trust, identity authentication, threat modeling. Use when the user mentions security architecture, zero trust, IAM, identity authentication, or threat modeling.
 ---
 
-# 🏗 阵法秘典 · 安全架构设计
+# 🏗 Array Manual · Security Architecture Design
 
 
-## 零信任架构
+## Zero Trust Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    零信任原则                                │
+│                    Zero Trust Principles                     │
 ├─────────────────────────────────────────────────────────────┤
-│  1. 永不信任，始终验证                                       │
-│  2. 最小权限访问                                             │
-│  3. 假设已被入侵                                             │
-│  4. 显式验证每个请求                                         │
-│  5. 持续监控和验证                                           │
+│  1. Never trust, always verify                               │
+│  2. Least privilege access                                   │
+│  3. Assume breach                                            │
+│  4. Explicitly verify every request                          │
+│  5. Continuous monitoring and validation                     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 核心组件
+### Core Components
 ```yaml
-身份验证:
-  - 多因素认证 (MFA)
-  - 单点登录 (SSO)
-  - 证书认证
+Authentication:
+  - Multi-Factor Authentication (MFA)
+  - Single Sign-On (SSO)
+  - Certificate Authentication
 
-设备信任:
-  - 设备健康检查
-  - 端点检测响应 (EDR)
-  - 移动设备管理 (MDM)
+Device Trust:
+  - Device health checks
+  - Endpoint Detection and Response (EDR)
+  - Mobile Device Management (MDM)
 
-网络分段:
-  - 微分段
-  - 软件定义边界 (SDP)
-  - 网络访问控制
+Network Segmentation:
+  - Micro-segmentation
+  - Software Defined Perimeter (SDP)
+  - Network Access Control
 
-数据保护:
-  - 加密传输/存储
-  - 数据分类
+Data Protection:
+  - Encryption in transit/at rest
+  - Data classification
   - DLP
 ```
 
-## 身份与访问管理 (IAM)
+## Identity and Access Management (IAM)
 
-### 认证方式
+### Authentication Methods
 ```yaml
-密码认证:
-  - 强密码策略
-  - 密码哈希 (bcrypt/argon2)
-  - 防暴力破解
+Password Authentication:
+  - Strong password policy
+  - Password hashing (bcrypt/argon2)
+  - Anti-brute force
 
-多因素认证:
+Multi-Factor Authentication:
   - TOTP (Google Authenticator)
   - FIDO2/WebAuthn
-  - 短信/邮件验证码
+  - SMS/Email verification codes
 
-单点登录:
+Single Sign-On:
   - SAML 2.0
   - OAuth 2.0 / OIDC
   - Kerberos
 ```
 
-### 授权模型
+### Authorization Models
 ```yaml
-RBAC (基于角色):
-  用户 → 角色 → 权限
-  示例:
+RBAC (Role-Based):
+  User → Role → Permissions
+  Example:
     - admin: [read, write, delete]
     - editor: [read, write]
     - viewer: [read]
 
-ABAC (基于属性):
-  策略 = f(主体属性, 资源属性, 环境属性)
-  示例:
-    - 部门=财务 AND 级别>=3 → 访问财务报表
+ABAC (Attribute-Based):
+  Policy = f(Subject Attributes, Resource Attributes, Environment Attributes)
+  Example:
+    - Department=Finance AND Level>=3 → Access Financial Reports
 
-PBAC (基于策略):
-  使用策略语言定义复杂规则
-  示例: OPA/Rego
+PBAC (Policy-Based):
+  Use policy languages to define complex rules
+  Example: OPA/Rego
 ```
 
-### JWT 最佳实践
+### JWT Best Practices
 ```yaml
-签名算法:
-  - 使用 RS256 或 ES256
-  - 避免 HS256 (共享密钥)
-  - 禁止 none 算法
+Signature Algorithms:
+  - Use RS256 or ES256
+  - Avoid HS256 (Shared Secret)
+  - Forbid none algorithm
 
-Token 管理:
-  - 短期访问令牌 (15分钟)
-  - 长期刷新令牌 (7天)
-  - 令牌轮换
-  - 黑名单机制
+Token Management:
+  - Short-lived access tokens (15 minutes)
+  - Long-lived refresh tokens (7 days)
+  - Token rotation
+  - Blacklist mechanism
 
 Claims:
-  - iss: 签发者
-  - sub: 主题
-  - aud: 受众
-  - exp: 过期时间
-  - iat: 签发时间
-  - jti: 唯一标识
+  - iss: Issuer
+  - sub: Subject
+  - aud: Audience
+  - exp: Expiration Time
+  - iat: Issued At
+  - jti: Unique Identifier
 ```
 
-## 威胁建模
+## Threat Modeling
 
-### STRIDE 模型
+### STRIDE Model
 ```yaml
-S - Spoofing (欺骗):
-  威胁: 冒充用户身份
-  缓解: 强认证、MFA
+S - Spoofing:
+  Threat: Impersonating a user identity
+  Mitigation: Strong authentication, MFA
 
-T - Tampering (篡改):
-  威胁: 修改数据
-  缓解: 完整性校验、签名
+T - Tampering:
+  Threat: Modifying data
+  Mitigation: Integrity checks, signatures
 
-R - Repudiation (抵赖):
-  威胁: 否认操作
-  缓解: 审计日志、数字签名
+R - Repudiation:
+  Threat: Denying an action
+  Mitigation: Audit logs, digital signatures
 
-I - Information Disclosure (信息泄露):
-  威胁: 数据泄露
-  缓解: 加密、访问控制
+I - Information Disclosure:
+  Threat: Data leakage
+  Mitigation: Encryption, access controls
 
-D - Denial of Service (拒绝服务):
-  威胁: 服务不可用
-  缓解: 限流、冗余
+D - Denial of Service:
+  Threat: Service unavailability
+  Mitigation: Rate limiting, redundancy
 
-E - Elevation of Privilege (权限提升):
-  威胁: 获取更高权限
-  缓解: 最小权限、输入验证
+E - Elevation of Privilege:
+  Threat: Gaining higher privileges
+  Mitigation: Least privilege, input validation
 ```
 
-### 威胁建模流程
+### Threat Modeling Process
 ```
-1. 识别资产
-   └─ 数据、服务、基础设施
+1. Identify Assets
+   └─ Data, Services, Infrastructure
 
-2. 绘制数据流图
-   └─ 信任边界、数据流向
+2. Draw Data Flow Diagrams
+   └─ Trust boundaries, Data flows
 
-3. 识别威胁
-   └─ 使用 STRIDE 分析
+3. Identify Threats
+   └─ Analyze using STRIDE
 
-4. 评估风险
-   └─ 可能性 × 影响
+4. Assess Risks
+   └─ Likelihood × Impact
 
-5. 制定缓解措施
-   └─ 技术控制、流程控制
+5. Develop Mitigations
+   └─ Technical controls, Process controls
 
-6. 验证和迭代
-   └─ 渗透测试、代码审计
-```
-
-## 安全设计原则
-
-```yaml
-纵深防御:
-  - 多层安全控制
-  - 单点失效不致命
-
-最小权限:
-  - 仅授予必要权限
-  - 定期审查权限
-
-安全默认:
-  - 默认拒绝
-  - 显式允许
-
-失败安全:
-  - 失败时拒绝访问
-  - 不泄露敏感信息
-
-分离职责:
-  - 关键操作需多人
-  - 开发/运维分离
+6. Validate and Iterate
+   └─ Penetration testing, Code auditing
 ```
 
-## 安全架构检查清单
+## Security Design Principles
 
 ```yaml
-认证:
-  - [ ] 实施 MFA
-  - [ ] 密码策略
-  - [ ] 会话管理
-  - [ ] 账户锁定
+Defense in Depth:
+  - Multiple layers of security controls
+  - Single point of failure is not fatal
 
-授权:
-  - [ ] 最小权限
+Least Privilege:
+  - Grant only necessary permissions
+  - Regularly review permissions
+
+Secure Defaults:
+  - Default deny
+  - Explicit allow
+
+Fail Safe:
+  - Deny access upon failure
+  - Do not leak sensitive information
+
+Separation of Duties:
+  - Critical operations require multiple people
+  - Separation of Development/Operations
+```
+
+## Security Architecture Checklist
+
+```yaml
+Authentication:
+  - [ ] Implement MFA
+  - [ ] Password policy
+  - [ ] Session management
+  - [ ] Account lockout
+
+Authorization:
+  - [ ] Least privilege
   - [ ] RBAC/ABAC
-  - [ ] API 授权
+  - [ ] API authorization
 
-数据保护:
-  - [ ] 传输加密 (TLS)
-  - [ ] 存储加密
-  - [ ] 密钥管理
+Data Protection:
+  - [ ] Encryption in transit (TLS)
+  - [ ] Encryption at rest
+  - [ ] Key management
 
-日志审计:
-  - [ ] 安全事件日志
-  - [ ] 访问日志
-  - [ ] 日志保护
+Logging and Auditing:
+  - [ ] Security event logging
+  - [ ] Access logs
+  - [ ] Log protection
 
-网络:
-  - [ ] 网络分段
-  - [ ] 防火墙规则
+Network:
+  - [ ] Network segmentation
+  - [ ] Firewall rules
   - [ ] WAF
 ```
 
-## 数据安全
+## Data Security
 
-### 数据分类
-| 级别 | 类型 | 保护措施 | 示例 |
+### Data Classification
+| Level | Type | Protection Measures | Example |
 |------|------|----------|------|
-| 公开 | Public | 无特殊要求 | 产品文档 |
-| 内部 | Internal | 访问控制 | 内部Wiki |
-| 机密 | Confidential | 加密+审计 | 客户数据 |
-| 受限 | Restricted | 加密+审计+MFA | 密钥、PII |
+| Public | Public | No special requirements | Product docs |
+| Internal | Internal | Access control | Internal Wiki |
+| Confidential | Confidential | Encryption + Auditing | Customer data |
+| Restricted | Restricted | Encryption + Auditing + MFA | Keys, PII |
 
-### 加密要求
+### Encryption Requirements
 ```yaml
-传输加密:
-  - TLS 1.2+（禁用 1.0/1.1）
-  - 推荐: TLS_AES_256_GCM_SHA384 / TLS_CHACHA20_POLY1305_SHA256
-  - HSTS + 证书管理
+Encryption in Transit:
+  - TLS 1.2+ (Disable 1.0/1.1)
+  - Recommended: TLS_AES_256_GCM_SHA384 / TLS_CHACHA20_POLY1305_SHA256
+  - HSTS + Certificate Management
 
-存储加密:
-  - AES-256-GCM（对称）+ 密钥与数据分离（KMS/Vault）+ 定期轮换
+Encryption at Rest:
+  - AES-256-GCM (Symmetric) + Separation of keys and data (KMS/Vault) + Regular rotation
 
-密码存储:
-  - bcrypt (rounds>=12) 或 argon2，禁止 MD5/SHA1
+Password Storage:
+  - bcrypt (rounds>=12) or argon2, forbid MD5/SHA1
 ```
 
-### 隐私保护
+### Privacy Protection
 ```yaml
-数据脱敏: 姓名(张**) / 手机(138****1234) / 邮箱(z***@x.com)
-数据最小化: 只收集必要数据 / 限制保留期限 / 定期清理 / 匿名化
-生命周期: 创建(分类)→存储(加密)→使用(审计)→共享(脱敏)→归档(压缩)→销毁(安全删除)
+Data Masking: Name(Zhang**) / Phone(138****1234) / Email(z***@x.com)
+Data Minimization: Only collect necessary data / Limit retention periods / Regular cleanup / Anonymization
+Lifecycle: Create(Classify)→Store(Encrypt)→Use(Audit)→Share(Mask)→Archive(Compress)→Destroy(Secure Delete)
 ```
 
-### 数据安全检查清单
+### Data Security Checklist
 ```yaml
-- [ ] 数据资产清单 + 敏感数据识别 + 数据流映射
-- [ ] 传输加密 + 存储加密 + 访问控制 + 数据脱敏
-- [ ] 访问日志 + 异常检测 + DLP
+- [ ] Data asset inventory + Sensitive data identification + Data flow mapping
+- [ ] Encryption in transit + Encryption at rest + Access control + Data masking
+- [ ] Access logs + Anomaly detection + DLP
 ```
 
-## 合规审计
+## Compliance and Auditing
 
-### 合规框架速查
-| 框架 | 适用范围 | 核心要求 | 处罚 |
+### Compliance Framework Quick Reference
+| Framework | Scope | Core Requirements | Penalties |
 |------|----------|----------|------|
-| GDPR | 欧盟用户数据 | 数据保护、用户权利 | 营收4%或2000万欧 |
-| SOC 2 | SaaS/云服务 | 安全、可用、机密、隐私 | 失去客户信任 |
-| HIPAA | 医疗健康数据 | PHI保护 | $50K-$1.5M/次 |
-| PCI DSS | 支付卡数据 | 持卡人数据保护 | $5K-$100K/月 |
+| GDPR | EU user data | Data protection, User rights | 4% of revenue or €20M |
+| SOC 2 | SaaS/Cloud services | Security, Availability, Confidentiality, Privacy | Loss of customer trust |
+| HIPAA | Healthcare data | PHI protection | $50K-$1.5M/occurrence |
+| PCI DSS | Payment card data | Cardholder data protection | $5K-$100K/month |
 
-### GDPR 用户权利 (DSAR)
-| 权利 | API | SLA |
+### GDPR User Rights (DSAR)
+| Right | API | SLA |
 |------|-----|-----|
-| 访问权 | `GET /users/{id}/data-export` | 30天 |
-| 删除权 | `DELETE /users/{id}/data` | 30天 |
-| 可携带权 | `GET /users/{id}/data-export?format=json` | 30天 |
-| 限制处理 | `POST /users/{id}/restrict` | 72小时 |
+| Right of Access | `GET /users/{id}/data-export` | 30 days |
+| Right to Erasure | `DELETE /users/{id}/data` | 30 days |
+| Data Portability | `GET /users/{id}/data-export?format=json` | 30 days |
+| Restriction of Processing | `POST /users/{id}/restrict` | 72 hours |
 
-### SOC 2 关键控制
+### SOC 2 Key Controls
 ```yaml
-访问控制: MFA强制 + RBAC + 最小权限 + 季度审查 + 离职即撤权
-变更管理: PR审查 + 分环境部署 + 审批流程 + 回滚方案
-监控告警: 安全事件监控 + 异常登录检测 + 数据访问审计
-事件响应: IR计划文档化 + 定期演练 + 72小时通知 + 事后复盘
+Access Control: Mandatory MFA + RBAC + Least privilege + Quarterly review + Revoke upon departure
+Change Management: PR reviews + Multi-environment deployment + Approval process + Rollback plans
+Monitoring & Alerting: Security event monitoring + Anomaly login detection + Data access auditing
+Incident Response: Documented IR plan + Regular drills + 72-hour notification + Post-mortem reviews
 ```
 
-### 审计日志要求
+### Audit Log Requirements
 ```yaml
-必须审计: 登录/MFA/密码变更 | 权限/角色变更 | 敏感数据访问/导出/删除 | 配置/部署变更
-存储: 不可篡改(WORM) + 加密 + 异地备份
-保留: 安全事件>=1年 / 访问日志>=90天 / 变更>=3年 / 合规审计>=7年
+Must Audit: Logins/MFA/Password changes | Permission/Role changes | Sensitive data access/export/deletion | Configuration/Deployment changes
+Storage: Immutability (WORM) + Encryption + Offsite backups
+Retention: Security events >= 1 year / Access logs >= 90 days / Changes >= 3 years / Compliance audits >= 7 years
 ```
 
-### 合规即代码 (OPA)
+### Compliance as Code (OPA)
 ```rego
 deny[msg] {
     input.resource_type == "aws_s3_bucket"
@@ -288,10 +288,9 @@ deny[msg] {
 }
 ```
 
-### 合规检查清单
+### Compliance Checklist
 ```yaml
-GDPR: 隐私政策 + 同意管理 + DSAR(30天) + 加密 + 保留策略 + 泄露通知(72h)
-SOC2: 访问控制+MFA + 变更管理 + IR计划 + 漏洞管理 + 安全培训
-审计: 日志覆盖关键操作 + 不可篡改 + 保留期限合规
+GDPR: Privacy policy + Consent management + DSAR(30 days) + Encryption + Retention policy + Breach notification(72h)
+SOC2: Access control+MFA + Change management + IR plan + Vulnerability management + Security training
+Auditing: Logs cover critical operations + Immutability + Compliant retention periods
 ```
-

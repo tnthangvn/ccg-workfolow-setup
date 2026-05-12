@@ -1,12 +1,12 @@
 ---
 name: go
-description: Go 开发。高并发、微服务、云原生、CLI工具。当用户提到 Go、Golang、Gin、Echo、goroutine 时使用。
+description: Go Development. High concurrency, microservices, cloud-native, CLI tools. Route to here when the user mentions Go, Golang, Gin, Echo, or goroutine.
 ---
 
-# 📜 符箓秘典 · Go
+# 📜 Talisman Grimoire · Go
 
 
-## Web 框架
+## Web Frameworks
 
 ### Gin
 ```go
@@ -26,11 +26,11 @@ type User struct {
 func main() {
     r := gin.Default()
 
-    // 中间件
+    // Middleware
     r.Use(gin.Logger())
     r.Use(gin.Recovery())
 
-    // 路由组
+    // Route Group
     api := r.Group("/api")
     {
         api.GET("/users/:id", getUser)
@@ -85,7 +85,7 @@ func getUser(c echo.Context) error {
 }
 ```
 
-## 并发编程
+## Concurrent Programming
 
 ### Goroutine & Channel
 ```go
@@ -96,7 +96,7 @@ import (
     "sync"
 )
 
-// 基础并发
+// Basic Concurrency
 func worker(id int, jobs <-chan int, results chan<- int) {
     for j := range jobs {
         results <- j * 2
@@ -107,18 +107,18 @@ func main() {
     jobs := make(chan int, 100)
     results := make(chan int, 100)
 
-    // 启动 worker
+    // Start workers
     for w := 1; w <= 3; w++ {
         go worker(w, jobs, results)
     }
 
-    // 发送任务
+    // Send jobs
     for j := 1; j <= 9; j++ {
         jobs <- j
     }
     close(jobs)
 
-    // 收集结果
+    // Collect results
     for a := 1; a <= 9; a++ {
         <-results
     }
@@ -141,7 +141,7 @@ func parallelFetch(urls []string) []string {
     return results
 }
 
-// Context 控制
+// Context Control
 func fetchWithTimeout(ctx context.Context, url string) (string, error) {
     ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
     defer cancel()
@@ -158,7 +158,7 @@ func fetchWithTimeout(ctx context.Context, url string) (string, error) {
 }
 ```
 
-## 错误处理
+## Error Handling
 
 ```go
 package main
@@ -168,7 +168,7 @@ import (
     "fmt"
 )
 
-// 自定义错误
+// Custom Error
 var ErrNotFound = errors.New("not found")
 
 type ValidationError struct {
@@ -180,7 +180,7 @@ func (e *ValidationError) Error() string {
     return fmt.Sprintf("%s: %s", e.Field, e.Message)
 }
 
-// 错误包装
+// Error Wrapping
 func getUser(id int) (*User, error) {
     user, err := db.FindUser(id)
     if err != nil {
@@ -189,21 +189,21 @@ func getUser(id int) (*User, error) {
     return user, nil
 }
 
-// 错误检查
+// Error Checking
 func handleUser(id int) error {
     user, err := getUser(id)
     if err != nil {
         if errors.Is(err, ErrNotFound) {
-            return nil // 忽略未找到
+            return nil // Ignore not found
         }
         return err
     }
-    // 处理 user
+    // Process user
     return nil
 }
 ```
 
-## 测试
+## Testing
 
 ```go
 package main
@@ -218,7 +218,7 @@ func TestAdd(t *testing.T) {
     assert.Equal(t, 3, result)
 }
 
-// 表驱动测试
+// Table-Driven Test
 func TestAddTable(t *testing.T) {
     tests := []struct {
         name     string
@@ -250,10 +250,10 @@ go test ./...
 go test -v
 go test -cover
 go test -bench=.
-go test -race  # 竞态检测
+go test -race  # Race detection
 ```
 
-## CLI 工具
+## CLI Tools
 
 ### Cobra
 ```go
@@ -288,7 +288,7 @@ func main() {
 }
 ```
 
-## 项目结构
+## Project Structure
 
 ```
 myproject/
@@ -307,17 +307,16 @@ myproject/
 └── tests/
 ```
 
-## 常用库
+## Common Libraries
 
-| 库 | 用途 |
+| Library | Purpose |
 |---|------|
-| gin/echo | Web 框架 |
+| gin/echo | Web Frameworks |
 | gorm | ORM |
 | cobra | CLI |
-| viper | 配置 |
-| zap/zerolog | 日志 |
-| testify | 测试 |
-| wire | 依赖注入 |
+| viper | Configuration |
+| zap/zerolog | Logging |
+| testify | Testing |
+| wire | Dependency Injection |
 
 ---
-

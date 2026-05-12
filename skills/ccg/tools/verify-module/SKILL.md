@@ -1,127 +1,127 @@
 ---
 name: verify-module
-description: 模块完整性校验关卡。扫描目录结构、检测缺失文档、验证代码与文档同步。当用户提到模块校验、文档检查、结构完整性、README检查、DESIGN检查时使用。在新建模块完成时自动触发。
+description: Module integrity verification checkpoint. Scans directory structure, detects missing documentation, and verifies synchronization between code and documentation. Use when the user mentions module verification, documentation check, structural integrity, README check, or DESIGN check. Automatically triggered when a new module is completed.
 license: MIT
 compatibility: node>=18
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Bash, Read, Glob
-argument-hint: <模块路径>
+argument-hint: <module_path>
 ---
 
-# ⚖ 校验关卡 · 模块完整性
+# ⚖ Checkpoint · Module Integrity
 
 
-## 核心原则
+## Core Principles
 
 ```
-模块 = 代码 + README.md + DESIGN.md
-缺一不可，残缺即异端
+Module = Code + README.md + DESIGN.md
+None can be missing; incompleteness is heresy.
 ```
 
-## 自动扫描
+## Automated Scanning
 
-运行扫描脚本（跨平台）：
+Run the scanning script (cross-platform):
 
 ```bash
-# 在 verify-module 目录下运行（推荐）
-node scripts/module_scanner.js <模块路径>
-node scripts/module_scanner.js <模块路径> -v      # 详细模式
-node scripts/module_scanner.js <模块路径> --json  # JSON 输出
+# Run in the verify-module directory (recommended)
+node scripts/module_scanner.js <module_path>
+node scripts/module_scanner.js <module_path> -v      # Verbose mode
+node scripts/module_scanner.js <module_path> --json  # JSON output
 ```
 
-## 校验标准
+## Verification Standards
 
-一个完整的模块必须包含：
+A complete module MUST contain:
 
 ```
 module/
-├── README.md      # 必须 - 模块是什么、为什么存在
-├── DESIGN.md      # 必须 - 设计决策、权衡取舍
-├── src/           # 代码实现
-└── tests/         # 测试用例（如适用）
+├── README.md      # Required - What the module is, why it exists
+├── DESIGN.md      # Required - Design decisions, trade-offs
+├── src/           # Code implementation
+└── tests/         # Test cases (if applicable)
 ```
 
-## 检测项
+## Detection Items
 
-### 必须存在
+### Must Exist
 
-| 文件 | 说明 | 缺失后果 |
-|------|------|----------|
-| `README.md` | 模块说明文档 | 🔴 阻断交付 |
-| `DESIGN.md` | 设计决策文档 | 🔴 阻断交付 |
+| File | Description | Consequence of Missing |
+|------|-------------|------------------------|
+| `README.md` | Module explanation document | 🔴 Blocks delivery |
+| `DESIGN.md` | Design decisions document | 🔴 Blocks delivery |
 
-### 推荐存在
+### Recommended to Exist
 
-| 文件/目录 | 说明 | 缺失后果 |
-|-----------|------|----------|
-| `tests/` | 测试目录 | 🟠 警告 |
-| `__init__.py` | Python 包标识 | 🟡 提示 |
-| `.gitignore` | Git 忽略配置 | 🔵 信息 |
+| File/Directory | Description | Consequence of Missing |
+|----------------|-------------|------------------------|
+| `tests/` | Test directory | 🟠 Warning |
+| `__init__.py` | Python package identifier | 🟡 Notice |
+| `.gitignore` | Git ignore configuration | 🔵 Info |
 
-### README.md 必须包含
+### README.md Must Contain
 
-- [ ] **模块名称与定位** — 一句话说明是什么
-- [ ] **存在理由** — 为什么需要这个模块
-- [ ] **核心职责** — 做什么、不做什么
-- [ ] **依赖关系** — 依赖谁、被谁依赖
-- [ ] **快速使用** — 最简示例
+- [ ] **Module Name and Positioning** — One sentence describing what it is
+- [ ] **Reason for Existence** — Why this module is needed
+- [ ] **Core Responsibilities** — What it does, what it doesn't do
+- [ ] **Dependencies** — What it depends on, who depends on it
+- [ ] **Quick Start** — Minimal usage example
 
-### DESIGN.md 必须包含
+### DESIGN.md Must Contain
 
-- [ ] **设计目标** — 要解决什么问题
-- [ ] **方案选择** — 考虑过哪些方案、为何选当前方案
-- [ ] **关键决策** — 重要的技术决策及理由
-- [ ] **已知限制** — 当前方案的局限性
-- [ ] **变更历史** — 重大变更记录
+- [ ] **Design Goals** — What problems it aims to solve
+- [ ] **Solution Selection** — Which options were considered, why the current one was chosen
+- [ ] **Key Decisions** — Important technical decisions and reasons
+- [ ] **Known Limitations** — Limitations of the current solution
+- [ ] **Change History** — Record of major changes
 
-## 自动触发时机
+## Automatic Trigger Timing
 
-| 场景 | 触发条件 |
-|------|----------|
-| 新建模块 | 模块创建完成时 |
-| 模块重构 | 重构完成时 |
-| 提交前 | 代码提交前检查 |
+| Scenario | Trigger Condition |
+|----------|-------------------|
+| New Module | When module creation is completed |
+| Module Refactoring | When refactoring is completed |
+| Pre-commit | Checks before code commit |
 
-## 校验流程
-
-```
-1. 运行 module_scanner.js 自动扫描
-2. 检查文件结构是否完整
-3. 检查 README.md 各项是否齐全
-4. 检查 DESIGN.md 各项是否齐全
-5. 检查代码与文档描述是否一致
-6. 输出校验报告
-```
-
-## 校验报告格式
+## Verification Workflow
 
 ```
-## 模块校验报告
-
-### 模块: <模块名>
-
-✓ 通过 | ✗ 未通过
-
-### 文件检查
-- README.md: ✓ 存在 / ✗ 缺失
-- DESIGN.md: ✓ 存在 / ✗ 缺失
-- tests/: ✓ 存在 / ⚠️ 缺失
-
-### 内容检查
-- README 完整性: ✓ 完整 / ⚠️ 缺少 [X, Y, Z]
-- DESIGN 完整性: ✓ 完整 / ⚠️ 缺少 [X, Y, Z]
-
-### 结论
-可交付 / 需补充后交付
+1. Run module_scanner.js for automated scanning
+2. Check if file structure is complete
+3. Check if all README.md items are present
+4. Check if all DESIGN.md items are present
+5. Check if code and document descriptions are consistent
+6. Output verification report
 ```
 
-## 快速修复
+## Verification Report Format
 
-如果缺少文档，可使用文档生成器：
+```
+## Module Verification Report
+
+### Module: <module_name>
+
+✓ Passed | ✗ Failed
+
+### File Check
+- README.md: ✓ Exists / ✗ Missing
+- DESIGN.md: ✓ Exists / ✗ Missing
+- tests/: ✓ Exists / ⚠️ Missing
+
+### Content Check
+- README Integrity: ✓ Complete / ⚠️ Missing [X, Y, Z]
+- DESIGN Integrity: ✓ Complete / ⚠️ Missing [X, Y, Z]
+
+### Conclusion
+Ready for delivery / Needs additions before delivery
+```
+
+## Quick Fix
+
+If documentation is missing, you can use the documentation generator:
 
 ```bash
-/gen-docs <模块路径>
+/gen-docs <module_path>
 ```
 
 ---

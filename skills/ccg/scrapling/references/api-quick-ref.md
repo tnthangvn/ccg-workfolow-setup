@@ -1,21 +1,21 @@
-# Scrapling API 速查卡
+# Scrapling API Quick Reference
 
-## Fetcher（基于 curl_cffi，最快）
+## Fetcher (Based on curl_cffi, fastest)
 
 ```python
 from scrapling.fetchers import Fetcher
 
-# GET 请求
+# GET request
 page = Fetcher.get(url, impersonate='chrome', timeout=30, headers=None, cookies=None)
 
-# POST 请求
+# POST request
 page = Fetcher.post(url, data=None, json=None, impersonate='chrome', timeout=30)
 ```
 
-**Cookie 格式**: `dict` — `{'name': 'value'}`
-**超时单位**: 秒
+**Cookie format**: `dict` — `{'name': 'value'}`
+**Timeout unit**: seconds
 
-## FetcherSession（保持会话 cookie）
+## FetcherSession (Maintain session cookies)
 
 ```python
 from scrapling.fetchers import FetcherSession
@@ -25,28 +25,28 @@ with FetcherSession(impersonate='chrome') as s:
     page = s.get(target_url)
 ```
 
-## StealthyFetcher（Camoufox，绕过反爬）
+## StealthyFetcher (Camoufox, bypass anti-scraping)
 
 ```python
 from scrapling.fetchers import StealthyFetcher
 
 page = StealthyFetcher.fetch(
     url,
-    headless=True,           # 无头模式
-    solve_cloudflare=True,   # 自动过 Cloudflare
-    cookies=None,            # list[dict] 格式
-    timeout=60000,           # 毫秒
-    network_idle=True,       # 等待网络空闲
-    hide_canvas=True,        # 隐藏 canvas 指纹
-    block_webrtc=True,       # 阻止 WebRTC 泄露 IP
-    disable_resources=False, # 禁用图片/字体加速
+    headless=True,           # Headless mode
+    solve_cloudflare=True,   # Automatically bypass Cloudflare
+    cookies=None,            # list[dict] format
+    timeout=60000,           # milliseconds
+    network_idle=True,       # Wait for network idle
+    hide_canvas=True,        # Hide canvas fingerprint
+    block_webrtc=True,       # Block WebRTC IP leak
+    disable_resources=False, # Disable image/font acceleration
 )
 ```
 
-**Cookie 格式**: `list[dict]` — `[{'name': 'n', 'value': 'v', 'domain': '.site.com', 'path': '/'}]`
-**超时单位**: 毫秒
+**Cookie format**: `list[dict]` — `[{'name': 'n', 'value': 'v', 'domain': '.site.com', 'path': '/'}]`
+**Timeout unit**: milliseconds
 
-## DynamicFetcher（Playwright，JS 渲染）
+## DynamicFetcher (Playwright, JS rendering)
 
 ```python
 from scrapling.fetchers import DynamicFetcher
@@ -54,18 +54,18 @@ from scrapling.fetchers import DynamicFetcher
 page = DynamicFetcher.fetch(
     url,
     headless=True,
-    cookies=None,            # list[dict] 格式
-    timeout=30000,           # 毫秒
-    network_idle=True,       # 等待网络空闲
-    wait_selector=None,      # 等待特定元素出现
-    disable_resources=True,  # 跳过图片/字体/CSS 加速
+    cookies=None,            # list[dict] format
+    timeout=30000,           # milliseconds
+    network_idle=True,       # Wait for network idle
+    wait_selector=None,      # Wait for specific element to appear
+    disable_resources=True,  # Skip image/font/CSS acceleration
 )
 ```
 
-**Cookie 格式**: `list[dict]`
-**超时单位**: 毫秒
+**Cookie format**: `list[dict]`
+**Timeout unit**: milliseconds
 
-## Selector（纯 HTML 解析，无网络请求）
+## Selector (Pure HTML parsing, no network requests)
 
 ```python
 from scrapling.parser import Selector
@@ -73,55 +73,55 @@ from scrapling.parser import Selector
 page = Selector(html_string, url='https://base-url.com')
 ```
 
-## Response 常用属性
+## Common Response Attributes
 
 ```python
-page.status          # HTTP 状态码 (int)
-page.text            # 原始 HTML/文本内容 (str)
-page.url             # 最终 URL（可能经过重定向）
-page.cookies         # 响应 cookie
-page.headers         # 响应头
+page.status          # HTTP status code (int)
+page.text            # Raw HTML/text content (str)
+page.url             # Final URL (might be redirected)
+page.cookies         # Response cookies
+page.headers         # Response headers
 ```
 
-## 选择器方法
+## Selector Methods
 
 ```python
-# CSS 选择器
-page.css('div.content')              # 返回元素列表
-page.css_first('h1')                 # 返回第一个匹配元素
+# CSS selector
+page.css('div.content')              # Returns list of elements
+page.css_first('h1')                 # Returns first matching element
 
-# XPath 选择器
+# XPath selector
 page.xpath('//div[@class="content"]')
 
-# 文本提取伪元素
-page.css('h1::text')                 # 提取文本内容
-page.css('a::attr(href)')            # 提取属性值
+# Text extraction pseudo-elements
+page.css('h1::text')                 # Extract text content
+page.css('a::attr(href)')            # Extract attribute value
 
-# 获取所有匹配结果的文本
+# Get text of all matching results
 results = page.css('h1::text').getall()  # list[str]
 
-# 获取第一个匹配结果的文本
+# Get text of first matching result
 result = page.css('h1::text').get()      # str | None
 ```
 
-## 元素方法
+## Element Methods
 
 ```python
 element = page.css_first('div.post')
 
-element.text                          # 直接子文本
-element.get_all_text(strip=True)      # 递归获取所有文本
-element.attrib                        # 属性字典
-element.attrib.get('href')            # 获取单个属性
-element.css('span.author::text')      # 在子树中继续选择
-element.parent                        # 父元素
-element.children                      # 子元素列表
+element.text                          # Direct child text
+element.get_all_text(strip=True)      # Get all text recursively
+element.attrib                        # Attributes dictionary
+element.attrib.get('href')            # Get single attribute
+element.css('span.author::text')      # Continue selecting in subtree
+element.parent                        # Parent element
+element.children                      # List of child elements
 ```
 
-## 正则提取
+## Regex Extraction
 
 ```python
-# 从文本中提取匹配
-page.re(r'price: \$(\d+\.\d+)')      # list[str] — 所有匹配
-page.re_first(r'price: \$(\d+\.\d+)')  # str | None — 第一个匹配
+# Extract matches from text
+page.re(r'price: \$(\d+\.\d+)')      # list[str] — All matches
+page.re_first(r'price: \$(\d+\.\d+)')  # str | None — First match
 ```

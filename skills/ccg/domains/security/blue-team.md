@@ -1,25 +1,24 @@
 ---
 name: blue-team
-description: 蓝队防御技术。检测工程、SOC运营、应急响应、数字取证。当用户提到蓝队、检测规则、Sigma、YARA、SIEM、告警、应急响应、取证、SOC时使用。
+description: Blue team defense technologies. Detection engineering, SOC operations, incident response, digital forensics. Use when the user mentions blue team, detection rules, Sigma, YARA, SIEM, alerts, incident response, forensics, or SOC.
 ---
 
-# ❄ 玄冰秘典 · 蓝队防御 (Blue Team)
+# ❄ Dark Ice Codex · Blue Team
 
-
-## 防御链
+## Defense Chain
 
 ```
-预防 → 检测 → 响应 → 恢复
+Prevention → Detection → Response → Recovery
   │       │       │       │
-  └─ 加固 ─┴─ SIEM ─┴─ IR ─┴─ 取证
+  └─ Hardening ─┴─ SIEM ─┴─ IR ─┴─ Forensics
 ```
 
-## 检测工程
+## Detection Engineering
 
-### Sigma 规则
+### Sigma Rules
 
 ```yaml
-# Mimikatz 检测
+# Mimikatz Detection
 title: Mimikatz Credential Dumping
 id: 0d65953c-7f75-4f4b-9a16-8b8f9f2b6d5e
 status: stable
@@ -45,7 +44,7 @@ detection:
     condition: selection and not filter_system
 level: high
 ---
-# 可疑 PowerShell
+# Suspicious PowerShell
 title: Suspicious PowerShell Download
 logsource:
     category: process_creation
@@ -62,7 +61,7 @@ detection:
     condition: selection
 level: high
 ---
-# DCSync 检测
+# DCSync Detection
 title: DCSync Attack
 logsource:
     product: windows
@@ -79,18 +78,18 @@ detection:
 level: critical
 ```
 
-### Sigma 转换
+### Sigma Conversion
 ```bash
-# 安装
+# Installation
 pip install sigma-cli
 
-# 转换为各平台格式
+# Convert to various platform formats
 sigma convert -t splunk -p sysmon rules/
 sigma convert -t elasticsearch rules/
 sigma convert -t azure-monitor rules/
 ```
 
-### YARA 规则
+### YARA Rules
 
 ```yara
 rule Mimikatz_Memory {
@@ -129,21 +128,21 @@ rule Webshell_Generic {
 }
 ```
 
-## 关键日志源
+## Key Log Sources
 
-### Windows 安全日志
+### Windows Security Logs
 ```python
 CRITICAL_EVENTS = {
-    # 登录事件
+    # Logon Events
     '4624': 'Successful Logon',
     '4625': 'Failed Logon',
     '4648': 'Explicit Credential Logon',
 
-    # 进程事件
+    # Process Events
     '4688': 'Process Creation',
     '4689': 'Process Termination',
 
-    # 账户事件
+    # Account Events
     '4720': 'User Account Created',
     '4728': 'Member Added to Security Group',
     '4732': 'Member Added to Local Group',
@@ -153,12 +152,12 @@ CRITICAL_EVENTS = {
     '4769': 'Service Ticket Request',
     '4771': 'Pre-Auth Failed',
 
-    # 目录服务
+    # Directory Service
     '4662': 'Directory Service Access',
 }
 ```
 
-### Sysmon 事件
+### Sysmon Events
 ```python
 SYSMON_EVENTS = {
     '1': 'Process Create',
@@ -175,33 +174,33 @@ SYSMON_EVENTS = {
 }
 ```
 
-## SOC 运营
+## SOC Operations
 
-### 告警分级
+### Alert Triage
 ```yaml
-P1 - Critical (15分钟响应):
-  - 确认的入侵活动
-  - 勒索软件执行
-  - 数据外泄
-  - 特权账户被控
+P1 - Critical (15-minute response):
+  - Confirmed intrusion activity
+  - Ransomware execution
+  - Data exfiltration
+  - Privileged account compromised
 
-P2 - High (1小时响应):
-  - 可疑横向移动
-  - 凭证窃取尝试
-  - C2 通信检测
-  - 异常特权操作
+P2 - High (1-hour response):
+  - Suspicious lateral movement
+  - Credential theft attempt
+  - C2 communication detected
+  - Anomalous privileged operations
 
-P3 - Medium (4小时响应):
-  - 可疑进程执行
-  - 异常网络连接
-  - 策略违规
+P3 - Medium (4-hour response):
+  - Suspicious process execution
+  - Anomalous network connections
+  - Policy violations
 
-P4 - Low (24小时响应):
-  - 信息性告警
-  - 合规检查
+P4 - Low (24-hour response):
+  - Informational alerts
+  - Compliance checks
 ```
 
-### 告警质量指标
+### Alert Quality Metrics
 ```python
 class AlertMetrics:
     def calculate(self, alerts):
@@ -217,54 +216,54 @@ class AlertMetrics:
         }
 ```
 
-## 应急响应
+## Incident Response
 
-### IR 流程
+### IR Workflow
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    应急响应流程                               │
+│                    Incident Response Workflow                 │
 ├─────────────────────────────────────────────────────────────┤
-│  1. 准备 (Preparation)                                       │
-│  └─ 工具准备、流程文档、联系人清单                           │
+│  1. Preparation                                             │
+│  └─ Tool prep, process docs, contact list                   │
 │                        ↓                                     │
-│  2. 识别 (Identification)                                    │
-│  └─ 确认事件、评估范围、初步分类                             │
+│  2. Identification                                          │
+│  └─ Confirm incident, assess scope, initial triage          │
 │                        ↓                                     │
-│  3. 遏制 (Containment)                                       │
-│  └─ 隔离系统、阻断通信、保护证据                             │
+│  3. Containment                                             │
+│  └─ Isolate systems, block comms, preserve evidence         │
 │                        ↓                                     │
-│  4. 根除 (Eradication)                                       │
-│  └─ 清除恶意软件、修复漏洞、重置凭证                         │
+│  4. Eradication                                             │
+│  └─ Remove malware, patch vulns, reset credentials          │
 │                        ↓                                     │
-│  5. 恢复 (Recovery)                                          │
-│  └─ 系统恢复、监控加强、业务恢复                             │
+│  5. Recovery                                                │
+│  └─ Restore systems, enhance monitoring, resume ops         │
 │                        ↓                                     │
-│  6. 总结 (Lessons Learned)                                   │
-│  └─ 事件报告、改进措施、知识沉淀                             │
+│  6. Lessons Learned                                         │
+│  └─ Incident report, improvement actions, knowledge base    │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 快速遏制
+### Rapid Containment
 ```bash
-# Windows - 隔离主机
+# Windows - Isolate Host
 netsh advfirewall set allprofiles state on
 netsh advfirewall firewall add rule name="Block All" dir=out action=block
 
-# Linux - 隔离主机
+# Linux - Isolate Host
 iptables -P INPUT DROP
 iptables -P OUTPUT DROP
 iptables -A INPUT -s TRUSTED_IP -j ACCEPT
 
-# 禁用账户
+# Disable Account
 net user compromised_user /active:no
 passwd -l compromised_user
 
-# 终止恶意进程
+# Terminate Malicious Process
 taskkill /F /PID <pid>
 kill -9 <pid>
 ```
 
-### 证据收集
+### Evidence Collection
 ```bash
 # Windows
 wmic process list full > processes.txt
@@ -280,18 +279,18 @@ last > logins.txt
 cp /var/log/auth.log .
 ```
 
-## 数字取证
+## Digital Forensics
 
-### 内存取证
+### Memory Forensics
 ```bash
-# 内存获取
+# Memory Acquisition
 # Windows - WinPMEM
 winpmem_mini_x64.exe memory.raw
 
 # Linux - LiME
 insmod lime.ko "path=/tmp/memory.lime format=lime"
 
-# 分析 - Volatility
+# Analysis - Volatility
 vol.py -f memory.raw imageinfo
 vol.py -f memory.raw --profile=Win10x64 pslist
 vol.py -f memory.raw --profile=Win10x64 netscan
@@ -299,138 +298,137 @@ vol.py -f memory.raw --profile=Win10x64 malfind
 vol.py -f memory.raw --profile=Win10x64 dlllist
 ```
 
-### 磁盘取证
+### Disk Forensics
 ```bash
-# 镜像获取
+# Image Acquisition
 dd if=/dev/sda of=disk.img bs=4M status=progress
 
-# 挂载分析
+# Mount for Analysis
 mount -o ro,loop disk.img /mnt/evidence
 
-# 时间线分析
+# Timeline Analysis
 log2timeline.py timeline.plaso disk.img
 psort.py -o l2tcsv timeline.plaso -w timeline.csv
 
-# 文件恢复
+# File Recovery
 foremost -i disk.img -o recovered/
 photorec disk.img
 ```
 
-### 日志分析
+### Log Analysis
 ```bash
-# Windows 事件日志
-# 使用 EvtxECmd 解析
+# Windows Event Logs
+# Parse using EvtxECmd
 EvtxECmd.exe -f Security.evtx --csv output/
 
-# Linux 日志
+# Linux Logs
 grep "Failed password" /var/log/auth.log
 grep "Accepted" /var/log/auth.log | awk '{print $1,$2,$3,$9,$11}'
 zcat /var/log/auth.log.*.gz | grep "sudo"
 ```
 
-## 威胁狩猎
+## Threat Hunting
 
-### 狩猎假设
+### Hunting Hypothesis
 ```yaml
-# 基于 ATT&CK 的狩猎假设
-hypothesis: "攻击者可能使用 PowerShell 下载并执行恶意代码"
+# ATT&CK-based Hunting Hypothesis
+hypothesis: "Adversaries may use PowerShell to download and execute malicious code"
 technique: T1059.001
 data_sources:
-  - Windows PowerShell 日志
-  - Sysmon 进程创建
+  - Windows PowerShell Logs
+  - Sysmon Process Creation
 query: |
   EventID=4104 AND ScriptBlockText CONTAINS ("IEX" OR "DownloadString")
 ```
 
-### 狩猎查询示例
+### Hunting Query Examples
 ```sql
--- 异常父子进程关系
+-- Anomalous Parent-Child Process Relationship
 SELECT parent_name, process_name, command_line
 FROM processes
 WHERE parent_name = 'winword.exe'
   AND process_name IN ('cmd.exe', 'powershell.exe', 'wscript.exe')
 
--- 异常网络连接
+-- Anomalous Network Connections
 SELECT process_name, remote_address, remote_port
 FROM network_connections
 WHERE remote_port NOT IN (80, 443, 53)
   AND process_name NOT IN ('chrome.exe', 'firefox.exe')
 
--- 可疑计划任务
+-- Suspicious Scheduled Tasks
 SELECT name, command, trigger
 FROM scheduled_tasks
 WHERE command LIKE '%powershell%' OR command LIKE '%cmd%'
 ```
 
-## 工具清单
+## Tool Inventory
 
-| 工具 | 用途 |
-|------|------|
-| Sigma | 通用检测规则 |
-| YARA | 恶意软件检测 |
-| Splunk/Elastic | SIEM 平台 |
-| Volatility | 内存取证 |
-| Autopsy | 磁盘取证 |
-| Velociraptor | 端点响应 |
-| TheHive | 事件管理 |
-| MISP | 威胁情报 |
+| Tool | Purpose |
+|------|---------|
+| Sigma | Generic Detection Rules |
+| YARA | Malware Detection |
+| Splunk/Elastic | SIEM Platforms |
+| Volatility | Memory Forensics |
+| Autopsy | Disk Forensics |
+| Velociraptor | Endpoint Response |
+| TheHive | Incident Management |
+| MISP | Threat Intelligence |
 
-## 密钥管理
+## Key Management
 
-### 密钥生命周期
+### Key Lifecycle
 ```
-生成 → 存储 → 分发 → 使用 → 轮转 → 撤销 → 销毁
+Generation → Storage → Distribution → Usage → Rotation → Revocation → Destruction
 ```
 
-### 核心工具
-| 工具 | 类型 | 特点 |
-|------|------|------|
-| HashiCorp Vault | 平台 | 动态密钥、AppRole、多后端 |
-| AWS KMS | 云服务 | 托管密钥、信封加密、自动轮转 |
-| AWS Secrets Manager | 云服务 | 自动轮转、Lambda集成 |
-| Sealed Secrets | K8s | GitOps 友好、加密存储 |
-| External Secrets | K8s | 多后端同步（Vault/AWS/GCP） |
+### Core Tools
+| Tool | Type | Features |
+|------|------|----------|
+| HashiCorp Vault | Platform | Dynamic secrets, AppRole, multi-backend |
+| AWS KMS | Cloud Service | Managed keys, envelope encryption, auto-rotation |
+| AWS Secrets Manager | Cloud Service | Auto-rotation, Lambda integration |
+| Sealed Secrets | K8s | GitOps friendly, encrypted storage |
+| External Secrets | K8s | Multi-backend sync (Vault/AWS/GCP) |
 
-### 密钥管理检查清单
+### Key Management Checklist
 ```yaml
-生成与存储:
-  - [ ] 加密强随机数生成器
-  - [ ] 密钥长度符合标准（AES-256, RSA-2048+）
-  - [ ] 集中存储在密钥管理系统 + 静态加密 + 访问控制
+Generation and Storage:
+  - [ ] Cryptographically strong random number generator
+  - [ ] Key length meets standards (AES-256, RSA-2048+)
+  - [ ] Centralized storage in KMS + encryption at rest + access control
 
-分发与使用:
-  - [ ] 最小权限 + 短期凭证优先（动态密钥）
-  - [ ] 禁止硬编码，使用环境变量或挂载卷
-  - [ ] 传输加密（TLS）
+Distribution and Usage:
+  - [ ] Least privilege + short-lived credentials preferred (dynamic secrets)
+  - [ ] No hardcoding, use environment variables or mounted volumes
+  - [ ] Encryption in transit (TLS)
 
-轮转与撤销:
-  - [ ] 定期自动轮转（P0年度/P1季度/P2月度/P3小时）
-  - [ ] 支持紧急撤销 + 轮转后验证 + 审计日志
+Rotation and Revocation:
+  - [ ] Regular automatic rotation (P0 Annual/P1 Quarterly/P2 Monthly/P3 Hourly)
+  - [ ] Support emergency revocation + post-rotation validation + audit logs
 
-监控:
-  - [ ] 记录所有密钥访问 + 异常检测告警 + 定期合规审计
+Monitoring:
+  - [ ] Log all key access + anomaly detection alerts + regular compliance audits
 ```
 
-### Vault 关键操作速查
+### Vault Key Operations Quick Reference
 ```bash
-# KV 读写
+# KV Read/Write
 vault kv put secret/myapp/config db_password="xxx" api_key="yyy"
 vault kv get -field=db_password secret/myapp/config
 
-# 动态数据库凭证
+# Dynamic Database Credentials
 vault read database/creds/readonly
 
-# AppRole 登录
+# AppRole Login
 vault write auth/approle/login role_id="<id>" secret_id="<id>"
 ```
 
-### 密钥分类策略
-| 级别 | 类型 | 轮转周期 | 存储 |
-|------|------|----------|------|
-| P0 | 根密钥、主密钥 | 年度 | HSM |
-| P1 | 数据加密密钥 | 季度 | Vault |
-| P2 | API 密钥 | 月度 | Secrets Manager |
-| P3 | 会话令牌 | 小时 | Redis |
+### Secret Classification Policy
+| Level | Type | Rotation Period | Storage |
+|-------|------|-----------------|---------|
+| P0 | Root Keys, Master Keys | Annual | HSM |
+| P1 | Data Encryption Keys | Quarterly | Vault |
+| P2 | API Keys | Monthly | Secrets Manager |
+| P3 | Session Tokens | Hourly | Redis |
 
 ---
-

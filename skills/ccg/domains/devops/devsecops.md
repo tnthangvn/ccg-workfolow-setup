@@ -1,25 +1,25 @@
 ---
 name: devsecops
-description: DevSecOps。CI/CD安全、供应链安全、合规自动化。当用户提到 DevSecOps、CI/CD、供应链安全、SAST、DAST时使用。
+description: DevSecOps. CI/CD security, supply chain security, compliance automation. Use when the user mentions DevSecOps, CI/CD, supply chain security, SAST, or DAST.
 ---
 
 # 🔧 炼器秘典 · DevSecOps
 
 
-## 安全左移
+## Shift-Left Security
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    安全左移                                  │
+│                    Shift-Left Security                      │
 ├─────────────────────────────────────────────────────────────┤
-│  计划 → 编码 → 构建 → 测试 → 发布 → 部署 → 运维 → 监控     │
+│  Plan → Code → Build → Test → Release → Deploy → Ops → Mon  │
 │    │      │      │      │      │      │      │      │       │
-│  威胁   SAST   SCA   DAST   签名   配置   日志   告警       │
-│  建模   IDE    依赖   渗透   验证   加固   审计   响应       │
+│  Threat SAST   SCA   DAST   Sign   Config  Logs   Alert     │
+│  Model  IDE    Deps  Pen    Verify Harden  Audit  Respond   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## CI/CD 安全
+## CI/CD Security
 
 ### GitHub Actions
 ```yaml
@@ -33,24 +33,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # SAST - 静态分析
+      # SAST - Static Analysis
       - name: Run Semgrep
         uses: returntocorp/semgrep-action@v1
         with:
           config: p/security-audit
 
-      # SCA - 依赖扫描
+      # SCA - Dependency Scanning
       - name: Run Trivy
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
           severity: 'CRITICAL,HIGH'
 
-      # Secret 扫描
+      # Secret Scanning
       - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
 
-      # 容器扫描
+      # Container Scanning
       - name: Build and scan image
         run: |
           docker build -t myapp:${{ github.sha }} .
@@ -84,115 +84,114 @@ container_scan:
     - trivy image $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
 ```
 
-## 安全扫描工具
+## Security Scanning Tools
 
-### SAST (静态分析)
+### SAST (Static Analysis)
 ```yaml
-工具:
-  - Semgrep: 多语言，规则丰富
-  - SonarQube: 企业级
-  - CodeQL: GitHub 原生
-  - Bandit: Python 专用
+Tools:
+  - Semgrep: Multi-language, rich rules
+  - SonarQube: Enterprise-grade
+  - CodeQL: GitHub native
+  - Bandit: Python specific
 
-集成:
-  - IDE 插件
+Integration:
+  - IDE Plugins
   - Pre-commit hooks
   - CI/CD pipeline
 ```
 
-### SCA (依赖扫描)
+### SCA (Dependency Scanning)
 ```yaml
-工具:
-  - Trivy: 全能扫描
-  - Snyk: 商业方案
+Tools:
+  - Trivy: All-in-one scanning
+  - Snyk: Commercial solution
   - OWASP Dependency-Check
   - npm audit / pip-audit
 
-检查项:
-  - 已知漏洞 (CVE)
-  - 许可证合规
-  - 过期依赖
+Checks:
+  - Known vulnerabilities (CVE)
+  - License compliance
+  - Outdated dependencies
 ```
 
-### DAST (动态分析)
+### DAST (Dynamic Analysis)
 ```yaml
-工具:
+Tools:
   - OWASP ZAP
   - Nuclei
   - Burp Suite
 
-集成:
-  - 部署后自动扫描
-  - 定期扫描
-  - PR 环境扫描
+Integration:
+  - Automated scanning after deployment
+  - Scheduled scanning
+  - PR environment scanning
 ```
 
-## 供应链安全
+## Supply Chain Security
 
-### 依赖管理
+### Dependency Management
 ```yaml
-原则:
-  - 锁定依赖版本
-  - 定期更新
-  - 审查新依赖
-  - 使用私有仓库
+Principles:
+  - Lock dependency versions
+  - Update regularly
+  - Review new dependencies
+  - Use private registries
 
-工具:
+Tools:
   - Dependabot
   - Renovate
   - Snyk
 ```
 
-### 镜像安全
+### Image Security
 ```yaml
-原则:
-  - 使用官方基础镜像
-  - 最小化镜像
-  - 扫描漏洞
-  - 签名验证
+Principles:
+  - Use official base images
+  - Minimize images
+  - Scan for vulnerabilities
+  - Signature verification
 
-工具:
+Tools:
   - Trivy
-  - Cosign (签名)
+  - Cosign (Signing)
   - Notary
 ```
 
-### SBOM (软件物料清单)
+### SBOM (Software Bill of Materials)
 ```bash
-# 生成 SBOM
+# Generate SBOM
 syft packages dir:. -o spdx-json > sbom.json
 
-# 扫描 SBOM
+# Scan SBOM
 grype sbom:sbom.json
 ```
 
-## 安全门禁
+## Security Gates
 
 ```yaml
-阻断条件:
-  - Critical 漏洞
-  - 高危依赖
-  - Secret 泄露
-  - 许可证违规
+Blocking conditions:
+  - Critical vulnerabilities
+  - High-risk dependencies
+  - Secret leakage
+  - License violations
 
-警告条件:
-  - High 漏洞
-  - 中危依赖
-  - 代码质量问题
+Warning conditions:
+  - High vulnerabilities
+  - Medium-risk dependencies
+  - Code quality issues
 ```
 
-## 合规自动化
+## Compliance Automation
 
 ```yaml
-检查项:
+Check items:
   - CIS Benchmark
   - PCI DSS
   - SOC 2
   - GDPR
 
-工具:
+Tools:
   - Open Policy Agent (OPA)
   - Checkov
   - Terrascan
 ```
-

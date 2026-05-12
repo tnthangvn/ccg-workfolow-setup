@@ -1,9 +1,9 @@
-# 组件模式
+# Component Patterns
 
-## 布局模板
+## Layout Templates
 
-### 经典布局模式
-圣杯布局(header/nav/main/aside/footer)、卡片网格、侧边栏、仪表盘。优先使用Grid，Flexbox做一维布局。
+### Classic Layout Patterns
+Holy Grail layout (header/nav/main/aside/footer), Card grid, Sidebar, Dashboard. Prefer Grid, use Flexbox for one-dimensional layouts.
 
 ```css
 .layout {
@@ -24,7 +24,7 @@
 }
 ```
 
-### Flexbox卡片网格
+### Flexbox Card Grid
 ```css
 .card-grid {
   display: flex;
@@ -40,10 +40,10 @@
 }
 ```
 
-## 响应式设计
+## Responsive Design
 
-### 响应式断点策略
-移动优先：320px基准→640px(sm)→768px(md)→1024px(lg)→1280px(xl)。使用em单位断点(除以16)。优先容器查询。
+### Responsive Breakpoint Strategy
+Mobile first: 320px baseline → 640px(sm) → 768px(md) → 1024px(lg) → 1280px(xl). Use `em` units for breakpoints (divide by 16). Prefer container queries.
 
 ```css
 .card-container {
@@ -61,10 +61,10 @@
 }
 ```
 
-## 交互模式
+## Interaction Patterns
 
-### 微交互设计原则
-反馈即时(<100ms)、过渡流畅(200-300ms)、状态清晰(hover/active/focus)、减少认知负担。
+### Micro-interaction Design Principles
+Instant feedback (<100ms), Smooth transitions (200-300ms), Clear states (hover/active/focus), Reduce cognitive load.
 
 ```css
 .btn {
@@ -83,9 +83,9 @@
 }
 ```
 
-## 动画
+## Animations
 
-### CSS关键帧动画
+### CSS Keyframe Animations
 ```css
 @keyframes fadeInUp {
   from {
@@ -107,7 +107,7 @@
 }
 ```
 
-### Framer Motion模板
+### Framer Motion Templates
 ```javascript
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -122,10 +122,10 @@ const stagger = {
 </motion.div>
 ```
 
-## 表单设计
+## Form Design
 
-### 表单UX模式
-标签上置、内联验证、清晰错误提示、禁用状态明显、必填标记、合理分组、自动聚焦首字段。
+### Form UX Patterns
+Top-aligned labels, inline validation, clear error messages, obvious disabled states, required field markers, logical grouping, auto-focus first field.
 
 ```css
 .form-field {
@@ -147,9 +147,9 @@ const stagger = {
 }
 ```
 
-## 卡片组件
+## Card Components
 
-### 玻璃拟态卡片
+### Glassmorphism Card
 ```css
 .glass-card {
   background: rgba(255, 255, 255, 0.1);
@@ -161,9 +161,9 @@ const stagger = {
 }
 ```
 
-## 导航模式
+## Navigation Patterns
 
-### 响应式导航栏
+### Responsive Navigation Bar
 ```css
 .nav {
   display: flex;
@@ -192,11 +192,11 @@ const stagger = {
 }
 ```
 
-## 审查清单
+## Review Checklist
 
-- [ ] 响应式适配
-- [ ] 交互状态完整
-- [ ] 无障碍支持
-- [ ] 性能优化
-- [ ] 浏览器兼容
-- [ ] 动画流畅
+- [ ] Responsive adaptation
+- [ ] Complete interaction states
+- [ ] Accessibility support
+- [ ] Performance optimization
+- [ ] Browser compatibility
+- [ ] Smooth animations

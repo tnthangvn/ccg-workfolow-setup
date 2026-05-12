@@ -1,144 +1,145 @@
 ---
 name: cost-optimization
-description: 成本优化秘典。FinOps框架、计算/存储/网络优化、成本建模。当用户提到成本、费用、FinOps、省钱、预算、账单时路由到此。
+description: Cost Optimization Grimoire. FinOps framework, compute/storage/network optimization, cost modeling. Route to here when the user mentions cost, expense, FinOps, save money, budget, or billing.
 ---
 
-# 🔧 炼器秘典 · 成本优化
+# 🔧 Artifact Grimoire · Cost Optimization
 
 
-## FinOps 框架
+## FinOps Framework
 
 ```
 ┌─────────────────────────────────────┐
-│           FinOps 生命周期            │
+│           FinOps Lifecycle          │
 ├───────────┬───────────┬─────────────┤
 │  Inform   │  Optimize │  Operate    │
-│  可视化   │  优化     │  运营       │
-│  谁花了   │  怎么省   │  持续治理   │
-│  多少钱   │  多少钱   │  流程制度   │
+│  Visualize│  Optimize │  Operate    │
+│  Who spent│  How to   │  Continuous │
+│  how much │  save     │  governance │
+│           │           │  Processes  │
 └───────────┴───────────┴─────────────┘
 ```
 
-| 阶段 | 目标 | 关键动作 |
+| Phase | Goal | Key Actions |
 |------|------|----------|
-| Inform | 成本可视化 | 标签策略、成本分摊、Dashboard |
-| Optimize | 降低浪费 | 右尺寸、预留、Spot、清理闲置 |
-| Operate | 持续治理 | 预算告警、审批流程、定期审查 |
+| Inform | Cost Visualization | Tagging strategy, cost allocation, Dashboard |
+| Optimize | Reduce Waste | Right-sizing, Reserved, Spot, clean up idle resources |
+| Operate | Continuous Governance | Budget alerts, approval processes, regular reviews |
 
 ---
 
-## 成本分析
+## Cost Analysis
 
-### 标签策略
+### Tagging Strategy
 
 ```yaml
-必选标签:
+Mandatory Tags:
   - Environment: prod/staging/dev
   - Team: platform/backend/frontend
   - Service: order-service/user-service
   - Owner: team-email
   - CostCenter: CC-001
 
-可选标签:
+Optional Tags:
   - Project: project-name
   - Temporary: expiry-date
 ```
 
-### 成本归因
+### Cost Attribution
 
 ```
-总成本
-├── 按团队: Team-A (40%) | Team-B (35%) | 共享 (25%)
-├── 按环境: Prod (60%) | Staging (25%) | Dev (15%)
-├── 按服务: 计算 (45%) | 存储 (25%) | 网络 (15%) | 其他 (15%)
-└── 按类型: On-Demand (30%) | Reserved (50%) | Spot (10%) | 其他 (10%)
+Total Cost
+├── By Team: Team-A (40%) | Team-B (35%) | Shared (25%)
+├── By Environment: Prod (60%) | Staging (25%) | Dev (15%)
+├── By Service: Compute (45%) | Storage (25%) | Network (15%) | Other (15%)
+└── By Type: On-Demand (30%) | Reserved (50%) | Spot (10%) | Other (10%)
 ```
 
 ---
 
-## 计算优化
+## Compute Optimization
 
-### 右尺寸 (Right-sizing)
+### Right-sizing
 
 ```bash
-# AWS - 查找低利用率实例
+# AWS - Find low-utilization instances
 aws ce get-rightsizing-recommendation \
   --service EC2 \
   --configuration '{"RecommendationTarget":"SAME_INSTANCE_FAMILY","BenefitsConsidered":true}'
 
-# 判断标准
-# CPU 平均 < 20% 且 峰值 < 50% → 缩小
-# CPU 平均 > 70% 或 峰值 > 90% → 扩大
-# Memory 使用 < 30% → 缩小
+# Evaluation Criteria
+# CPU Average < 20% AND Peak < 50% → Scale down
+# CPU Average > 70% OR Peak > 90% → Scale up
+# Memory Usage < 30% → Scale down
 ```
 
-### 预留实例 / Savings Plans
+### Reserved Instances / Savings Plans
 
-| 类型 | 折扣 | 灵活性 | 适用 |
+| Type | Discount | Flexibility | Suitable For |
 |------|------|--------|------|
-| Reserved Instance (1yr) | ~30% | 低 | 稳定负载 |
-| Reserved Instance (3yr) | ~50% | 低 | 长期稳定 |
-| Savings Plans (Compute) | ~30% | 高 | 跨实例族 |
-| Savings Plans (EC2) | ~40% | 中 | 固定区域 |
+| Reserved Instance (1yr) | ~30% | Low | Stable workload |
+| Reserved Instance (3yr) | ~50% | Low | Long-term stable |
+| Savings Plans (Compute) | ~30% | High | Cross-instance family |
+| Savings Plans (EC2) | ~40% | Medium | Fixed region |
 
-### Spot 实例
+### Spot Instances
 
 ```yaml
-适用场景:
-  - 批处理任务
-  - CI/CD 构建
-  - 无状态 Web 服务（配合 ASG）
-  - 大数据处理
+Applicable Scenarios:
+  - Batch processing tasks
+  - CI/CD builds
+  - Stateless Web services (with ASG)
+  - Big data processing
 
-不适用:
-  - 数据库
-  - 有状态服务
-  - 长时间运行的关键任务
+Not Applicable:
+  - Databases
+  - Stateful services
+  - Long-running critical tasks
 
-最佳实践:
-  - 多实例类型混合
-  - 跨可用区分散
-  - 设置中断处理 (2分钟通知)
-  - 配合 On-Demand 保底
+Best Practices:
+  - Mix multiple instance types
+  - Disperse across Availability Zones
+  - Set interruption handling (2-minute notice)
+  - Combine with On-Demand as a fallback
 ```
 
-### 自动伸缩
+### Auto Scaling
 
 ```yaml
-# Target Tracking (推荐)
+# Target Tracking (Recommended)
 scaling_policy:
   type: TargetTrackingScaling
-  target_value: 70          # CPU 目标 70%
+  target_value: 70          # CPU Target 70%
   scale_in_cooldown: 300
   scale_out_cooldown: 60
 
-# 预测性伸缩
+# Predictive Scaling
 predictive_scaling:
   mode: ForecastAndScale
   scheduling_buffer_time: 300
 
-# 定时伸缩 (已知流量模式)
+# Scheduled Scaling (Known traffic patterns)
 scheduled_actions:
-  - schedule: "cron(0 8 * * MON-FRI)"   # 工作日早8点扩容
+  - schedule: "cron(0 8 * * MON-FRI)"   # Scale out at 8 AM on weekdays
     min_capacity: 10
-  - schedule: "cron(0 20 * * MON-FRI)"  # 晚8点缩容
+  - schedule: "cron(0 20 * * MON-FRI)"  # Scale in at 8 PM
     min_capacity: 2
 ```
 
 ---
 
-## 存储优化
+## Storage Optimization
 
-### 存储分层
+### Storage Tiering
 
-| 层级 | 访问频率 | 成本 | 适用 |
+| Tier | Access Frequency | Cost | Suitable For |
 |------|----------|------|------|
-| S3 Standard | 频繁 | $$$ | 活跃数据 |
-| S3 IA | 月级 | $$ | 备份、日志 |
-| S3 Glacier | 季度级 | $ | 归档 |
-| S3 Glacier Deep | 年级 | ¢ | 合规归档 |
+| S3 Standard | Frequent | $$$ | Active data |
+| S3 IA | Monthly | $$ | Backups, logs |
+| S3 Glacier | Quarterly | $ | Archiving |
+| S3 Glacier Deep | Yearly | ¢ | Compliance archiving |
 
-### 生命周期策略
+### Lifecycle Policies
 
 ```json
 {
@@ -157,90 +158,90 @@ scheduled_actions:
 }
 ```
 
-### 数据库存储
+### Database Storage
 
 ```yaml
-优化策略:
-  - 定期清理过期数据 (TTL/分区删除)
-  - 压缩历史表
-  - 归档冷数据到对象存储
-  - 使用列式存储处理分析查询
-  - 审查未使用的索引
+Optimization Strategies:
+  - Regularly clean up expired data (TTL/partition dropping)
+  - Compress historical tables
+  - Archive cold data to object storage
+  - Use columnar storage for analytical queries
+  - Review unused indexes
 ```
 
 ---
 
-## 网络优化
+## Network Optimization
 
-| 优化项 | 方法 | 节省 |
+| Optimization Item | Method | Savings |
 |--------|------|------|
-| 跨 AZ 流量 | 同 AZ 优先路由 | ~$0.01/GB |
-| 跨 Region 流量 | CDN + 边缘缓存 | ~$0.02/GB |
-| NAT Gateway | 使用 VPC Endpoint | ~$0.045/GB |
-| 数据传输 | 压缩 + 批量 | 30-70% |
+| Cross-AZ Traffic | Route in same AZ priority | ~$0.01/GB |
+| Cross-Region Traffic | CDN + Edge Caching | ~$0.02/GB |
+| NAT Gateway | Use VPC Endpoint | ~$0.045/GB |
+| Data Transfer | Compress + Batch | 30-70% |
 
 ```yaml
-VPC Endpoint 优先:
-  - S3: Gateway Endpoint (免费)
-  - DynamoDB: Gateway Endpoint (免费)
-  - 其他 AWS 服务: Interface Endpoint (按小时计费，但省流量费)
+VPC Endpoint Priority:
+  - S3: Gateway Endpoint (Free)
+  - DynamoDB: Gateway Endpoint (Free)
+  - Other AWS Services: Interface Endpoint (Billed per hour, but saves data transfer fees)
 ```
 
 ---
 
-## 应用层优化
+## Application Layer Optimization
 
-### 缓存降本
+### Caching for Cost Reduction
 
 ```
-无缓存: 100% 请求打到数据库 → 需要大实例
-加缓存: 80% 缓存命中 → 数据库可缩小 60%
+No Cache: 100% requests hit database → Requires large instance
+With Cache: 80% cache hit rate → Database can be scaled down by 60%
 ```
 
-### 架构降本
+### Architecture for Cost Reduction
 
-| 模式 | 场景 | 节省 |
+| Pattern | Scenario | Savings |
 |------|------|------|
-| Serverless | 低流量/突发 | 按调用付费，空闲零成本 |
-| 容器化 | 中等流量 | 提高资源利用率 |
-| 队列削峰 | 突发流量 | 减少峰值资源需求 |
-| 读写分离 | 读多写少 | 读副本用小实例 |
+| Serverless | Low traffic/Bursty | Pay per invocation, zero cost when idle |
+| Containerization | Medium traffic | Improve resource utilization |
+| Queue Peak Shaving | Bursty traffic | Reduce peak resource requirements |
+| Read-Write Splitting | Read-heavy write-light | Use smaller instances for read replicas |
 
-### 代码级降本
+### Code-level Cost Reduction
 
 ```yaml
-减少外部调用:
-  - 批量 API 调用替代循环单次
-  - 本地缓存热数据
-  - 连接池复用
+Reduce External Calls:
+  - Batch API calls instead of single calls in loops
+  - Local caching of hot data
+  - Connection pool multiplexing
 
-减少计算:
-  - 惰性计算
-  - 增量处理替代全量
-  - 合理的超时设置（避免资源空等）
+Reduce Compute:
+  - Lazy evaluation
+  - Incremental processing instead of full processing
+  - Reasonable timeout settings (avoid resource idling)
 ```
 
 ---
 
-## 成本建模
+## Cost Modeling
 
-### 单位经济学
+### Unit Economics
 
 ```
-单用户成本 = 总基础设施成本 / 活跃用户数
+Per-User Cost = Total Infrastructure Cost / Active Users
 
-目标: 随规模增长，单用户成本递减
+Goal: As scale increases, per-user cost decreases
 ```
 
-### 成本预测
+### Cost Forecasting
 
 ```yaml
-输入:
-  - 当前月成本: $10,000
-  - 用户增长率: 20%/月
-  - 基础设施弹性系数: 0.7 (成本增长 = 用户增长 × 0.7)
+Input:
+  - Current Monthly Cost: $10,000
+  - User Growth Rate: 20%/month
+  - Infrastructure Elasticity Coefficient: 0.7 (Cost Growth = User Growth × 0.7)
 
-预测:
+Forecast:
   - M+1: $10,000 × (1 + 0.2 × 0.7) = $11,400
   - M+3: ~$14,800
   - M+6: ~$22,100
@@ -248,25 +249,24 @@ VPC Endpoint 优先:
 
 ---
 
-## 成本优化清单
+## Cost Optimization Checklist
 
 ```yaml
-即时见效 (Quick Wins):
-  - [ ] 清理闲置资源 (未挂载 EBS、空闲 EIP、停止的实例)
-  - [ ] 删除未使用的快照和 AMI
-  - [ ] 右尺寸低利用率实例
-  - [ ] 启用 S3 生命周期策略
+Quick Wins:
+  - [ ] Clean up idle resources (Unattached EBS, idle EIPs, stopped instances)
+  - [ ] Delete unused snapshots and AMIs
+  - [ ] Right-size low-utilization instances
+  - [ ] Enable S3 lifecycle policies
 
-中期优化:
-  - [ ] 购买 Savings Plans / Reserved Instances
-  - [ ] Spot 实例用于非关键负载
-  - [ ] 配置自动伸缩
-  - [ ] VPC Endpoint 替代 NAT Gateway
+Medium-term Optimizations:
+  - [ ] Purchase Savings Plans / Reserved Instances
+  - [ ] Use Spot instances for non-critical workloads
+  - [ ] Configure Auto Scaling
+  - [ ] Use VPC Endpoints instead of NAT Gateways
 
-长期治理:
-  - [ ] 标签策略 100% 覆盖
-  - [ ] 成本分摊 Dashboard
-  - [ ] 月度成本审查会议
-  - [ ] 预算告警自动化
+Long-term Governance:
+  - [ ] 100% Tagging policy coverage
+  - [ ] Cost allocation Dashboard
+  - [ ] Monthly cost review meetings
+  - [ ] Automated budget alerts
 ```
-

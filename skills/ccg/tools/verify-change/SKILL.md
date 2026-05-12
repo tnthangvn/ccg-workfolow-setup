@@ -1,6 +1,6 @@
 ---
 name: verify-change
-description: 变更校验关卡。分析代码变更，检测文档同步状态，评估变更影响范围。当用户提到变更检查、文档同步、代码审查、提交前检查、diff分析时使用。在设计级变更、重构完成时自动触发。
+description: Change verification checkpoint. Analyzes code changes, detects documentation synchronization status, and evaluates the impact scope of changes. Use when the user mentions change check, document synchronization, code review, pre-commit check, or diff analysis. Automatically triggered upon completion of design-level changes or refactoring.
 license: MIT
 compatibility: node>=18
 user-invocable: true
@@ -9,132 +9,132 @@ allowed-tools: Bash, Read, Grep
 argument-hint: [--mode working|staged|committed]
 ---
 
-# ⚖ 校验关卡 · 变更校验
+# ⚖ Checkpoint · Change Verification
 
 
-## 核心原则
+## Core Principles
 
 ```
-变更 = 代码改动 + 文档更新 + 理由记录
-无理由的变更是隐患，无记录的变更是灾难
-每一次变更都是历史，每一个决策都要留痕
+Change = Code Modification + Documentation Update + Reason Record
+A change without a reason is a hidden danger; a change without a record is a disaster.
+Every change is history, every decision must leave a trace.
 ```
 
-## 自动分析
+## Automated Analysis
 
-运行变更分析脚本（跨平台）：
+Run the change analysis script (cross-platform):
 
 ```bash
-# 在 skill 目录下运行
-node scripts/change_analyzer.js                    # 分析工作区变更（默认）
-node scripts/change_analyzer.js --mode staged      # 分析暂存区变更
-node scripts/change_analyzer.js --mode committed   # 分析已提交变更
-node scripts/change_analyzer.js -v                 # 详细模式
-node scripts/change_analyzer.js --json             # JSON 输出
+# Run in the skill directory
+node scripts/change_analyzer.js                    # Analyze working directory changes (default)
+node scripts/change_analyzer.js --mode staged      # Analyze staged changes
+node scripts/change_analyzer.js --mode committed   # Analyze committed changes
+node scripts/change_analyzer.js -v                 # Verbose mode
+node scripts/change_analyzer.js --json             # JSON output
 ```
 
-## 检测能力
+## Detection Capabilities
 
-### 自动检测项
+### Automated Detection Items
 
-| 检测项 | 说明 |
-|--------|------|
-| **文件分类** | 自动识别代码/文档/测试/配置文件 |
-| **模块识别** | 识别受影响的模块 |
-| **文档同步** | 检测代码变更是否同步更新文档 |
-| **测试覆盖** | 检测代码变更是否有对应测试 |
-| **影响评估** | 评估变更规模和影响范围 |
+| Detection Item | Description |
+|----------------|-------------|
+| **File Classification** | Automatically identify code/doc/test/config files |
+| **Module Recognition** | Identify affected modules |
+| **Doc Sync** | Detect if code changes have synchronized document updates |
+| **Test Coverage** | Detect if code changes have corresponding tests |
+| **Impact Evaluation** | Evaluate change scale and impact scope |
 
-### 触发警告的情况
+### Conditions Triggering Warnings
 
-- ⚠️ 代码变更 > 50 行但 DESIGN.md 未更新
-- ⚠️ 代码变更 > 30 行但无测试更新
-- ⚠️ 新增文件但 README.md 未更新
-- ⚠️ 配置文件变更未记录
-- ℹ️ 删除文件需确认引用已清理
+- ⚠️ Code changes > 50 lines but DESIGN.md not updated
+- ⚠️ Code changes > 30 lines but no test updates
+- ⚠️ New file added but README.md not updated
+- ⚠️ Config file changes undocumented
+- ℹ️ Deleted file needs confirmation that references are cleaned up
 
-## 变更前置检查
+## Pre-Change Checks
 
-在修改任何模块前，必须：
+Before modifying any module, you MUST:
 
-1. **读取 README.md** — 理解模块定位
-2. **读取 DESIGN.md** — 理解现有决策
-3. **评估影响范围** — 此变更影响哪些部分
-4. **确认变更理由** — 为什么要改
+1. **Read README.md** — Understand the module's positioning
+2. **Read DESIGN.md** — Understand existing decisions
+3. **Evaluate Impact Scope** — What parts are affected by this change
+4. **Confirm Change Reason** — Why is the change being made
 
-## 变更后置检查
+## Post-Change Checks
 
-代码修改完成后，必须：
+After code modifications are complete, you MUST:
 
-### README.md 更新检查
+### README.md Update Checks
 
-- [ ] 模块职责是否变化 → 更新职责描述
-- [ ] 依赖关系是否变化 → 更新依赖说明
-- [ ] 使用方式是否变化 → 更新示例代码
+- [ ] Did module responsibilities change? → Update responsibility description
+- [ ] Did dependencies change? → Update dependency instructions
+- [ ] Did usage change? → Update example code
 
-### DESIGN.md 更新检查
+### DESIGN.md Update Checks
 
-- [ ] 新增设计决策 → 记录决策及理由
-- [ ] 修改现有设计 → 记录变更及原因
-- [ ] 引入新限制 → 更新已知限制
-- [ ] 添加变更记录 → 更新变更历史
+- [ ] New design decision? → Record decision and reason
+- [ ] Modified existing design? → Record change and reason
+- [ ] Introduced new limitation? → Update known limitations
+- [ ] Added change record? → Update change history
 
-## 变更记录格式
+## Change Record Format
 
-在 DESIGN.md 的变更历史中添加：
+Add the following to the change history in DESIGN.md:
 
 ```markdown
-## 变更历史
+## Change History
 
-### [日期] - [变更标题]
+### [Date] - [Change Title]
 
-**变更内容**: 简述改了什么
+**Change Content**: Briefly describe what was changed
 
-**变更理由**: 为什么要改
+**Change Reason**: Why it was changed
 
-**影响范围**: 影响哪些功能/模块
+**Impact Scope**: Which functions/modules are affected
 
-**决策依据**: 为何选择此方案（如适用）
+**Decision Basis**: Why this approach was chosen (if applicable)
 ```
 
-## 自动触发时机
+## Automatic Trigger Timing
 
-| 场景 | 触发条件 |
-|------|----------|
-| 设计级变更 | 修改架构、接口、数据结构 |
-| 重构完成 | 重构任务完成时 |
-| 代码变更 > 30 行 | 较大规模代码修改 |
-| 提交前 | 代码提交前检查 |
+| Scenario | Trigger Condition |
+|----------|-------------------|
+| Design-level change | Modifying architecture, interfaces, data structures |
+| Refactoring | When refactoring tasks are completed |
+| Code change > 30 lines | Larger scale code modification |
+| Pre-commit | Checks before code commit |
 
-## 校验流程
-
-```
-1. 运行 change_analyzer.js 自动分析
-2. 识别变更文件和受影响模块
-3. 检查文档同步状态
-4. 评估变更影响
-5. 输出变更校验报告
-```
-
-## 校验报告格式
+## Verification Workflow
 
 ```
-## 变更校验报告
+1. Run change_analyzer.js for automated analysis
+2. Identify changed files and affected modules
+3. Check document synchronization status
+4. Evaluate change impact
+5. Output change verification report
+```
 
-### 变更概览
-- 变更文件数: N
-- 代码变更行数: +X / -Y
-- 受影响模块: [模块列表]
+## Verification Report Format
 
-### 文档同步状态
-- README.md: ✓ 已同步 / ⚠️ 需更新
-- DESIGN.md: ✓ 已同步 / ⚠️ 需更新
+```
+## Change Verification Report
 
-### 测试覆盖
-- 测试文件变更: ✓ 有 / ⚠️ 无
+### Change Overview
+- Changed files: N
+- Lines of code changed: +X / -Y
+- Affected modules: [List of modules]
 
-### 结论
-可提交 / 需补充文档后提交
+### Documentation Sync Status
+- README.md: ✓ Synced / ⚠️ Needs update
+- DESIGN.md: ✓ Synced / ⚠️ Needs update
+
+### Test Coverage
+- Test file changes: ✓ Yes / ⚠️ No
+
+### Conclusion
+Ready to commit / Needs documentation updates before commit
 ```
 
 ---

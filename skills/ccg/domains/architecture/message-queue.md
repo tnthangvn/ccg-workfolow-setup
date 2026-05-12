@@ -1,36 +1,36 @@
 ---
 name: message-queue
-description: 消息队列秘典。Kafka、RabbitMQ、Redis Streams、事件驱动架构。当用户提到消息队列、Kafka、RabbitMQ、事件驱动、CQRS、Saga时路由到此。
+description: Message Queue Manual. Kafka, RabbitMQ, Redis Streams, event-driven architecture. Route here when the user mentions message queues, Kafka, RabbitMQ, event-driven, CQRS, or Saga.
 ---
 
-# 🏗 阵法秘典 · 消息队列
+# 🏗 Array Manual · Message Queue
 
 
-## 核心概念
+## Core Concepts
 
 ```
 Producer → Broker → Consumer
-  发送       存储       消费
+  Send       Store      Consume
   
-模式:
-  点对点 (Queue):  1 Producer → 1 Consumer
-  发布订阅 (Topic): 1 Producer → N Consumers
+Modes:
+  Point-to-Point (Queue):  1 Producer → 1 Consumer
+  Publish-Subscribe (Topic): 1 Producer → N Consumers
 ```
 
-| 概念 | 含义 | 类比 |
+| Concept | Meaning | Analogy |
 |------|------|------|
-| Producer | 消息生产者 | 发令者 |
-| Consumer | 消息消费者 | 执行者 |
-| Broker | 消息中间件 | 传令阵 |
-| Topic/Queue | 消息通道 | 传音符 |
-| Partition | 分区（并行单元） | 阵眼 |
-| Offset | 消费位置 | 修行进度 |
+| Producer | Message Producer | Order Issuer |
+| Consumer | Message Consumer | Executor |
+| Broker | Message Middleware | Transmission Array |
+| Topic/Queue | Message Channel | Transmission Talisman |
+| Partition | Partition (Parallel Unit) | Array Eye |
+| Offset | Consumption Position | Cultivation Progress |
 
 ---
 
 ## Kafka
 
-### 架构
+### Architecture
 
 ```
 Producer ──→ Broker Cluster ──→ Consumer Group
@@ -41,23 +41,23 @@ Producer ──→ Broker Cluster ──→ Consumer Group
           └──────────┘
           
 Replication: Leader + Followers
-ZooKeeper/KRaft: 元数据管理
+ZooKeeper/KRaft: Metadata Management
 ```
 
-### 生产者
+### Producer
 
 ```python
 from confluent_kafka import Producer
 
 conf = {
     'bootstrap.servers': 'kafka:9092',
-    'acks': 'all',                    # 等待所有副本确认
+    'acks': 'all',                    # Wait for all replicas to acknowledge
     'retries': 3,
     'retry.backoff.ms': 1000,
-    'enable.idempotence': True,       # 幂等生产者
-    'linger.ms': 5,                   # 批量发送延迟
-    'batch.size': 16384,              # 批量大小
-    'compression.type': 'snappy',     # 压缩
+    'enable.idempotence': True,       # Idempotent producer
+    'linger.ms': 5,                   # Batch send delay
+    'batch.size': 16384,              # Batch size
+    'compression.type': 'snappy',     # Compression
 }
 
 producer = Producer(conf)
@@ -68,14 +68,14 @@ def delivery_report(err, msg):
 
 producer.produce(
     topic='orders',
-    key=order_id.encode(),    # 相同 key → 相同 partition → 有序
+    key=order_id.encode(),    # Same key → Same partition → Ordered
     value=json.dumps(order).encode(),
     callback=delivery_report
 )
 producer.flush()
 ```
 
-### 消费者
+### Consumer
 
 ```python
 from confluent_kafka import Consumer
@@ -84,7 +84,7 @@ conf = {
     'bootstrap.servers': 'kafka:9092',
     'group.id': 'order-processor',
     'auto.offset.reset': 'earliest',
-    'enable.auto.commit': False,      # 手动提交
+    'enable.auto.commit': False,      # Manual commit
     'max.poll.interval.ms': 300000,
 }
 
@@ -101,71 +101,71 @@ try:
             continue
         
         process_message(msg.value())
-        consumer.commit(asynchronous=False)  # 处理成功后提交
+        consumer.commit(asynchronous=False)  # Commit after successful processing
 finally:
     consumer.close()
 ```
 
-### Kafka 关键配置
+### Kafka Key Configurations
 
 ```yaml
 Broker:
-  num.partitions: 6                # 默认分区数
-  default.replication.factor: 3    # 副本数
-  min.insync.replicas: 2           # 最小同步副本
-  log.retention.hours: 168         # 保留 7 天
-  log.segment.bytes: 1073741824    # 1GB 段文件
+  num.partitions: 6                # Default partition count
+  default.replication.factor: 3    # Replica factor
+  min.insync.replicas: 2           # Minimum in-sync replicas
+  log.retention.hours: 168         # Retain for 7 days
+  log.segment.bytes: 1073741824    # 1GB segment files
 
-Topic 设计:
-  分区数 = max(生产吞吐/单分区写入能力, 消费者数)
-  副本数 = 3 (生产环境)
-  Key 选择: 业务ID (保证同一实体有序)
+Topic Design:
+  Partitions = max(Production throughput/Single partition write capacity, Consumers count)
+  Replicas = 3 (Production environment)
+  Key Selection: Business ID (Ensure ordering for the same entity)
 ```
 
 ---
 
 ## RabbitMQ
 
-### Exchange 类型
+### Exchange Types
 
-| 类型 | 路由规则 | 适用场景 |
+| Type | Routing Rule | Applicable Scenarios |
 |------|----------|----------|
-| Direct | 精确匹配 routing key | 点对点 |
-| Fanout | 广播到所有绑定队列 | 发布订阅 |
-| Topic | 通配符匹配 routing key | 灵活路由 |
-| Headers | 匹配消息头 | 复杂路由 |
+| Direct | Exact match routing key | Point-to-Point |
+| Fanout | Broadcast to all bound queues | Publish-Subscribe |
+| Topic | Wildcard match routing key | Flexible routing |
+| Headers | Match message headers | Complex routing |
 
 ```
 Producer → Exchange → Binding → Queue → Consumer
               │
-         routing_key 匹配
+         routing_key match
 ```
 
-### 可靠性保证
+### Reliability Guarantees
 
 ```yaml
-生产者:
-  - Publisher Confirms (确认模式)
-  - 持久化消息 (delivery_mode=2)
-  - 事务模式 (性能差，不推荐)
+Producer:
+  - Publisher Confirms (Confirmation mode)
+  - Persistent Messages (delivery_mode=2)
+  - Transaction Mode (Poor performance, not recommended)
 
 Broker:
-  - 持久化队列 (durable=True)
-  - 镜像队列 / Quorum Queue
-  - 磁盘持久化
+  - Persistent Queues (durable=True)
+  - Mirrored Queues / Quorum Queues
+  - Disk Persistence
 
-消费者:
-  - 手动 ACK (auto_ack=False)
-  - 预取限制 (prefetch_count)
-  - 死信队列 (DLX) 处理失败消息
+Consumer:
+  - Manual ACK (auto_ack=False)
+  - Prefetch Limits (prefetch_count)
+  - Dead Letter Exchange (DLX) to handle failed messages
 ```
 
-### 死信队列 (DLQ)
+### Dead Letter Queue (DLQ)
 
 ```
-正常队列 ──(消费失败/TTL过期/队列满)──→ 死信交换机 → 死信队列
+Normal Queue ──(Consume Failure/TTL Expired/Queue Full)──→ Dead Letter Exchange → Dead Letter Queue
                                                         │
-                                              人工处理 / 重试
+                                              Manual Processing / Retry
 ```
 
 ---
@@ -173,157 +173,156 @@ Broker:
 ## Redis Streams
 
 ```bash
-# 生产
+# Produce
 XADD orders * user_id "123" amount "99.99"
 
-# 消费组
+# Consumer Group
 XGROUP CREATE orders order-group $ MKSTREAM
 XREADGROUP GROUP order-group consumer-1 COUNT 10 BLOCK 5000 STREAMS orders >
 
-# 确认
+# Acknowledge
 XACK orders order-group <message-id>
 
-# 查看待处理
+# View Pending
 XPENDING orders order-group
 ```
 
-| 特性 | 适用 | 不适用 |
+| Feature | Applicable | Not Applicable |
 |------|------|--------|
-| 轻量级 | 中小规模、低延迟 | 海量数据持久化 |
-| 消费组 | 多消费者并行 | 复杂路由 |
-| 内存存储 | 实时处理 | 长期存储 |
+| Lightweight | Small to medium scale, low latency | Massive data persistence |
+| Consumer Groups | Multi-consumer parallelism | Complex routing |
+| In-Memory Storage | Real-time processing | Long-term storage |
 
 ---
 
-## 事件驱动架构
+## Event-Driven Architecture
 
 ### Event Sourcing
 
 ```
-传统: 只存最终状态
+Traditional: Only store the final state
   Account { balance: 100 }
 
-Event Sourcing: 存储所有事件
+Event Sourcing: Store all events
   AccountCreated { initial: 0 }
   MoneyDeposited { amount: 200 }
   MoneyWithdrawn { amount: 100 }
-  → 重放得到 balance: 100
+  → Replay to get balance: 100
 ```
 
 ### CQRS (Command Query Responsibility Segregation)
 
 ```
-Command (写) ──→ Write Model ──→ Event Store
+Command (Write) ──→ Write Model ──→ Event Store
                                     │
                               Event Bus
                                     │
-Query (读) ←── Read Model ←── Projection
+Query (Read) ←── Read Model ←── Projection
 ```
 
-### Saga 模式
+### Saga Pattern
 
 ```
-分布式事务编排:
+Distributed Transaction Orchestration:
 
-Choreography (编舞):
+Choreography:
   Order → Payment → Inventory → Shipping
-    每个服务监听事件，自主决策
+    Each service listens to events and decides autonomously
 
-Orchestration (编排):
+Orchestration:
   Saga Orchestrator
-    ├→ Order Service: 创建订单
-    ├→ Payment Service: 扣款
-    ├→ Inventory Service: 扣库存
-    └→ Shipping Service: 发货
+    ├→ Order Service: Create order
+    ├→ Payment Service: Deduct funds
+    ├→ Inventory Service: Deduct inventory
+    └→ Shipping Service: Ship goods
     
-  失败补偿:
-    Shipping失败 → 补偿Inventory → 补偿Payment → 补偿Order
+  Failure Compensation:
+    Shipping fails → Compensate Inventory → Compensate Payment → Compensate Order
 ```
 
 ---
 
-## 选型对比
+## Technology Selection Comparison
 
-| 维度 | Kafka | RabbitMQ | Redis Streams |
+| Dimension | Kafka | RabbitMQ | Redis Streams |
 |------|-------|----------|---------------|
-| 吞吐量 | 极高 (百万/s) | 高 (万/s) | 高 (十万/s) |
-| 延迟 | ms 级 | μs-ms 级 | μs 级 |
-| 持久化 | 磁盘 | 磁盘/内存 | 内存+AOF |
-| 消息顺序 | 分区内有序 | 队列内有序 | 流内有序 |
-| 消息回溯 | ✅ 支持 | ❌ 不支持 | ✅ 支持 |
-| 协议 | 自有协议 | AMQP | Redis协议 |
-| 适用 | 大数据/日志/流处理 | 业务消息/RPC | 轻量级实时 |
+| Throughput | Extremely High (Millions/s) | High (Tens of thousands/s) | High (Hundreds of thousands/s) |
+| Latency | ms level | μs-ms level | μs level |
+| Persistence | Disk | Disk/Memory | Memory+AOF |
+| Message Ordering | Ordered within Partition | Ordered within Queue | Ordered within Stream |
+| Message Replay | ✅ Supported | ❌ Not Supported | ✅ Supported |
+| Protocol | Custom Protocol | AMQP | Redis Protocol |
+| Applicable | Big Data/Logs/Stream Processing | Business Messages/RPC | Lightweight Real-time |
 
-### 选型决策树
+### Selection Decision Tree
 
 ```
-需要消息回溯？
-  ├─ 是 → Kafka / Redis Streams
-  └─ 否 → 需要复杂路由？
-       ├─ 是 → RabbitMQ
-       └─ 否 → 吞吐量要求？
-            ├─ 极高 (>10万/s) → Kafka
-            ├─ 中等 → RabbitMQ
-            └─ 轻量 → Redis Streams
-```
-
----
-
-## 常见问题
-
-### 消息丢失
-
-```yaml
-防丢三板斧:
-  生产端: acks=all + retries + 幂等
-  Broker: replication + 持久化 + min.insync.replicas
-  消费端: 手动提交 + 处理后确认
-```
-
-### 消息重复
-
-```yaml
-幂等处理:
-  - 数据库唯一约束 (message_id)
-  - Redis SETNX 去重
-  - 业务层幂等设计 (状态机)
-```
-
-### 消息积压
-
-```yaml
-应急:
-  - 增加消费者实例
-  - 临时扩大分区 (Kafka)
-  - 跳过非关键消息
-
-根治:
-  - 优化消费者处理速度
-  - 合理设置分区数
-  - 监控消费 lag 告警
+Need message replay?
+  ├─ Yes → Kafka / Redis Streams
+  └─ No → Need complex routing?
+       ├─ Yes → RabbitMQ
+       └─ No → Throughput requirements?
+            ├─ Extremely High (>100k/s) → Kafka
+            ├─ Medium → RabbitMQ
+            └─ Lightweight → Redis Streams
 ```
 
 ---
 
-## 最佳实践
+## Common Issues
+
+### Message Loss
 
 ```yaml
-设计:
-  - 消息体尽量小，大数据用引用
-  - 消息必须包含唯一ID和时间戳
-  - 定义清晰的消息 Schema (Avro/Protobuf)
-  - 版本兼容 (向后兼容)
-
-运维:
-  - 监控消费 lag
-  - 死信队列告警
-  - 定期清理过期消息
-  - 容量规划 (磁盘/内存)
-
-安全:
-  - TLS 加密传输
-  - SASL 认证
-  - ACL 授权
-  - 审计日志
+Anti-Loss Triad:
+  Producer side: acks=all + retries + idempotence
+  Broker: replication + persistence + min.insync.replicas
+  Consumer side: manual commit + acknowledge after processing
 ```
 
+### Message Duplication
+
+```yaml
+Idempotent Processing:
+  - Database unique constraints (message_id)
+  - Redis SETNX deduplication
+  - Business layer idempotent design (State Machine)
+```
+
+### Message Backlog
+
+```yaml
+Emergency:
+  - Increase consumer instances
+  - Temporarily expand partitions (Kafka)
+  - Skip non-critical messages
+
+Root Cause Resolution:
+  - Optimize consumer processing speed
+  - Set reasonable partition counts
+  - Monitor consumption lag and alert
+```
+
+---
+
+## Best Practices
+
+```yaml
+Design:
+  - Keep message bodies as small as possible, use references for large data
+  - Messages must include a unique ID and timestamp
+  - Define clear Message Schemas (Avro/Protobuf)
+  - Version compatibility (Backward compatibility)
+
+Operations:
+  - Monitor consumption lag
+  - Dead letter queue alerts
+  - Regularly clean up expired messages
+  - Capacity planning (Disk/Memory)
+
+Security:
+  - TLS encrypted transmission
+  - SASL authentication
+  - ACL authorization
+  - Audit logs
+```

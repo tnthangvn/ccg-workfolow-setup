@@ -1,50 +1,50 @@
 ---
 name: git-workflow
-description: Git 版本控制。分支管理、合并策略、GitHub工作流。当用户提到 Git、分支、merge、rebase、PR、GitHub时使用。
+description: Git version control. Branch management, merge strategies, GitHub workflow. Use when the user mentions Git, branch, merge, rebase, PR, or GitHub.
 ---
 
-# 🔧 炼器秘典 · Git 工作流
+# 🔧 炼器秘典 · Git Workflow
 
 
-## 基础命令
+## Basic Commands
 
 ```bash
-# 初始化
+# Initialize
 git init
 git clone <url>
 
-# 日常操作
+# Daily operations
 git add <file>
 git commit -m "message"
 git push origin main
 git pull origin main
 
-# 状态查看
+# Status view
 git status
 git log --oneline -10
 git diff
 git diff --staged
 ```
 
-## 分支管理
+## Branch Management
 
 ```bash
-# 创建切换
+# Create & Switch
 git branch feature-x
 git checkout feature-x
-git checkout -b feature-x  # 创建并切换
+git checkout -b feature-x  # Create and switch
 
-# 查看
-git branch -a   # 所有分支
-git branch -vv  # 详细信息
+# View
+git branch -a   # All branches
+git branch -vv  # Detailed info
 
-# 删除
-git branch -d feature-x     # 已合并
-git branch -D feature-x     # 强制删除
-git push origin --delete feature-x  # 远程
+# Delete
+git branch -d feature-x     # Merged
+git branch -D feature-x     # Force delete
+git push origin --delete feature-x  # Remote
 ```
 
-## 分支策略
+## Branching Strategies
 
 ### Git Flow
 ```
@@ -68,114 +68,113 @@ main ─────────────────────────
 ```
 main ─────────────────────────────────────────
   │    ↑    ↑    ↑
-  └────┴────┴────┘ (短生命周期分支)
+  └────┴────┴────┘ (Short-lived branches)
 ```
 
-## 合并策略
+## Merge Strategies
 
 ```bash
-# Merge (保留历史)
+# Merge (Preserve history)
 git checkout main
 git merge feature-x
 
-# Rebase (线性历史)
+# Rebase (Linear history)
 git checkout feature-x
 git rebase main
 git checkout main
 git merge feature-x
 
-# Squash (压缩提交)
+# Squash (Squash commits)
 git merge --squash feature-x
 git commit -m "Feature X"
 ```
 
-## 冲突解决
+## Conflict Resolution
 
 ```bash
-# 1. 拉取最新
+# 1. Fetch latest
 git fetch origin
 git rebase origin/main
 
-# 2. 解决冲突
-# 编辑冲突文件，删除 <<<< ==== >>>> 标记
+# 2. Resolve conflicts
+# Edit conflicted files, remove <<<< ==== >>>> markers
 
-# 3. 继续
+# 3. Continue
 git add .
 git rebase --continue
 
-# 放弃
+# Abort
 git rebase --abort
 ```
 
-## 撤销操作
+## Undo Operations
 
 ```bash
-# 撤销工作区修改
+# Undo workspace modifications
 git checkout -- <file>
 git restore <file>
 
-# 撤销暂存
+# Undo staging
 git reset HEAD <file>
 git restore --staged <file>
 
-# 撤销提交
-git reset --soft HEAD~1   # 保留修改
-git reset --hard HEAD~1   # 丢弃修改
-git revert <commit>       # 新提交撤销
+# Undo commit
+git reset --soft HEAD~1   # Keep modifications
+git reset --hard HEAD~1   # Discard modifications
+git revert <commit>       # New commit to revert
 
-# 修改最后提交
+# Modify last commit
 git commit --amend
 ```
 
-## Commit 规范
+## Commit Conventions
 
 ```yaml
-格式: <type>(<scope>): <subject>
+Format: <type>(<scope>): <subject>
 
-类型:
-  - feat: 新功能
-  - fix: 修复
-  - docs: 文档
-  - style: 格式
-  - refactor: 重构
-  - test: 测试
-  - chore: 构建/工具
+Types:
+  - feat: New feature
+  - fix: Bug fix
+  - docs: Documentation
+  - style: Formatting
+  - refactor: Refactoring
+  - test: Testing
+  - chore: Build/Tools
 
-示例:
+Examples:
   - feat(auth): add JWT authentication
   - fix(api): handle null response
   - docs(readme): update installation guide
 ```
 
-## GitHub 工作流
+## GitHub Workflow
 
 ```bash
-# Fork 工作流
-1. Fork 仓库
+# Fork Workflow
+1. Fork repository
 2. git clone <your-fork>
 3. git remote add upstream <original>
 4. git checkout -b feature
-5. 开发 & 提交
+5. Develop & Commit
 6. git push origin feature
-7. 创建 PR
+7. Create PR
 
-# 同步上游
+# Sync upstream
 git fetch upstream
 git rebase upstream/main
 git push origin main
 ```
 
-## 安全规范
+## Security Guidelines
 
 ```yaml
-禁止:
-  - git push --force (除非明确要求)
-  - git reset --hard (除非明确要求)
+Forbidden:
+  - git push --force (unless explicitly requested)
+  - git reset --hard (unless explicitly requested)
   - git clean -f
 
-必须:
-  - commit 前 git status 确认
-  - 使用具体文件名 add
-  - 每次 commit 聚焦单一变更
+Required:
+  - git status confirm before commit
+  - Use specific file names with add
+  - Each commit focuses on a single change
 ```
-

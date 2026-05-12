@@ -1,20 +1,20 @@
 ---
 name: testing
-description: 软件测试。单元测试、集成测试、TDD、测试框架。当用户提到测试、单元测试、pytest、Jest、mock、TDD时使用。
+description: Software testing. Unit testing, integration testing, TDD, testing frameworks. Use when the user mentions testing, unit testing, pytest, Jest, mock, or TDD.
 ---
 
-# 🔧 炼器秘典 · 软件测试
+# 🔧 炼器秘典 · Software Testing
 
 
-## 测试金字塔
+## Testing Pyramid
 
 ```
         /\
-       /  \     E2E 测试 (少)
+       /  \     E2E Testing (Few)
       /----\
-     /      \   集成测试 (中)
+     /      \   Integration Testing (Medium)
     /--------\
-   /          \ 单元测试 (多)
+   /          \ Unit Testing (Many)
   --------------
 ```
 
@@ -24,11 +24,11 @@ description: 软件测试。单元测试、集成测试、TDD、测试框架。�
 import pytest
 from myapp import calculate, UserService
 
-# 基础测试
+# Basic test
 def test_add():
     assert calculate.add(1, 2) == 3
 
-# 参数化
+# Parametrized
 @pytest.mark.parametrize("a,b,expected", [
     (1, 2, 3),
     (0, 0, 0),
@@ -57,21 +57,21 @@ def test_fetch(mock_get):
     result = fetch_user(1)
     assert result["id"] == 1
 
-# 异步测试
+# Async test
 @pytest.mark.asyncio
 async def test_async_fetch():
     result = await async_fetch()
     assert result is not None
 ```
 
-### 运行命令
+### Run Commands
 ```bash
-pytest                      # 运行所有
-pytest test_file.py         # 指定文件
-pytest -k "test_add"        # 匹配名称
-pytest -v                   # 详细输出
-pytest --cov=myapp          # 覆盖率
-pytest -x                   # 失败即停
+pytest                      # Run all
+pytest test_file.py         # Specify file
+pytest -k "test_add"        # Match by name
+pytest -v                   # Verbose output
+pytest --cov=myapp          # Coverage
+pytest -x                   # Stop on first failure
 ```
 
 ## JavaScript (Jest/Vitest)
@@ -79,7 +79,7 @@ pytest -x                   # 失败即停
 ```javascript
 import { describe, it, expect, vi } from 'vitest';
 
-// 基础测试
+// Basic test
 describe('add', () => {
   it('should add two numbers', () => {
     expect(add(1, 2)).toBe(3);
@@ -125,7 +125,7 @@ func TestAdd(t *testing.T) {
     assert.Equal(t, 3, result)
 }
 
-// 表驱动测试
+// Table-driven tests
 func TestAddTable(t *testing.T) {
     tests := []struct {
         name     string
@@ -152,132 +152,131 @@ func BenchmarkAdd(b *testing.B) {
 }
 ```
 
-## 测试原则
+## Testing Principles
 
 ```yaml
 FIRST:
-  - Fast: 快速执行
-  - Independent: 相互独立
-  - Repeatable: 可重复
-  - Self-validating: 自验证
-  - Timely: 及时编写
+  - Fast: Fast execution
+  - Independent: Independent of each other
+  - Repeatable: Repeatable results
+  - Self-validating: Self-validating output
+  - Timely: Written timely
 
 AAA:
-  - Arrange: 准备数据
-  - Act: 执行操作
-  - Assert: 验证结果
+  - Arrange: Prepare data
+  - Act: Perform operation
+  - Assert: Verify result
 
-原则:
-  - 每个测试只验证一件事
-  - 测试边界条件
-  - 测试异常情况
-  - 避免测试实现细节
+Principles:
+  - Every test verifies only one thing
+  - Test boundary conditions
+  - Test exceptional cases
+  - Avoid testing implementation details
 ```
 
-## TDD 流程
+## TDD Workflow
 
 ```
-红 → 绿 → 重构
+Red → Green → Refactor
 
-1. 红: 写一个失败的测试
-2. 绿: 写最少代码让测试通过
-3. 重构: 优化代码，保持测试通过
+1. Red: Write a failing test
+2. Green: Write minimal code to make the test pass
+3. Refactor: Optimize code, keeping tests passing
 ```
 
 ---
 
-## 测试策略（源自 testing-strategy）
+## Testing Strategy (from testing-strategy)
 
-### 测试金字塔比例
+### Test Pyramid Proportions
 
-| 层级 | 占比 | 执行时间 | 成本 |
+| Level | Proportion | Execution Time | Cost |
 |------|------|----------|------|
-| 单元测试 | 70% | <1s | 低 |
-| 集成测试 | 20% | 1-10s | 中 |
-| E2E测试 | 10% | 10s-5m | 高 |
+| Unit Testing | 70% | <1s | Low |
+| Integration Testing | 20% | 1-10s | Medium |
+| E2E Testing | 10% | 10s-5m | High |
 
-### 测试左移 Checklist
-
-```yaml
-需求阶段: 可测试性评审、验收标准定义、测试用例设计
-开发阶段: TDD、单元测试同步编写、代码审查包含测试
-提交阶段: Pre-commit Hook、本地测试必过、静态分析
-CI阶段: 自动化测试、覆盖率门禁、性能基准测试
-```
-
-### 契约测试要点
-
-- 消费者驱动契约 (CDC)：Consumer 定义期望 → Provider 验证契约
-- 工具：Pact（多语言）、Spring Cloud Contract（Java）
-- 核心：Provider API <-> Contract <-> Consumer，双方独立验证
-
-### 覆盖率策略
+### Shift-Left Testing Checklist
 
 ```yaml
-类型: 行覆盖率、分支覆盖率、函数覆盖率、语句覆盖率
-门禁: 全局 ≥80%，核心模块 ≥90%
-排除: tests/、migrations/、__init__.py、config 文件
+Requirement phase: Testability review, acceptance criteria definition, test case design
+Development phase: TDD, concurrent unit test writing, code review includes tests
+Commit phase: Pre-commit Hook, local tests must pass, static analysis
+CI phase: Automated testing, coverage gating, performance benchmark tests
 ```
 
-### 变异测试
+### Contract Testing Essentials
 
-- 修改源码（变异体）验证测试是否能捕获
-- 工具：Stryker (JS)、Pitest (Java)
-- 阈值：high 80% / low 60% / break 50%
+- Consumer-Driven Contracts (CDC): Consumer defines expectations → Provider verifies contract
+- Tools: Pact (multi-language), Spring Cloud Contract (Java)
+- Core: Provider API <-> Contract <-> Consumer, both sides verified independently
 
-### 测试最佳实践
+### Coverage Strategy
 
-- AAA 模式：Arrange → Act → Assert
-- 命名：`should [预期行为] when [条件]`
-- 单一职责：每个测试只验证一件事
-- 数据隔离：Fixture/Factory 模式，每测试独立实例
-- 并行执行：Jest `maxWorkers: '50%'`、pytest `-n auto`
+```yaml
+Types: Line coverage, branch coverage, function coverage, statement coverage
+Gating: Global ≥80%, Core modules ≥90%
+Exclusions: tests/, migrations/, __init__.py, config files
+```
+
+### Mutation Testing
+
+- Modify source code (mutants) to verify if tests can catch them
+- Tools: Stryker (JS), Pitest (Java)
+- Thresholds: high 80% / low 60% / break 50%
+
+### Testing Best Practices
+
+- AAA Pattern: Arrange → Act → Assert
+- Naming: `should [expected behavior] when [condition]`
+- Single Responsibility: Each test verifies exactly one thing
+- Data Isolation: Fixture/Factory pattern, independent instances per test
+- Parallel Execution: Jest `maxWorkers: '50%'`, pytest `-n auto`
 
 ---
 
-## E2E 测试（源自 e2e-testing）
+## E2E Testing (from e2e-testing)
 
 ### Playwright vs Cypress
 
-| 特性 | Playwright | Cypress |
+| Feature | Playwright | Cypress |
 |------|-----------|---------|
-| 多浏览器 | Chromium/Firefox/WebKit | Chromium/Firefox/Edge |
-| 多标签页/iframe | 原生支持 | 有限 |
-| 并行执行 | 原生支持 | 需付费 |
-| 调试体验 | 一般 | 优秀 |
+| Multi-browser | Chromium/Firefox/WebKit | Chromium/Firefox/Edge |
+| Multi-tab/iframe | Native support | Limited |
+| Parallel Execution | Native support | Paid |
+| Debugging Experience | Average | Excellent |
 
-### 选择器优先级
+### Selector Priority
 
 ```
-1. data-testid (推荐)
+1. data-testid (Recommended)
 2. role + accessible name
-3. 稳定的 class/id
-4. 文本内容 (谨慎)
-5. CSS/XPath (避免)
+3. Stable class/id
+4. Text content (Use with caution)
+5. CSS/XPath (Avoid)
 ```
 
 ### E2E Checklist
 
 ```yaml
-架构:
-  - 页面对象模式 (POM) 封装页面操作
-  - 测试独立性：通过 API 准备数据，不依赖其他测试
-  - 智能等待：waitForSelector/waitForResponse，禁止 waitForTimeout
+Architecture:
+  - Page Object Model (POM) to encapsulate page operations
+  - Test independence: Prepare data via API, no reliance on other tests
+  - Smart wait: waitForSelector/waitForResponse, ban waitForTimeout
 
-网络:
-  - Mock API：page.route() / cy.intercept() 隔离后端
-  - 等待响应：waitForResponse 确认数据加载
+Network:
+  - Mock API: page.route() / cy.intercept() isolates backend
+  - Wait for response: waitForResponse to confirm data load
 
-可视化回归:
-  - Playwright: toHaveScreenshot() + mask 动态内容
-  - Percy/Chromatic: 云端截图对比
+Visual Regression:
+  - Playwright: toHaveScreenshot() + mask dynamic content
+  - Percy/Chromatic: Cloud screenshot comparison
 
-认证:
-  - Playwright: storageState 复用登录态
-  - Cypress: cy.session() 缓存会话
+Authentication:
+  - Playwright: storageState reuses login state
+  - Cypress: cy.session() caches session
 
-CI集成:
-  - retries: CI 环境 2 次重试
-  - artifacts: 失败时保存截图/视频/trace
+CI Integration:
+  - retries: 2 retries in CI environment
+  - artifacts: save screenshots/videos/traces on failure
 ```
-

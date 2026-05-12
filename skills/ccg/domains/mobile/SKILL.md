@@ -1,224 +1,224 @@
 ---
 name: mobile
-description: 移动开发。iOS、Android、SwiftUI、Jetpack Compose、React Native、Flutter、跨平台。当用户提到移动开发、iOS、Android、跨平台时路由到此。
+description: Mobile development. iOS, Android, SwiftUI, Jetpack Compose, React Native, Flutter, cross-platform. Route here when the user mentions mobile development, iOS, Android, or cross-platform.
 license: MIT
 user-invocable: false
 disable-model-invocation: false
 ---
 
-# 移动开发域 · Mobile Development
+# Mobile Development Domain · Mobile Development
 
-## 域概览
+## Domain Overview
 
 ```
-原生开发                    跨平台开发
+Native Development          Cross-Platform Development
 ├── iOS (SwiftUI/UIKit)     ├── React Native (JS/TS)
-├── Android (Compose/Kotlin) └── Flutter (Dart)
-└── 共通：MVVM / 网络层 / 持久化 / 测试
+├── Android (Compose/Kotlin)└── Flutter (Dart)
+└── Common: MVVM / Network Layer / Persistence / Testing
 ```
 
 ---
 
-## iOS 开发
+## iOS Development
 
-### SwiftUI 核心模式
+### SwiftUI Core Patterns
 
-- View 组件：`struct MyView: View { var body: some View { ... } }`
-- State 管理：
-  - `@State` — 本地状态
-  - `@Binding` — 父子双向绑定
-  - `@StateObject` — 拥有 ObservableObject
-  - `@ObservedObject` — 引用 ObservableObject
-  - `@EnvironmentObject` / `@Environment` — 全局注入
-- ObservableObject：`@Published` 属性自动触发 UI 更新
-- Custom ViewModifier：`struct CardModifier: ViewModifier` + `extension View { func cardStyle() }`
-- 生命周期：`.task { await ... }` / `.onAppear` / `.onDisappear`
+- View Component: `struct MyView: View { var body: some View { ... } }`
+- State Management:
+  - `@State` — Local state
+  - `@Binding` — Parent-child two-way binding
+  - `@StateObject` — Owns ObservableObject
+  - `@ObservedObject` — References ObservableObject
+  - `@EnvironmentObject` / `@Environment` — Global injection
+- ObservableObject: `@Published` property automatically triggers UI updates
+- Custom ViewModifier: `struct CardModifier: ViewModifier` + `extension View { func cardStyle() }`
+- Lifecycle: `.task { await ... }` / `.onAppear` / `.onDisappear`
 
-### UIKit 集成
+### UIKit Integration
 
-- UIViewControllerRepresentable：包装 UIViewController 到 SwiftUI
-- UIViewRepresentable：包装 UIView 到 SwiftUI
-- Coordinator 模式：处理 delegate 回调
-- Auto Layout：`NSLayoutConstraint.activate([...])` + `translatesAutoresizingMaskIntoConstraints = false`
+- UIViewControllerRepresentable: Wrap UIViewController into SwiftUI
+- UIViewRepresentable: Wrap UIView into SwiftUI
+- Coordinator Pattern: Handle delegate callbacks
+- Auto Layout: `NSLayoutConstraint.activate([...])` + `translatesAutoresizingMaskIntoConstraints = false`
 
-### Combine 响应式
+### Combine Reactive
 
-- Publisher：`URLSession.shared.dataTaskPublisher` → `map` → `decode` → `eraseToAnyPublisher`
-- 订阅：`.sink(receiveCompletion:receiveValue:)` + `.store(in: &cancellables)`
-- 常用 Operators：`debounce` / `removeDuplicates` / `combineLatest` / `flatMap`
-- Subject：`PassthroughSubject`（无初始值）/ `CurrentValueSubject`（有初始值）
+- Publisher: `URLSession.shared.dataTaskPublisher` → `map` → `decode` → `eraseToAnyPublisher`
+- Subscription: `.sink(receiveCompletion:receiveValue:)` + `.store(in: &cancellables)`
+- Common Operators: `debounce` / `removeDuplicates` / `combineLatest` / `flatMap`
+- Subject: `PassthroughSubject` (No initial value) / `CurrentValueSubject` (Has initial value)
 
-### iOS 架构
+### iOS Architecture
 
-MVVM（推荐）：
-- Model：`Codable` 数据结构
-- Repository：`protocol` + `async throws` 方法
-- ViewModel：`@MainActor class VM: ObservableObject` + `@Published` 属性
-- View：`@StateObject private var viewModel = VM()`
+MVVM (Recommended):
+- Model: `Codable` data structure
+- Repository: `protocol` + `async throws` methods
+- ViewModel: `@MainActor class VM: ObservableObject` + `@Published` properties
+- View: `@StateObject private var viewModel = VM()`
 
-VIPER（复杂场景）：
+VIPER (Complex scenarios):
 - View ←→ Presenter ←→ Interactor → Entity
-- Router 处理导航
+- Router handles navigation
 
-### 网络层
+### Network Layer
 
-- APIClient：泛型 `func get<T: Decodable>(_ path:) async throws -> T`
-- Token 管理：`request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")`
-- 错误处理：`enum APIError: Error { case invalidURL, invalidResponse, httpError(Int) }`
+- APIClient: Generic `func get<T: Decodable>(_ path:) async throws -> T`
+- Token Management: `request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")`
+- Error Handling: `enum APIError: Error { case invalidURL, invalidResponse, httpError(Int) }`
 
-### 数据持久化
+### Data Persistence
 
-- UserDefaults：`@propertyWrapper struct UserDefault<T>` 简化访问
-- Keychain：`SecItemAdd` / `SecItemCopyMatching` 存储敏感数据
-- Core Data：`NSPersistentContainer` + `NSManagedObjectContext`
-- SwiftData（iOS 17+）：`@Model` 宏简化持久化
+- UserDefaults: `@propertyWrapper struct UserDefault<T>` simplifies access
+- Keychain: `SecItemAdd` / `SecItemCopyMatching` stores sensitive data
+- Core Data: `NSPersistentContainer` + `NSManagedObjectContext`
+- SwiftData (iOS 17+): `@Model` macro simplifies persistence
 
 ### iOS Checklist
 
-- [ ] SwiftUI 优先，UIKit 按需集成
-- [ ] `@MainActor` 确保 UI 线程安全
-- [ ] async/await 替代回调
-- [ ] 依赖注入提升可测试性
-- [ ] LazyVStack/LazyHStack 优化大列表
-- [ ] 图片缓存（NSCache）减少内存压力
-- [ ] Keychain 存储敏感数据（非 UserDefaults）
-- [ ] 单元测试覆盖 ViewModel + Mock Repository
+- [ ] Prioritize SwiftUI, integrate UIKit as needed
+- [ ] `@MainActor` ensures UI thread safety
+- [ ] async/await replaces callbacks
+- [ ] Dependency injection improves testability
+- [ ] LazyVStack/LazyHStack optimize large lists
+- [ ] Image caching (NSCache) reduces memory pressure
+- [ ] Keychain stores sensitive data (Not UserDefaults)
+- [ ] Unit tests cover ViewModel + Mock Repository
 
 ---
 
-## Android 开发
+## Android Development
 
-### Jetpack Compose 核心模式
+### Jetpack Compose Core Patterns
 
-- Composable：`@Composable fun MyScreen() { ... }`
-- State 管理：
-  - `remember { mutableStateOf(value) }` — 本地状态
-  - `rememberSaveable` — 跨配置变更保存
-  - `derivedStateOf` — 派生状态避免重组
-- LazyColumn：`items(list, key = { it.id })` 提供稳定 key
-- Side Effects：
-  - `LaunchedEffect(key)` — 启动协程
-  - `DisposableEffect(key)` — 清理资源（onDispose）
-  - `SideEffect` — 同步状态到外部
-  - `snapshotFlow { state }` — 监听状态变化转 Flow
-- Navigation：`NavHost` + `composable(route)` + `navController.navigate()`
-- Custom Modifier：`fun Modifier.myModifier(): Modifier = composed { ... }`
+- Composable: `@Composable fun MyScreen() { ... }`
+- State Management:
+  - `remember { mutableStateOf(value) }` — Local state
+  - `rememberSaveable` — Saves across configuration changes
+  - `derivedStateOf` — Derived state avoids recomposition
+- LazyColumn: `items(list, key = { it.id })` provides stable keys
+- Side Effects:
+  - `LaunchedEffect(key)` — Launches a coroutine
+  - `DisposableEffect(key)` — Cleans up resources (onDispose)
+  - `SideEffect` — Syncs state to the outside
+  - `snapshotFlow { state }` — Converts state change observation to Flow
+- Navigation: `NavHost` + `composable(route)` + `navController.navigate()`
+- Custom Modifier: `fun Modifier.myModifier(): Modifier = composed { ... }`
 
 ### ViewModel + StateFlow
 
-- StateFlow（推荐替代 LiveData）：
+- StateFlow (Recommended LiveData alternative):
   - `MutableStateFlow(UiState())` + `.asStateFlow()`
   - `_uiState.update { it.copy(isLoading = true) }`
-  - Compose 中：`val uiState by viewModel.uiState.collectAsState()`
-- UiState data class：封装 loading / error / data
+  - In Compose: `val uiState by viewModel.uiState.collectAsState()`
+- UiState data class: Encapsulates loading / error / data
 
 ### Kotlin Coroutines & Flow
 
-- 协程：`viewModelScope.launch { withContext(Dispatchers.IO) { ... } }`
-- 并发：`coroutineScope { val a = async { ... }; val b = async { ... } }`
-- Flow：`flow { emit(value) }` + `.flowOn(Dispatchers.IO)`
-- StateFlow：`.stateIn(scope, SharingStarted.WhileSubscribed(5000), initial)`
-- 搜索防抖：`searchQuery.debounce(300).filter { it.isNotEmpty() }.flatMapLatest { ... }`
-- Channel：`Channel<Event>(BUFFERED)` + `.receiveAsFlow()` 一次性事件
+- Coroutines: `viewModelScope.launch { withContext(Dispatchers.IO) { ... } }`
+- Concurrency: `coroutineScope { val a = async { ... }; val b = async { ... } }`
+- Flow: `flow { emit(value) }` + `.flowOn(Dispatchers.IO)`
+- StateFlow: `.stateIn(scope, SharingStarted.WhileSubscribed(5000), initial)`
+- Search Debounce: `searchQuery.debounce(300).filter { it.isNotEmpty() }.flatMapLatest { ... }`
+- Channel: `Channel<Event>(BUFFERED)` + `.receiveAsFlow()` one-time events
 
-### 依赖注入 (Hilt)
+### Dependency Injection (Hilt)
 
 - `@HiltAndroidApp` Application + `@AndroidEntryPoint` Activity
-- `@Module @InstallIn(SingletonComponent::class)` 提供依赖
-- `@Provides @Singleton` 提供实例 / `@Binds` 绑定接口
-- ViewModel：`@HiltViewModel class VM @Inject constructor(repo)` + `hiltViewModel()`
+- `@Module @InstallIn(SingletonComponent::class)` provides dependencies
+- `@Provides @Singleton` provides instances / `@Binds` binds interfaces
+- ViewModel: `@HiltViewModel class VM @Inject constructor(repo)` + `hiltViewModel()`
 
-### Room 数据库
+### Room Database
 
-- Entity：`@Entity(tableName)` + `@PrimaryKey` + `@ColumnInfo`
-- DAO：`@Query` / `@Insert(onConflict = REPLACE)` / `@Delete` + 返回 `Flow<List<T>>`
-- Database：`@Database(entities, version)` + `Room.databaseBuilder`
+- Entity: `@Entity(tableName)` + `@PrimaryKey` + `@ColumnInfo`
+- DAO: `@Query` / `@Insert(onConflict = REPLACE)` / `@Delete` + returns `Flow<List<T>>`
+- Database: `@Database(entities, version)` + `Room.databaseBuilder`
 
-### 网络层 (Retrofit)
+### Network Layer (Retrofit)
 
-- ApiService：`@GET` / `@POST` / `@Path` / `@Query` / `@Body` / `@Multipart`
-- Interceptor：AuthInterceptor 注入 Bearer Token
-- OkHttpClient：`addInterceptor` + `connectTimeout`
+- ApiService: `@GET` / `@POST` / `@Path` / `@Query` / `@Body` / `@Multipart`
+- Interceptor: AuthInterceptor injects Bearer Token
+- OkHttpClient: `addInterceptor` + `connectTimeout`
 
 ### Android Checklist
 
-- [ ] Compose 优先，View 系统按需使用
-- [ ] StateFlow 替代 LiveData
-- [ ] Hilt 依赖注入
-- [ ] Room 本地持久化
-- [ ] `key` 参数优化 LazyColumn
-- [ ] `remember` / `derivedStateOf` 避免过度重组
-- [ ] Coil 图片加载 + 缓存策略
-- [ ] 单元测试覆盖 ViewModel（runTest + advanceUntilIdle）
+- [ ] Prioritize Compose, use View system as needed
+- [ ] StateFlow replaces LiveData
+- [ ] Hilt dependency injection
+- [ ] Room local persistence
+- [ ] `key` parameter optimizes LazyColumn
+- [ ] `remember` / `derivedStateOf` avoid excessive recomposition
+- [ ] Coil image loading + caching strategies
+- [ ] Unit tests cover ViewModel (runTest + advanceUntilIdle)
 
 ---
 
-## 跨平台开发
+## Cross-Platform Development
 
 ### React Native vs Flutter
 
-| 维度 | React Native | Flutter |
-|------|--------------|---------|
-| 语言 | TypeScript | Dart |
-| 渲染 | 原生组件(桥接) | 自绘引擎(Skia) |
-| 性能 | 接近原生 | 接近原生 |
-| 热重载 | Fast Refresh | Hot Reload |
-| 生态 | npm（成熟） | pub.dev（快速增长） |
-| UI 一致性 | 跟随系统 | 完全一致 |
-| 包体积 | ~7MB | ~15MB |
+| Dimension | React Native | Flutter |
+|-----------|--------------|---------|
+| Language | TypeScript | Dart |
+| Rendering | Native Components (Bridged) | Custom Engine (Skia) |
+| Performance | Near Native | Near Native |
+| Hot Reload | Fast Refresh | Hot Reload |
+| Ecosystem | npm (Mature) | pub.dev (Fast-growing) |
+| UI Consistency | Follows System | Completely Consistent |
+| Bundle Size | ~7MB | ~15MB |
 
-### React Native 核心模式
+### React Native Core Patterns
 
-- 组件：函数组件 + Hooks（useState / useEffect / useCallback / useMemo）
-- 列表：`FlatList` + `keyExtractor` + `initialNumToRender` + `windowSize`
-- Navigation：`@react-navigation/native` + `createNativeStackNavigator`
-- 状态管理：Redux Toolkit（`createSlice` + `createAsyncThunk`）/ Zustand
-- 原生桥接：`NativeModules` 调用 iOS(Swift) / Android(Kotlin) 原生代码
-- 性能：`React.memo` / Hermes 引擎 / 新架构 JSI（无桥接序列化）
+- Components: Function Components + Hooks (useState / useEffect / useCallback / useMemo)
+- Lists: `FlatList` + `keyExtractor` + `initialNumToRender` + `windowSize`
+- Navigation: `@react-navigation/native` + `createNativeStackNavigator`
+- State Management: Redux Toolkit (`createSlice` + `createAsyncThunk`) / Zustand
+- Native Bridge: `NativeModules` calls iOS(Swift) / Android(Kotlin) native code
+- Performance: `React.memo` / Hermes engine / New Architecture JSI (No bridge serialization)
 
-### Flutter 核心模式
+### Flutter Core Patterns
 
-- Widget：StatelessWidget / StatefulWidget + `setState`
-- 状态管理：
-  - Provider：`ChangeNotifier` + `Consumer` / `context.watch`
-  - Riverpod（推荐）：`FutureProvider` / `StateNotifierProvider` + `ref.watch`
-- Navigation：go_router（`GoRoute` + `context.go/push/pop`）
-- 原生桥接：`MethodChannel` + Platform Channels（iOS Swift / Android Kotlin）
-- 性能：`const` 构造函数 / `ListView.builder` / `RepaintBoundary` / `ValueKey`
+- Widget: StatelessWidget / StatefulWidget + `setState`
+- State Management:
+  - Provider: `ChangeNotifier` + `Consumer` / `context.watch`
+  - Riverpod (Recommended): `FutureProvider` / `StateNotifierProvider` + `ref.watch`
+- Navigation: go_router (`GoRoute` + `context.go/push/pop`)
+- Native Bridge: `MethodChannel` + Platform Channels (iOS Swift / Android Kotlin)
+- Performance: `const` constructors / `ListView.builder` / `RepaintBoundary` / `ValueKey`
 
-### 选型建议
+### Selection Advice
 
-| 场景 | 推荐 | 理由 |
-|------|------|------|
-| 团队有 Web 背景 | React Native | 学习成本低 |
-| 追求极致性能/动画 | Flutter | 自绘引擎 60fps |
-| UI 高度定制 | Flutter | 完全控制渲染 |
-| 大量原生交互 | React Native | 桥接生态成熟 |
-| 需要原生极致体验 | 原生开发 | 无桥接开销 |
+| Scenario | Recommendation | Reason |
+|----------|----------------|--------|
+| Team has Web background | React Native | Low learning curve |
+| Pursuing extreme performance/animations | Flutter | Custom engine 60fps |
+| Highly customized UI | Flutter | Full rendering control |
+| Heavy native interactions | React Native | Mature bridging ecosystem |
+| Native extreme experience needed | Native Development | No bridge overhead |
 
-### 跨平台 Checklist
+### Cross-Platform Checklist
 
-- [ ] 选型匹配团队技术栈和业务需求
-- [ ] 列表优化：FlatList(RN) / ListView.builder(Flutter) + key
-- [ ] 状态管理：Redux Toolkit(RN) / Riverpod(Flutter)
-- [ ] 原生模块桥接方案验证
-- [ ] 包体积优化：ProGuard(Android) / tree-shake-icons(Flutter)
-- [ ] 性能基线：冷启动 < 1.5s / 渲染 > 55fps
+- [ ] Tech stack matches team and business requirements
+- [ ] List optimization: FlatList(RN) / ListView.builder(Flutter) + key
+- [ ] State management: Redux Toolkit(RN) / Riverpod(Flutter)
+- [ ] Validate native module bridging solutions
+- [ ] Bundle size optimization: ProGuard(Android) / tree-shake-icons(Flutter)
+- [ ] Performance baselines: Cold start < 1.5s / Rendering > 55fps
 
 ---
 
-## 通用最佳实践
+## General Best Practices
 
-| 实践 | 说明 |
-|------|------|
-| MVVM 架构 | 分离 UI / 业务逻辑 / 数据层 |
-| 依赖注入 | Hilt(Android) / Protocol(iOS) / Context(RN) |
-| 响应式状态 | StateFlow / Combine / Hooks / Riverpod |
-| 网络层封装 | 统一错误处理 + Token 管理 + 重试 |
-| 本地持久化 | Room / Core Data / AsyncStorage / Hive |
-| 列表优化 | 懒加载 + 稳定 key + 缓存 |
-| 测试覆盖 | ViewModel 单元测试 + UI 测试关键流程 |
+| Practice | Description |
+|----------|-------------|
+| MVVM Architecture | Separate UI / Business Logic / Data Layer |
+| Dependency Injection | Hilt(Android) / Protocol(iOS) / Context(RN) |
+| Reactive State | StateFlow / Combine / Hooks / Riverpod |
+| Network Encapsulation | Unified error handling + Token management + Retries |
+| Local Persistence | Room / Core Data / AsyncStorage / Hive |
+| List Optimization | Lazy loading + Stable keys + Caching |
+| Test Coverage | ViewModel unit tests + UI tests for critical flows |
 
-## 触发词
+## Trigger Words
 
-iOS、SwiftUI、UIKit、Combine、Android、Jetpack Compose、Kotlin、React Native、Flutter、跨平台、移动开发、MVVM
+iOS, SwiftUI, UIKit, Combine, Android, Jetpack Compose, Kotlin, React Native, Flutter, Cross-Platform, Mobile Development, MVVM

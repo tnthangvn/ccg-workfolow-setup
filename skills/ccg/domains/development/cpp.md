@@ -1,33 +1,33 @@
 ---
 name: cpp
-description: C/C++ 开发。系统编程、性能优化、内存管理。当用户提到 C、C++、CMake、内存、指针时使用。
+description: C/C++ Development. Systems programming, performance optimization, memory management. Route to here when the user mentions C, C++, CMake, memory, or pointers.
 ---
 
-# 📜 符箓秘典 · C/C++
+# 📜 Talisman Grimoire · C/C++
 
 
-## 现代 C++ (C++17/20)
+## Modern C++ (C++17/20)
 
-### 智能指针
+### Smart Pointers
 ```cpp
 #include <memory>
 
-// unique_ptr - 独占所有权
+// unique_ptr - Exclusive ownership
 auto ptr = std::make_unique<MyClass>(args);
 ptr->method();
 
-// shared_ptr - 共享所有权
+// shared_ptr - Shared ownership
 auto shared = std::make_shared<MyClass>(args);
-auto copy = shared;  // 引用计数 +1
+auto copy = shared;  // Reference count +1
 
-// weak_ptr - 弱引用，不增加引用计数
+// weak_ptr - Weak reference, doesn't increase reference count
 std::weak_ptr<MyClass> weak = shared;
 if (auto locked = weak.lock()) {
     locked->method();
 }
 ```
 
-### 容器与算法
+### Containers and Algorithms
 ```cpp
 #include <vector>
 #include <algorithm>
@@ -35,12 +35,12 @@ if (auto locked = weak.lock()) {
 
 std::vector<int> nums = {1, 2, 3, 4, 5};
 
-// 范围 for
+// Range-based for
 for (const auto& n : nums) {
     std::cout << n << std::endl;
 }
 
-// 算法
+// Algorithms
 auto it = std::find(nums.begin(), nums.end(), 3);
 std::sort(nums.begin(), nums.end());
 
@@ -49,39 +49,39 @@ auto even = nums | std::views::filter([](int n) { return n % 2 == 0; });
 auto squared = nums | std::views::transform([](int n) { return n * n; });
 ```
 
-### Lambda 表达式
+### Lambda Expressions
 ```cpp
-// 基础 lambda
+// Basic lambda
 auto add = [](int a, int b) { return a + b; };
 
-// 捕获
+// Captures
 int x = 10;
-auto capture_val = [x]() { return x; };      // 值捕获
-auto capture_ref = [&x]() { return x; };     // 引用捕获
-auto capture_all = [=]() { return x; };      // 全部值捕获
-auto capture_all_ref = [&]() { return x; };  // 全部引用捕获
+auto capture_val = [x]() { return x; };      // Capture by value
+auto capture_ref = [&x]() { return x; };     // Capture by reference
+auto capture_all = [=]() { return x; };      // Capture all by value
+auto capture_all_ref = [&]() { return x; };  // Capture all by reference
 
-// 泛型 lambda (C++14)
+// Generic lambda (C++14)
 auto generic = [](auto a, auto b) { return a + b; };
 ```
 
-### 并发编程
+### Concurrent Programming
 ```cpp
 #include <thread>
 #include <mutex>
 #include <future>
 
-// 线程
+// Threads
 std::thread t([]() {
     std::cout << "Hello from thread" << std::endl;
 });
 t.join();
 
-// 互斥锁
+// Mutex
 std::mutex mtx;
 {
     std::lock_guard<std::mutex> lock(mtx);
-    // 临界区
+    // Critical section
 }
 
 // async/future
@@ -90,15 +90,15 @@ auto future = std::async(std::launch::async, []() {
 });
 auto result = future.get();
 
-// 条件变量
+// Condition Variable
 std::condition_variable cv;
 std::unique_lock<std::mutex> lock(mtx);
 cv.wait(lock, []() { return ready; });
 ```
 
-## 内存管理
+## Memory Management
 
-### RAII 模式
+### RAII Pattern
 ```cpp
 class FileHandle {
 public:
@@ -110,11 +110,11 @@ public:
         if (file) fclose(file);
     }
 
-    // 禁止拷贝
+    // Disable copy
     FileHandle(const FileHandle&) = delete;
     FileHandle& operator=(const FileHandle&) = delete;
 
-    // 允许移动
+    // Allow move
     FileHandle(FileHandle&& other) noexcept : file(other.file) {
         other.file = nullptr;
     }
@@ -124,7 +124,7 @@ private:
 };
 ```
 
-### 内存安全检查
+### Memory Safety Checks
 ```bash
 # AddressSanitizer
 g++ -fsanitize=address -g main.cpp -o main
@@ -133,7 +133,7 @@ g++ -fsanitize=address -g main.cpp -o main
 # Valgrind
 valgrind --leak-check=full ./main
 
-# 静态分析
+# Static Analysis
 clang-tidy main.cpp
 cppcheck main.cpp
 ```
@@ -148,42 +148,42 @@ project(MyProject VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 添加可执行文件
+# Add Executable
 add_executable(myapp
     src/main.cpp
     src/utils.cpp
 )
 
-# 添加库
+# Add Library
 add_library(mylib STATIC
     src/lib.cpp
 )
 
-# 链接库
+# Link Library
 target_link_libraries(myapp PRIVATE mylib)
 
-# 包含目录
+# Include Directories
 target_include_directories(myapp PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
-# 查找外部库
+# Find External Package
 find_package(Threads REQUIRED)
 target_link_libraries(myapp PRIVATE Threads::Threads)
 
-# 测试
+# Testing
 enable_testing()
 add_executable(tests tests/test_main.cpp)
 add_test(NAME MyTests COMMAND tests)
 ```
 
-### 构建
+### Build
 ```bash
 mkdir build && cd build
 cmake ..
 cmake --build .
-ctest  # 运行测试
+ctest  # Run tests
 ```
 
-## 测试
+## Testing
 
 ### Google Test
 ```cpp
@@ -214,7 +214,7 @@ TEST_F(UserTest, GetName) {
 }
 ```
 
-## 项目结构
+## Project Structure
 
 ```
 myproject/
@@ -231,16 +231,15 @@ myproject/
 └── build/
 ```
 
-## 常用库
+## Common Libraries
 
-| 库 | 用途 |
+| Library | Purpose |
 |---|------|
-| Boost | 通用库集合 |
-| fmt | 格式化输出 |
-| spdlog | 日志 |
+| Boost | General-purpose library collection |
+| fmt | Formatted output |
+| spdlog | Logging |
 | nlohmann/json | JSON |
-| Catch2/GTest | 测试 |
-| OpenSSL | 加密 |
+| Catch2/GTest | Testing |
+| OpenSSL | Cryptography |
 
 ---
-

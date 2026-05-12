@@ -1,46 +1,46 @@
 ---
 name: development
-description: 开发语言能力索引。Python、Go、Rust、TypeScript、Java、C++、Shell。当用户提到编程、开发、代码、语言时路由到此。
+description: Development Language Capability Index. Python, Go, Rust, TypeScript, Java, C++, Shell. Route to here when the user mentions programming, development, code, or languages.
 license: MIT
 user-invocable: false
 disable-model-invocation: false
 ---
 
-# 符箓秘典 · 开发语言能力中枢
+# Talisman Grimoire · Development Language Capability Hub
 
-## 能力矩阵
+## Capability Matrix
 
-| Skill | 语言 | 核心能力 |
+| Skill | Language | Core Capabilities |
 |-------|------|----------|
-| [python](python.md) | Python | Web框架、数据处理、自动化 |
-| [go](go.md) | Go | 高并发、微服务、云原生 |
-| [rust](rust.md) | Rust | 系统编程、内存安全、高性能 |
-| [typescript](typescript.md) | TS/JS | 前后端、Node.js、React/Vue |
-| [java](java.md) | Java | 企业级、Spring、微服务 |
-| [cpp](cpp.md) | C/C++ | 系统底层、性能优化 |
-| [shell](shell.md) | Bash | 脚本自动化、系统管理 |
+| [python](python.md) | Python | Web Frameworks, Data Processing, Automation |
+| [go](go.md) | Go | High Concurrency, Microservices, Cloud-Native |
+| [rust](rust.md) | Rust | Systems Programming, Memory Safety, High Performance |
+| [typescript](typescript.md) | TS/JS | Frontend/Backend, Node.js, React/Vue |
+| [java](java.md) | Java | Enterprise, Spring, Microservices |
+| [cpp](cpp.md) | C/C++ | Systems Bottom-layer, Performance Optimization |
+| [shell](shell.md) | Bash | Script Automation, System Administration |
 
-## 语言选型指南
+## Language Selection Guide
 
 ```yaml
-Web 后端:
-  - 快速开发: Python (FastAPI/Django)
-  - 高性能: Go (Gin/Echo)
-  - 企业级: Java (Spring Boot)
+Web Backend:
+  - Rapid Development: Python (FastAPI/Django)
+  - High Performance: Go (Gin/Echo)
+  - Enterprise: Java (Spring Boot)
 
-Web 前端:
+Web Frontend:
   - SPA: TypeScript + React/Vue
   - SSR: Next.js/Nuxt.js
 
-系统编程:
-  - 内存安全: Rust
-  - 传统: C/C++
+Systems Programming:
+  - Memory Safety: Rust
+  - Traditional: C/C++
 
-脚本自动化:
-  - 通用: Python
-  - 系统: Bash/Shell
+Script Automation:
+  - General-purpose: Python
+  - System: Bash/Shell
 
-安全工具:
-  - 快速原型: Python
-  - 高性能: Go/Rust
+Security Tools:
+  - Rapid Prototyping: Python
+  - High Performance: Go/Rust
 ```

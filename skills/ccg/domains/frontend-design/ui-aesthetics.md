@@ -1,9 +1,9 @@
-# UI 美学
+# UI Aesthetics
 
-## 色彩理论
+## Color Theory
 
-### 色彩体系设计
-60-30-10配色法则：主色60%、辅色30%、强调色10%。使用HSL而非RGB便于调整。建立语义化色彩令牌（primary/success/danger）。
+### Color System Design
+60-30-10 Color Rule: Primary color 60%, Secondary color 30%, Accent color 10%. Use HSL instead of RGB for easier adjustment. Establish semantic color tokens (primary/success/danger).
 
 ```css
 :root {
@@ -16,10 +16,10 @@
 }
 ```
 
-## 排版系统
+## Typography System
 
-### 排版层级规范
-使用模块化比例（1.25/1.333/1.5）。基准16px，标题用比例放大，正文14-18px。行高1.5-1.8。限制字体族≤3种。
+### Typography Hierarchy Standards
+Use modular scale (1.25/1.333/1.5). Base 16px, scale headings proportionally, body text 14-18px. Line height 1.5-1.8. Limit font families to ≤ 3.
 
 ```css
 :root {
@@ -33,10 +33,10 @@ body {
 }
 ```
 
-## 间距系统
+## Spacing System
 
-### 8px网格间距体系
-基准8px，建立4/8/12/16/24/32/48/64px间距令牌。组件内用小间距(4-12)，组件间用中间距(16-32)，区块间用大间距(48+)。
+### 8px Grid Spacing System
+Base 8px, establish 4/8/12/16/24/32/48/64px spacing tokens. Use small spacing within components (4-12), medium spacing between components (16-32), and large spacing between sections (48+).
 
 ```css
 :root {
@@ -47,18 +47,18 @@ body {
 .stack-md > * + * { margin-top: var(--sp-4); }
 ```
 
-## 视觉层次
+## Visual Hierarchy
 
-### 视觉层次四原则
-1. 对比：大小/粗细/颜色差异
-2. 对齐：统一对齐建立秩序
-3. 重复：一致性建立认知
-4. 亲密性：相关元素靠近
+### Four Principles of Visual Hierarchy
+1. Contrast: Size/Weight/Color differences
+2. Alignment: Unified alignment establishes order
+3. Repetition: Consistency builds cognition
+4. Proximity: Related elements placed together
 
-## 设计令牌
+## Design Tokens
 
-### Design Token架构
-三层架构：基础令牌(颜色/字号原始值)→语义令牌(primary/heading)→组件令牌(button-bg)。
+### Design Token Architecture
+Three-tier architecture: Foundation tokens (raw color/size values) → Semantic tokens (primary/heading) → Component tokens (button-bg).
 
 ```css
 :root {
@@ -71,10 +71,10 @@ body {
 }
 ```
 
-## 暗色模式
+## Dark Mode
 
-### 暗色模式设计规范
-背景用深灰(#121212)非纯黑。降低白色文本亮度至#e0e0e0。提升表面层级用更亮灰色。注意色彩对比度WCAG AA。
+### Dark Mode Design Standards
+Use dark gray (#121212) instead of pure black for background. Reduce white text brightness to #e0e0e0. Elevate surface levels using lighter grays. Pay attention to color contrast WCAG AA.
 
 ```css
 :root { --bg: white; --text: #111; }
@@ -85,10 +85,10 @@ body {
 body { background: var(--bg); color: var(--text); }
 ```
 
-## 阴影与层级
+## Shadows and Elevation
 
-### 阴影层级体系
-5级阴影：1-贴地(1px) 2-悬浮(2-4px) 3-浮起(8-12px) 4-弹出(16-24px) 5-模态(24-32px)。
+### Shadow Elevation System
+5 levels of shadow: 1-Resting (1px), 2-Hover (2-4px), 3-Raised (8-12px), 4-Overlay (16-24px), 5-Modal (24-32px).
 
 ```css
 :root {
@@ -100,11 +100,11 @@ body { background: var(--bg); color: var(--text); }
 }
 ```
 
-## 审查清单
+## Review Checklist
 
-- [ ] 色彩对比度≥4.5:1
-- [ ] 字体≤3种
-- [ ] 间距符合8px网格
-- [ ] 视觉层级清晰
-- [ ] 暗色模式适配
-- [ ] 阴影层级合理
+- [ ] Color contrast ratio ≥ 4.5:1
+- [ ] Fonts ≤ 3 types
+- [ ] Spacing aligns with 8px grid
+- [ ] Clear visual hierarchy
+- [ ] Dark mode adapted
+- [ ] Reasonable shadow elevations

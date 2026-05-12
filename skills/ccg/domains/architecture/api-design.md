@@ -1,41 +1,41 @@
 ---
 name: api-design
-description: API 设计。RESTful、GraphQL、OpenAPI、版本管理。当用户提到 API设计、RESTful、GraphQL、OpenAPI、接口设计时使用。
+description: API Design. RESTful, GraphQL, OpenAPI, Version Management. Use when the user mentions API design, RESTful, GraphQL, OpenAPI, or interface design.
 ---
 
-# 🏗 阵法秘典 · API 设计
+# 🏗 Array Manual · API Design
 
 
-## RESTful 设计
+## RESTful Design
 
-### 资源命名
+### Resource Naming
 ```yaml
-# 使用名词复数
-GET    /users          # 获取用户列表
-GET    /users/{id}     # 获取单个用户
-POST   /users          # 创建用户
-PUT    /users/{id}     # 更新用户
-PATCH  /users/{id}     # 部分更新
-DELETE /users/{id}     # 删除用户
+# Use plural nouns
+GET    /users          # Get user list
+GET    /users/{id}     # Get a single user
+POST   /users          # Create user
+PUT    /users/{id}     # Update user
+PATCH  /users/{id}     # Partial update
+DELETE /users/{id}     # Delete user
 
-# 嵌套资源
+# Nested resources
 GET    /users/{id}/orders
 POST   /users/{id}/orders
 
-# 避免
-GET    /getUsers       # ❌ 动词
-GET    /user           # ❌ 单数
-POST   /createUser     # ❌ 动词
+# Avoid
+GET    /getUsers       # ❌ Verb
+GET    /user           # ❌ Singular
+POST   /createUser     # ❌ Verb
 ```
 
-### HTTP 状态码
+### HTTP Status Codes
 ```yaml
-2xx 成功:
+2xx Success:
   200: OK
   201: Created
   204: No Content
 
-4xx 客户端错误:
+4xx Client Error:
   400: Bad Request
   401: Unauthorized
   403: Forbidden
@@ -43,15 +43,15 @@ POST   /createUser     # ❌ 动词
   409: Conflict
   422: Unprocessable Entity
 
-5xx 服务端错误:
+5xx Server Error:
   500: Internal Server Error
   502: Bad Gateway
   503: Service Unavailable
 ```
 
-### 响应格式
+### Response Format
 ```json
-// 成功响应
+// Success response
 {
   "data": {
     "id": 1,
@@ -59,7 +59,7 @@ POST   /createUser     # ❌ 动词
   }
 }
 
-// 列表响应
+// List response
 {
   "data": [...],
   "pagination": {
@@ -69,7 +69,7 @@ POST   /createUser     # ❌ 动词
   }
 }
 
-// 错误响应
+// Error response
 {
   "error": {
     "code": "VALIDATION_ERROR",
@@ -81,7 +81,7 @@ POST   /createUser     # ❌ 动词
 }
 ```
 
-## OpenAPI 规范
+## OpenAPI Specification
 
 ```yaml
 openapi: 3.0.3
@@ -190,36 +190,35 @@ query GetUser($id: ID!) {
 }
 ```
 
-## 版本管理
+## Version Management
 
 ```yaml
-策略:
-  URL路径: /api/v1/users (推荐)
-  请求头: Accept: application/vnd.api+json;version=1
-  查询参数: /api/users?version=1
+Strategies:
+  URL Path: /api/v1/users (Recommended)
+  Request Header: Accept: application/vnd.api+json;version=1
+  Query Parameter: /api/users?version=1
 
-原则:
-  - 向后兼容
-  - 废弃通知
-  - 迁移指南
+Principles:
+  - Backward compatibility
+  - Deprecation notices
+  - Migration guides
 ```
 
-## 安全设计
+## Security Design
 
 ```yaml
-认证:
+Authentication:
   - API Key
   - JWT
   - OAuth 2.0
 
-授权:
+Authorization:
   - RBAC
   - ABAC
   - Scope
 
-防护:
-  - 速率限制
-  - 输入验证
+Protection:
+  - Rate limiting
+  - Input validation
   - HTTPS
 ```
-

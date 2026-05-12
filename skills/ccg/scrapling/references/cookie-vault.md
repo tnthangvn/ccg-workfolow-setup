@@ -1,20 +1,20 @@
-# Cookie 保险库
+# Cookie Vault
 
-按站点分区记录历史 cookie，供抓取时快速查找使用。
+Record historical cookies partitioned by site, for quick lookup and usage during scraping.
 
-> **安全提示**: 此文件存储敏感 cookie 值，请勿提交到版本控制或分享给他人。
-> 实际使用时，请将此文件复制为 `cookie-vault.local.md` 并填入真实值。
+> **Security Notice**: This file stores sensitive cookie values, do not commit it to version control or share it with others.
+> For actual use, please copy this file to `cookie-vault.local.md` and fill in the real values.
 
 ---
 
-## 示例站点 (example.com)
+## Example Site (example.com)
 
-**最后更新**: YYYY-MM-DD
-**状态**: 有效 / 可能已过期
-**登录 cookie 字段**: `session_id`, `auth_token`
-**Fetcher 类型**: StealthyFetcher
+**Last Updated**: YYYY-MM-DD
+**Status**: Valid / Possibly Expired
+**Login Cookie Fields**: `session_id`, `auth_token`
+**Fetcher Type**: StealthyFetcher
 
-### Playwright 格式（StealthyFetcher/DynamicFetcher 用）
+### Playwright Format (for StealthyFetcher/DynamicFetcher)
 
 ```python
 cookies = [
@@ -23,26 +23,26 @@ cookies = [
 ]
 ```
 
-### 备注
+### Notes
 
-- 从浏览器 DevTools > Application > Cookies 获取真实值
-- cookie 有效期取决于站点设置，过期后需重新获取
+- Get real values from Browser DevTools > Application > Cookies.
+- Cookie validity depends on site settings; reacquire if expired.
 
 ---
 
-## 模板：添加新站点
+## Template: Add New Site
 
-复制以下模板，替换具体内容后追加到此文件：
+Copy the template below, replace the specific content, and append it to this file:
 
 ```markdown
-## 站点名称 (域名)
+## Site Name (Domain)
 
-**最后更新**: YYYY-MM-DD
-**状态**: 有效 / 可能已过期
-**登录 cookie 字段**: `field1`, `field2`
-**Fetcher 类型**: Fetcher / StealthyFetcher / DynamicFetcher
+**Last Updated**: YYYY-MM-DD
+**Status**: Valid / Possibly Expired
+**Login Cookie Fields**: `field1`, `field2`
+**Fetcher Type**: Fetcher / StealthyFetcher / DynamicFetcher
 
-### Playwright 格式
+### Playwright Format
 
 \```python
 cookies = [
@@ -50,7 +50,7 @@ cookies = [
 ]
 \```
 
-### 备注
+### Notes
 
-- 相关注意事项
+- Relevant precautions
 ```

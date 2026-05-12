@@ -1,15 +1,15 @@
 ---
 name: frontend-engineering
-description: 前端工程化。性能优化（Web Vitals、懒加载、虚拟滚动）、测试（Vitest、Playwright、MSW）、构建工具（Vite、Webpack、esbuild）。当用户提到性能优化、前端测试、构建工具、代码分割时使用。
+description: Frontend engineering. Performance optimization (Web Vitals, lazy loading, virtual scrolling), testing (Vitest, Playwright, MSW), build tools (Vite, Webpack, esbuild). Use when the user mentions performance optimization, frontend testing, build tools, or code splitting.
 ---
 
 # 前端工程化 · Frontend Engineering
 
-## 一、性能优化
+## I. Performance Optimization
 
 ### Core Web Vitals
 
-| 指标 | 含义 | 目标值 |
+| Metric | Meaning | Target Value |
 |------|------|--------|
 | LCP | Largest Contentful Paint | < 2.5s |
 | FID | First Input Delay | < 100ms |
@@ -17,21 +17,21 @@ description: 前端工程化。性能优化（Web Vitals、懒加载、虚拟滚
 | FCP | First Contentful Paint | < 1.8s |
 | TTI | Time to Interactive | < 3.8s |
 
-### 性能决策树
+### Performance Decision Tree
 
 ```
-加载慢 → Bundle 大？代码分割 + Tree Shaking | 资源多？懒加载 + 预加载 | 网络慢？CDN + 压缩
-渲染慢 → 列表长？虚拟滚动 | 重渲染？React.memo + useMemo | 布局抖动？固定尺寸
-交互慢 → JS 阻塞？Web Worker + startTransition | 动画卡顿？CSS 动画 + rAF
+Slow loading → Large bundle? Code splitting + Tree Shaking | Many resources? Lazy loading + Preloading | Slow network? CDN + Compression
+Slow rendering → Long list? Virtual scrolling | Re-rendering? React.memo + useMemo | Layout shift? Fixed dimensions
+Slow interaction → JS blocking? Web Worker + startTransition | Janky animation? CSS animation + rAF
 ```
 
-### 代码分割
+### Code Splitting
 
 ```typescript
-// 路由级别 — React.lazy + Suspense
+// Route level — React.lazy + Suspense
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 
-// 组件级别 — 按需加载重量级组件
+// Component level — On-demand loading for heavy components
 const HeavyChart = lazy(() => import('./components/HeavyChart'))
 
 // Vite manualChunks
@@ -49,7 +49,7 @@ export default defineConfig({
 })
 ```
 
-### 虚拟滚动
+### Virtual Scrolling
 
 ```typescript
 import { FixedSizeList } from 'react-window'
@@ -63,30 +63,30 @@ function VirtualList({ items }: { items: Item[] }) {
 }
 ```
 
-### React 性能要点
+### React Performance Essentials
 
 ```typescript
-// memo 避免重渲染
+// memo to avoid re-renders
 const Row = memo(function Row({ item, onClick }: Props) {
   return <div onClick={() => onClick(item.id)}>{item.name}</div>
 })
 
-// useMemo 缓存计算 + useCallback 缓存回调
+// useMemo for caching computations + useCallback for caching callbacks
 const filtered = useMemo(() => data.filter(x => x.name.includes(q)), [data, q])
 const handleClick = useCallback((id: string) => select(id), [])
 
-// startTransition 低优先级更新
+// startTransition for low-priority updates
 startTransition(() => setResults(heavySearch(query)))
 ```
 
-### 资源优化 Checklist
+### Resource Optimization Checklist
 
-- 图片：WebP 格式 + `loading="lazy"` + 响应式 `<picture>`
-- 字体：`font-display: swap` + `preload` woff2
-- 预加载：`dns-prefetch` → `preconnect` → `preload` → `prefetch`
-- 压缩：Gzip/Brotli + HTTP/2
+- Images: WebP format + `loading="lazy"` + responsive `<picture>`
+- Fonts: `font-display: swap` + `preload` woff2
+- Preloading: `dns-prefetch` → `preconnect` → `preload` → `prefetch`
+- Compression: Gzip/Brotli + HTTP/2
 
-### 性能监控
+### Performance Monitoring
 
 ```typescript
 import { onCLS, onFID, onLCP } from 'web-vitals'
@@ -94,24 +94,24 @@ onCLS(sendToAnalytics)
 onFID(sendToAnalytics)
 onLCP(sendToAnalytics)
 
-// 自定义指标
+// Custom metrics
 performance.mark('start')
 doWork()
 performance.mark('end')
 performance.measure('work', 'start', 'end')
 ```
 
-## 二、测试
+## II. Testing
 
-### 测试金字塔
+### Testing Pyramid
 
 ```
     /\       E2E (10%) — Playwright
-   /--\      集成 (20%) — Testing Library + MSW
-  /----\     单元 (70%) — Vitest
+   /--\      Integration (20%) — Testing Library + MSW
+  /----\     Unit (70%) — Vitest
 ```
 
-### Vitest 配置
+### Vitest Configuration
 
 ```typescript
 // vitest.config.ts
@@ -128,7 +128,7 @@ export default defineConfig({
 })
 ```
 
-### 单元测试
+### Unit Testing
 
 ```typescript
 describe('formatCurrency', () => {
@@ -137,7 +137,7 @@ describe('formatCurrency', () => {
 })
 ```
 
-### 组件测试
+### Component Testing
 
 ```typescript
 import { render, screen, fireEvent } from '@testing-library/react'
@@ -169,14 +169,14 @@ afterAll(() => server.close())
 ### Playwright E2E
 
 ```typescript
-// playwright.config.ts 核心
+// playwright.config.ts core
 export default defineConfig({
   testDir: './e2e',
   use: { baseURL: 'http://localhost:3000', trace: 'on-first-retry' },
   webServer: { command: 'npm run dev', url: 'http://localhost:3000' },
 })
 
-// Page Object 模式
+// Page Object pattern
 class LoginPage {
   constructor(private page: Page) {}
   async login(email: string, password: string) {
@@ -187,34 +187,34 @@ class LoginPage {
 }
 ```
 
-### 测试 Checklist
+### Testing Checklist
 
-- 遵循 AAA 模式（Arrange / Act / Assert）
-- 测试行为而非实现
-- Mock 外部依赖（API、时间）
-- 测试边界条件和错误路径
-- CI 中自动运行 + 覆盖率门禁 80%+
+- Follow AAA pattern (Arrange / Act / Assert)
+- Test behavior, not implementation
+- Mock external dependencies (API, time)
+- Test boundary conditions and error paths
+- Run automatically in CI + coverage gate of 80%+
 
-## 三、构建工具
+## III. Build Tools
 
-### 选型决策
+### Selection Decision
 
 ```
-新项目 React/Vue → Vite | Next.js → Turbopack | 零配置 → Parcel
-库开发 → Rollup / esbuild
-老项目复杂配置 → 保持 Webpack | 可迁移 → Vite
+New project React/Vue → Vite | Next.js → Turbopack | Zero config → Parcel
+Library development → Rollup / esbuild
+Old project with complex config → Keep Webpack | Migratable → Vite
 ```
 
-### 工具对比
+### Tool Comparison
 
-| 工具 | 冷启动 | HMR | 生产构建 | 生态 |
+| Tool | Cold Start | HMR | Production Build | Ecosystem |
 |------|--------|-----|----------|------|
-| Vite | < 1s | < 100ms | 10-30s | 成熟 |
-| Webpack | 10-30s | 1-3s | 30-60s | 最丰富 |
-| Turbopack | < 1s | < 100ms | 10-20s | 新兴 |
-| esbuild | < 1s | N/A | 5-10s | 基础 |
+| Vite | < 1s | < 100ms | 10-30s | Mature |
+| Webpack | 10-30s | 1-3s | 30-60s | Richest |
+| Turbopack | < 1s | < 100ms | 10-20s | Emerging |
+| esbuild | < 1s | N/A | 5-10s | Basic |
 
-### Vite 核心配置
+### Vite Core Configuration
 
 ```typescript
 export default defineConfig({
@@ -238,7 +238,7 @@ export default defineConfig({
 })
 ```
 
-### Webpack 生产优化要点
+### Webpack Production Optimization Essentials
 
 ```javascript
 optimization: {
@@ -255,33 +255,33 @@ optimization: {
 }
 ```
 
-### Webpack → Vite 迁移要点
+### Webpack → Vite Migration Essentials
 
 1. `npm install -D vite @vitejs/plugin-react`
-2. `index.html` 移到根目录，加 `<script type="module" src="/src/main.tsx">`
-3. `REACT_APP_*` → `VITE_*`，`process.env` → `import.meta.env`
+2. Move `index.html` to root directory, add `<script type="module" src="/src/main.tsx">`
+3. `REACT_APP_*` → `VITE_*`, `process.env` → `import.meta.env`
 4. `require()` → `import`
 
-### 构建 Checklist
+### Build Checklist
 
-- 合理代码分割（路由级 + 第三方库分组）
-- Tree Shaking + 压缩（terser / esbuild）
-- 文件名哈希实现长期缓存
-- Source map 仅 dev 或 hidden
-- 定期 `webpack-bundle-analyzer` / `rollup-plugin-visualizer` 审计
-- CI 缓存 `node_modules` + 构建产物
+- Reasonable code splitting (Route level + 3rd-party library grouping)
+- Tree Shaking + Compression (terser / esbuild)
+- File name hashing to implement long-term caching
+- Source map only for dev or hidden
+- Regular `webpack-bundle-analyzer` / `rollup-plugin-visualizer` audits
+- CI caches `node_modules` + build artifacts
 
-## 工具速查
+## Tool Quick Reference
 
-| 类别 | 推荐工具 |
+| Category | Recommended Tool |
 |------|----------|
-| 构建 | Vite (新项目) / Webpack (复杂项目) |
-| 单元测试 | Vitest |
-| 组件测试 | Testing Library |
+| Build | Vite (New project) / Webpack (Complex project) |
+| Unit Testing | Vitest |
+| Component Testing | Testing Library |
 | E2E | Playwright |
 | API Mock | MSW |
-| 性能监控 | web-vitals + Lighthouse |
-| Bundle 分析 | webpack-bundle-analyzer / rollup-plugin-visualizer |
-| 视觉回归 | Playwright screenshots / Chromatic |
+| Performance Monitoring | web-vitals + Lighthouse |
+| Bundle Analysis | webpack-bundle-analyzer / rollup-plugin-visualizer |
+| Visual Regression | Playwright screenshots / Chromatic |
 
 ---

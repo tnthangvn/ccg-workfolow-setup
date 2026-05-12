@@ -1,61 +1,61 @@
-# Scrapling 安装与维护
+# Scrapling Installation & Maintenance
 
-## 安装层级
+## Installation Levels
 
-| 安装命令 | 包含内容 |
-|---------|---------|
-| `pip install scrapling` | 仅核心解析器（Selector），无网络抓取能力 |
-| `pip install "scrapling[fetchers]"` | + Fetcher/StealthyFetcher/DynamicFetcher（curl_cffi, Playwright, Camoufox） |
-| `pip install "scrapling[ai]"` | + AI 功能（transformers） |
-| `pip install "scrapling[shell]"` | + 交互式 shell |
-| `pip install "scrapling[all]"` | 全部功能 |
+| Install Command | Included Content |
+|-----------------|------------------|
+| `pip install scrapling` | Only core parser (Selector), no network fetching capabilities |
+| `pip install "scrapling[fetchers]"` | + Fetcher/StealthyFetcher/DynamicFetcher (curl_cffi, Playwright, Camoufox) |
+| `pip install "scrapling[ai]"` | + AI features (transformers) |
+| `pip install "scrapling[shell]"` | + Interactive shell |
+| `pip install "scrapling[all]"` | All features |
 
-**推荐**: 大多数场景使用 `scrapling[fetchers]` 即可。
+**Recommendation**: Use `scrapling[fetchers]` for most scenarios.
 
-## 检查安装状态
+## Check Installation Status
 
 ```bash
-# 查看版本
+# Check version
 pip show scrapling
 
-# 验证基础包可用
+# Verify base package is available
 python -c "from scrapling.parser import Selector; print('Parser OK')"
 
-# 验证 Fetcher 可用（需要 [fetchers]）
+# Verify Fetcher is available (requires [fetchers])
 python -c "from scrapling.fetchers import Fetcher; print('Fetcher OK')"
 
-# 验证 StealthyFetcher 可用
+# Verify StealthyFetcher is available
 python -c "from scrapling.fetchers import StealthyFetcher; print('StealthyFetcher OK')"
 
-# 验证 DynamicFetcher 可用
+# Verify DynamicFetcher is available
 python -c "from scrapling.fetchers import DynamicFetcher; print('DynamicFetcher OK')"
 ```
 
-## 安装浏览器依赖
+## Install Browser Dependencies
 
-StealthyFetcher 和 DynamicFetcher 需要浏览器引擎，安装后需执行:
+StealthyFetcher and DynamicFetcher require a browser engine. After installation, you must run:
 
 ```bash
-# 方式 1: 直接命令（PATH 包含 Scripts 目录时）
+# Method 1: Direct command (if PATH includes Scripts directory)
 scrapling install
 
-# 方式 2: 通过 Python 调用（推荐，避免 PATH 问题）
+# Method 2: Invoke via Python (recommended, avoids PATH issues)
 python -c "from scrapling.cli import main; main(['install'])"
 ```
 
-## 升级
+## Upgrade
 
 ```bash
 pip install --upgrade "scrapling[fetchers]"
 ```
 
-升级后建议重新验证三个 Fetcher 是否可用（见上方检查命令）。
+After upgrading, it is recommended to re-verify that all three Fetchers are available (see check commands above).
 
-## 三 Fetcher 完整验证脚本
+## Three-Fetcher Full Verification Script
 
 ```python
 #!/usr/bin/env python3
-"""验证 scrapling 三个 Fetcher 均可正常使用"""
+"""Verify that all three scrapling Fetchers can be used normally"""
 import scrapling
 
 print(f"scrapling version: {scrapling.__version__}")

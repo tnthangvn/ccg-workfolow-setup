@@ -1,39 +1,38 @@
 ---
 name: devops
-description: DevOps 能力索引。Git、测试、DevSecOps、数据库。当用户提到 DevOps、CI/CD、Git、测试时路由到此。
+description: DevOps Capability Index. Git, Testing, DevSecOps, Databases. Route to here when the user mentions DevOps, CI/CD, Git, or testing.
 license: MIT
 user-invocable: false
 disable-model-invocation: false
 ---
 
-# 🔧 炼器秘典 · DevOps 能力中枢
+# 🔧 Artifact Grimoire · DevOps Capability Hub
 
 
-## 能力矩阵
+## Capability Matrix
 
-| Skill | 定位 | 核心能力 |
+| Skill | Positioning | Core Capabilities |
 |-------|------|----------|
-| [git-workflow](git-workflow.md) | 版本控制 | Git、分支策略、PR |
-| [testing](testing.md) | 软件测试 | 单元测试、集成测试、TDD、测试策略、E2E测试 |
-| [devsecops](devsecops.md) | 安全开发 | CI/CD安全、供应链安全 |
-| [database](database.md) | 数据库 | SQL、NoSQL、优化 |
-| [performance](performance.md) | 性能优化 | Profiling、火焰图、基准测试、负载测试、性能测试 |
-| [observability](observability.md) | 可观测性 | 日志、指标、追踪、SLO |
-| [cost-optimization](cost-optimization.md) | 成本优化 | FinOps、右尺寸、Spot、伸缩 |
+| [git-workflow](git-workflow.md) | Version Control | Git, Branching Strategies, PRs |
+| [testing](testing.md) | Software Testing | Unit Testing, Integration Testing, TDD, Testing Strategies, E2E Testing |
+| [devsecops](devsecops.md) | Secure Development | CI/CD Security, Supply Chain Security |
+| [database](database.md) | Database | SQL, NoSQL, Optimization |
+| [performance](performance.md) | Performance Optimization | Profiling, Flame Graphs, Benchmarking, Load Testing, Performance Testing |
+| [observability](observability.md) | Observability | Logs, Metrics, Tracing, SLOs |
+| [cost-optimization](cost-optimization.md) | Cost Optimization | FinOps, Right-sizing, Spot, Auto Scaling |
 
-## DevOps 原则
+## DevOps Principles
 
 ```yaml
-文化:
-  - 协作与共享
-  - 持续改进
-  - 自动化一切
-  - 快速反馈
+Culture:
+  - Collaboration and Sharing
+  - Continuous Improvement
+  - Automate Everything
+  - Fast Feedback
 
-实践:
-  - 持续集成 (CI)
-  - 持续交付 (CD)
-  - 基础设施即代码
-  - 监控与可观测性
+Practices:
+  - Continuous Integration (CI)
+  - Continuous Delivery (CD)
+  - Infrastructure as Code
+  - Monitoring and Observability
 ```
-

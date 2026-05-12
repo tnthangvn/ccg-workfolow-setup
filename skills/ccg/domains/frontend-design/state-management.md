@@ -1,42 +1,42 @@
 ---
 name: state-management
-description: 前端状态管理技术。Redux、Zustand、Jotai、Recoil、Context API、状态选择决策。当用户提到状态管理、Redux、Zustand、Jotai、Recoil、全局状态、状态同步时使用。
+description: Frontend state management technologies. Redux, Zustand, Jotai, Recoil, Context API, state selection decisions. Use when the user mentions state management, Redux, Zustand, Jotai, Recoil, global state, or state synchronization.
 ---
 
-# 🎨 🗂️ 状态管理 · State Management
+# 🎨 🗂️ State Management · State Management
 
-## 状态管理对比
+## State Management Comparison
 
-| 框架 | 模式 | 学习曲线 | 性能 | 适用场景 |
-|------|------|----------|------|----------|
-| Redux | Flux | 陡峭 | 中 | 大型应用、复杂状态 |
-| Zustand | Flux-like | 平缓 | 高 | 中小型应用、快速开发 |
-| Jotai | Atomic | 平缓 | 高 | 细粒度更新、原子化状态 |
-| Recoil | Atomic | 中等 | 高 | React生态、派生状态 |
-| Context | Provider | 简单 | 低 | 简单共享、主题配置 |
-| MobX | Reactive | 中等 | 高 | OOP风格、自动追踪 |
+| Framework | Pattern | Learning Curve | Performance | Applicable Scenarios |
+|-----------|---------|----------------|-------------|----------------------|
+| Redux | Flux | Steep | Medium | Large applications, complex state |
+| Zustand | Flux-like | Gentle | High | Small to medium applications, rapid development |
+| Jotai | Atomic | Gentle | High | Fine-grained updates, atomic state |
+| Recoil | Atomic | Medium | High | React ecosystem, derived state |
+| Context | Provider | Simple | Low | Simple sharing, theme configuration |
+| MobX | Reactive | Medium | High | OOP style, automatic tracking |
 
-## 选择决策树
+## Selection Decision Tree
 
 ```
-需要状态管理？
+Need state management?
   │
-  ├─ 简单主题/配置 → Context API
+  ├─ Simple theme/config → Context API
   │
-  ├─ 中小型应用
-  │   ├─ 喜欢简洁 → Zustand
-  │   └─ 需要原子化 → Jotai
+  ├─ Small to medium application
+  │   ├─ Prefer simplicity → Zustand
+  │   └─ Need atomization → Jotai
   │
-  └─ 大型应用
-      ├─ 团队熟悉Redux → Redux Toolkit
-      ├─ 需要时间旅行 → Redux DevTools
-      ├─ 复杂派生状态 → Recoil
-      └─ OOP风格 → MobX
+  └─ Large application
+      ├─ Team familiar with Redux → Redux Toolkit
+      ├─ Need time travel → Redux DevTools
+      ├─ Complex derived state → Recoil
+      └─ OOP style → MobX
 ```
 
-## Redux Toolkit (推荐)
+## Redux Toolkit (Recommended)
 
-### 基础配置
+### Basic Configuration
 
 ```typescript
 // store.ts
@@ -61,7 +61,7 @@ export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch
 ```
 
-### Slice 定义
+### Slice Definition
 
 ```typescript
 // counterSlice.ts
@@ -97,7 +97,7 @@ export const { increment, decrement, incrementByAmount } = counterSlice.actions
 export default counterSlice.reducer
 ```
 
-### 异步 Thunk
+### Async Thunk
 
 ```typescript
 // userSlice.ts
@@ -144,7 +144,7 @@ const userSlice = createSlice({
 export default userSlice.reducer
 ```
 
-### Hooks 使用
+### Hooks Usage
 
 ```typescript
 // hooks.ts
@@ -171,9 +171,9 @@ function Counter() {
 }
 ```
 
-## Zustand (轻量推荐)
+## Zustand (Lightweight Recommended)
 
-### 基础 Store
+### Basic Store
 
 ```typescript
 // store.ts
@@ -205,7 +205,7 @@ function Controls() {
 }
 ```
 
-### 异步 Actions
+### Async Actions
 
 ```typescript
 interface UserStore {
@@ -230,7 +230,7 @@ export const useUserStore = create<UserStore>((set) => ({
 }))
 ```
 
-### 中间件
+### Middlewares
 
 ```typescript
 import { create } from 'zustand'
@@ -258,7 +258,7 @@ export const useAuthStore = create<AuthState>()(
 )
 ```
 
-### Immer 集成
+### Immer Integration
 
 ```typescript
 import { create } from 'zustand'
@@ -286,26 +286,26 @@ export const useTodoStore = create<TodoState>()(
 )
 ```
 
-## Jotai (原子化)
+## Jotai (Atomic)
 
-### Atom 定义
+### Atom Definition
 
 ```typescript
 import { atom } from 'jotai'
 
-// 原始 atom
+// Primitive atom
 export const countAtom = atom(0)
 
-// 派生 atom (只读)
+// Derived atom (read-only)
 export const doubleCountAtom = atom((get) => get(countAtom) * 2)
 
-// 派生 atom (读写)
+// Derived atom (read-write)
 export const incrementAtom = atom(
   (get) => get(countAtom),
   (get, set) => set(countAtom, get(countAtom) + 1)
 )
 
-// 异步 atom
+// Async atom
 export const userAtom = atom(async (get) => {
   const userId = get(userIdAtom)
   const response = await fetch(`/api/users/${userId}`)
@@ -313,7 +313,7 @@ export const userAtom = atom(async (get) => {
 })
 ```
 
-### 使用 Atoms
+### Using Atoms
 
 ```typescript
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
@@ -333,12 +333,12 @@ function Counter() {
 }
 ```
 
-### 原子家族
+### Atom Family
 
 ```typescript
 import { atomFamily } from 'jotai/utils'
 
-// 为每个 ID 创建独立 atom
+// Create independent atom for each ID
 export const todoAtomFamily = atomFamily((id: string) =>
   atom({
     id,
@@ -366,14 +366,14 @@ function TodoItem({ id }: { id: string }) {
 }
 ```
 
-### 持久化
+### Persistence
 
 ```typescript
 import { atomWithStorage } from 'jotai/utils'
 
 export const themeAtom = atomWithStorage<'light' | 'dark'>('theme', 'light')
 
-// 自定义存储
+// Custom storage
 export const customAtom = atomWithStorage(
   'custom-key',
   { value: 0 },
@@ -394,7 +394,7 @@ export const customAtom = atomWithStorage(
 
 ## Recoil
 
-### Atom 和 Selector
+### Atom and Selector
 
 ```typescript
 import { atom, selector } from 'recoil'
@@ -405,7 +405,7 @@ export const textState = atom({
   default: '',
 })
 
-// Selector (派生状态)
+// Selector (Derived State)
 export const charCountState = selector({
   key: 'charCountState',
   get: ({ get }) => {
@@ -414,7 +414,7 @@ export const charCountState = selector({
   },
 })
 
-// 异步 Selector
+// Async Selector
 export const userState = selector({
   key: 'userState',
   get: async ({ get }) => {
@@ -425,7 +425,7 @@ export const userState = selector({
 })
 ```
 
-### 使用 Recoil
+### Using Recoil
 
 ```typescript
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
@@ -471,7 +471,7 @@ function TodoItem({ id }: { id: string }) {
 
 ## Context API
 
-### 基础 Context
+### Basic Context
 
 ```typescript
 import { createContext, useContext, useState, ReactNode } from 'react'
@@ -506,19 +506,19 @@ export function useTheme() {
 }
 ```
 
-### 优化 Context
+### Optimizing Context
 
 ```typescript
 import { createContext, useContext, useMemo, ReactNode } from 'react'
 
-// 分离状态和更新函数
+// Separate state and dispatch function
 const StateContext = createContext<State | undefined>(undefined)
 const DispatchContext = createContext<Dispatch | undefined>(undefined)
 
 export function Provider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
-  // 防止不必要的重渲染
+  // Prevent unnecessary re-renders
   const memoizedState = useMemo(() => state, [state])
   const memoizedDispatch = useMemo(() => dispatch, [dispatch])
 
@@ -532,18 +532,18 @@ export function Provider({ children }: { children: ReactNode }) {
 }
 ```
 
-## 性能优化
+## Performance Optimization
 
-### Redux 选择器优化
+### Redux Selector Optimization
 
 ```typescript
 import { createSelector } from '@reduxjs/toolkit'
 
-// 基础选择器
+// Base selectors
 const selectTodos = (state: RootState) => state.todos
 const selectFilter = (state: RootState) => state.filter
 
-// Memoized 选择器
+// Memoized selector
 export const selectFilteredTodos = createSelector(
   [selectTodos, selectFilter],
   (todos, filter) => {
@@ -559,18 +559,18 @@ export const selectFilteredTodos = createSelector(
 )
 ```
 
-### Zustand 选择器
+### Zustand Selectors
 
 ```typescript
-// 避免不必要的重渲染
+// Avoid unnecessary re-renders
 function Component() {
-  // ❌ 整个 state 变化都会重渲染
+  // ❌ The entire state change will trigger re-render
   const state = useStore()
 
-  // ✅ 只在 bears 变化时重渲染
+  // ✅ Only re-render when bears change
   const bears = useStore((state) => state.bears)
 
-  // ✅ 使用 shallow 比较
+  // ✅ Use shallow comparison
   const { bears, increase } = useStore(
     (state) => ({ bears: state.bears, increase: state.increase }),
     shallow
@@ -578,43 +578,43 @@ function Component() {
 }
 ```
 
-### Jotai 优化
+### Jotai Optimization
 
 ```typescript
-// 使用 selectAtom 避免不必要的重渲染
+// Use selectAtom to avoid unnecessary re-renders
 import { selectAtom } from 'jotai/utils'
 
 const userAtom = atom({ name: 'John', age: 30 })
 const nameAtom = selectAtom(userAtom, (user) => user.name)
 
 function Component() {
-  // 只在 name 变化时重渲染
+  // Only re-render when name changes
   const name = useAtomValue(nameAtom)
 }
 ```
 
-## 最佳实践
+## Best Practices
 
-### 状态分层
+### State Layering
 
 ```
-全局状态 (Redux/Zustand)
-  ├─ 用户认证
-  ├─ 主题配置
-  └─ 全局通知
+Global State (Redux/Zustand)
+  ├─ User Authentication
+  ├─ Theme Configuration
+  └─ Global Notifications
 
-服务器状态 (React Query/SWR)
-  ├─ API 数据
-  ├─ 缓存管理
-  └─ 乐观更新
+Server State (React Query/SWR)
+  ├─ API Data
+  ├─ Cache Management
+  └─ Optimistic Updates
 
-组件状态 (useState/useReducer)
-  ├─ 表单输入
-  ├─ UI 交互
-  └─ 临时数据
+Component State (useState/useReducer)
+  ├─ Form Inputs
+  ├─ UI Interactions
+  └─ Temporary Data
 ```
 
-### 命名规范
+### Naming Conventions
 
 ```typescript
 // Redux
@@ -633,7 +633,7 @@ export const userState = atom({ key: 'userState', ... })
 export const userNameState = selector({ key: 'userNameState', ... })
 ```
 
-### 错误处理
+### Error Handling
 
 ```typescript
 // Redux Toolkit
@@ -666,15 +666,13 @@ export const useStore = create<Store>((set) => ({
 }))
 ```
 
-## 工具清单
+## Tool Inventory
 
-| 工具 | 用途 |
-|------|------|
-| Redux DevTools | 时间旅行调试 |
-| Zustand DevTools | Zustand 状态调试 |
-| Jotai DevTools | Atom 依赖可视化 |
-| Recoil DevTools | Recoil 状态调试 |
-| React Query DevTools | 服务器状态调试 |
-| Immer | 不可变数据更新 |
-
----
+| Tool | Purpose |
+|------|---------|
+| Redux DevTools | Time travel debugging |
+| Zustand DevTools | Zustand state debugging |
+| Jotai DevTools | Atom dependency visualization |
+| Recoil DevTools | Recoil state debugging |
+| React Query DevTools | Server state debugging |
+| Immer | Immutable data updates |

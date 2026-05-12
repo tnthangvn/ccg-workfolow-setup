@@ -1,41 +1,40 @@
 ---
 name: code-audit
-description: 代码安全审计。危险函数识别、污点分析、漏洞挖掘、安全审计。当用户提到代码审计、安全审计、漏洞挖掘、危险函数、sink点、source点、污点分析时使用。
+description: Code security audit. Dangerous function identification, taint analysis, vulnerability mining, security auditing. Use when the user mentions code auditing, security auditing, vulnerability mining, dangerous functions, sink points, source points, or taint analysis.
 ---
 
-# 🔥 赤焰秘典 · 代码安全审计 (Code Audit)
+# 🔥 Red Flame Codex · Code Audit
 
-
-## 审计流程
+## Audit Workflow
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    代码审计流程                               │
+│                    Code Audit Workflow                      │
 ├─────────────────────────────────────────────────────────────┤
-│  1. 信息收集                                                 │
-│  ├─ 识别语言、框架、依赖                                     │
-│  ├─ 定位入口点（路由、API、用户输入）                        │
-│  └─ 梳理数据流向                                             │
+│  1. Information Gathering                                   │
+│  ├─ Identify language, framework, dependencies              │
+│  ├─ Locate entry points (routes, APIs, user input)          │
+│  └─ Outline data flow                                       │
 │                        ↓                                     │
-│  2. 危险函数扫描                                             │
-│  ├─ 命令执行 Sink                                            │
-│  ├─ SQL 注入 Sink                                            │
-│  ├─ 文件操作 Sink                                            │
-│  └─ 反序列化 Sink                                            │
+│  2. Dangerous Function Scanning                             │
+│  ├─ Command Execution Sink                                  │
+│  ├─ SQL Injection Sink                                      │
+│  ├─ File Operation Sink                                     │
+│  └─ Deserialization Sink                                    │
 │                        ↓                                     │
-│  3. 污点分析                                                 │
-│  └─ Source (用户输入) → 传播路径 → Sink (危险函数)          │
+│  3. Taint Analysis                                          │
+│  └─ Source (User Input) → Propagation Path → Sink (Dangerous Function) │
 │                        ↓                                     │
-│  4. 漏洞验证 & 报告                                          │
-│  └─ PoC 编写 → 影响评估 → 修复建议                          │
+│  4. Vulnerability Verification & Reporting                  │
+│  └─ PoC Writing → Impact Assessment → Remediation Suggestions│
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## 危险函数速查
+## Dangerous Function Quick Reference
 
 ### Python
 ```python
-# 🔴 命令执行
+# 🔴 Command Execution
 os.system(cmd)
 os.popen(cmd)
 subprocess.call(cmd, shell=True)
@@ -43,24 +42,24 @@ subprocess.Popen(cmd, shell=True)
 eval(user_input)
 exec(user_input)
 
-# 🔴 SQL 注入
+# 🔴 SQL Injection
 cursor.execute(f"SELECT * FROM users WHERE id = {user_id}")
 cursor.execute("SELECT * FROM users WHERE id = " + user_id)
 
-# 🔴 反序列化
+# 🔴 Deserialization
 pickle.loads(user_data)
-yaml.load(user_data)  # 不安全
+yaml.load(user_data)  # Unsafe
 marshal.loads(user_data)
 
-# 🔴 文件操作
-open(user_path, 'r')  # 路径穿越
+# 🔴 File Operations
+open(user_path, 'r')  # Path Traversal
 shutil.copy(user_src, user_dst)
 
 # 🔴 SSRF
 requests.get(user_url)
 urllib.request.urlopen(user_url)
 
-# ✅ 安全替代
+# ✅ Safe Alternatives
 subprocess.run([cmd, arg1, arg2], shell=False)
 cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
 yaml.safe_load(user_data)
@@ -68,15 +67,15 @@ yaml.safe_load(user_data)
 
 ### Java
 ```java
-// 🔴 命令执行
+// 🔴 Command Execution
 Runtime.getRuntime().exec(userInput);
 new ProcessBuilder(userInput).start();
 
-// 🔴 SQL 注入
+// 🔴 SQL Injection
 Statement stmt = conn.createStatement();
 stmt.execute("SELECT * FROM users WHERE id = " + userId);
 
-// 🔴 反序列化
+// 🔴 Deserialization
 ObjectInputStream ois = new ObjectInputStream(userInputStream);
 ois.readObject();
 
@@ -87,31 +86,31 @@ HttpClient.newHttpClient().send(request);
 // 🔴 XXE
 DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(userXml);
 
-// ✅ 安全替代
+// ✅ Safe Alternatives
 PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM users WHERE id = ?");
 pstmt.setInt(1, userId);
 ```
 
 ### JavaScript/Node.js
 ```javascript
-// 🔴 命令执行
+// 🔴 Command Execution
 child_process.exec(userInput);
 eval(userInput);
 new Function(userInput)();
 
-// 🔴 原型污染
+// 🔴 Prototype Pollution
 Object.assign(target, userInput);
 _.merge(target, userInput);
-JSON.parse(userInput);  // 配合 __proto__
+JSON.parse(userInput);  // Cooperates with __proto__
 
-// 🔴 SQL 注入
+// 🔴 SQL Injection
 db.query(`SELECT * FROM users WHERE id = ${userId}`);
 
 // 🔴 XSS
 element.innerHTML = userInput;
 document.write(userInput);
 
-// ✅ 安全替代
+// ✅ Safe Alternatives
 child_process.execFile(cmd, [arg1, arg2]);
 db.query("SELECT * FROM users WHERE id = ?", [userId]);
 element.textContent = userInput;
@@ -119,101 +118,101 @@ element.textContent = userInput;
 
 ### Go
 ```go
-// 🔴 命令执行
+// 🔴 Command Execution
 exec.Command("sh", "-c", userInput).Run()
 
-// 🔴 SQL 注入
+// 🔴 SQL Injection
 db.Query("SELECT * FROM users WHERE id = " + userId)
 
-// 🔴 路径穿越
-filepath.Join(baseDir, userPath)  // 未校验 ..
+// 🔴 Path Traversal
+filepath.Join(baseDir, userPath)  // Unchecked ..
 
 // 🔴 SSTI
 template.HTML(userInput)
 
-// ✅ 安全替代
+// ✅ Safe Alternatives
 exec.Command(cmd, arg1, arg2).Run()
 db.Query("SELECT * FROM users WHERE id = ?", userId)
 ```
 
-## 污点分析
+## Taint Analysis
 
-### 概念
+### Concept
 ```
-Source (污点源)     →    传播路径    →    Sink (汇聚点)
-用户可控输入              数据流转          危险函数调用
+Source (Taint Source)     →    Propagation Path    →    Sink (Convergence Point)
+User Controllable Input         Data Flow               Dangerous Function Call
 ```
 
-### Source 识别
+### Source Identification
 ```python
-# HTTP 请求参数
+# HTTP Request Parameters
 request.args.get('param')
 request.form.get('param')
 request.json.get('param')
 request.headers.get('header')
 request.cookies.get('cookie')
 
-# 文件输入
+# File Input
 open(file).read()
 sys.stdin.read()
 
-# 环境变量
+# Environment Variables
 os.environ.get('VAR')
 
-# 数据库查询结果（二次注入）
+# Database Query Results (Second-Order Injection)
 cursor.fetchone()
 ```
 
-### 传播追踪
+### Propagation Tracking
 ```python
-# 示例：追踪污点传播
+# Example: Tracking Taint Propagation
 user_input = request.args.get('id')  # Source
-processed = user_input.strip()        # 传播
-query = f"SELECT * FROM users WHERE id = {processed}"  # 传播
+processed = user_input.strip()        # Propagation
+query = f"SELECT * FROM users WHERE id = {processed}"  # Propagation
 cursor.execute(query)                  # Sink!
 ```
 
-## 快速扫描命令
+## Quick Scan Commands
 
 ```bash
-# Python 危险函数
+# Python Dangerous Functions
 grep -rn "eval\|exec\|os.system\|subprocess\|pickle.loads" --include="*.py" .
 
-# Java 危险函数
+# Java Dangerous Functions
 grep -rn "Runtime.exec\|ProcessBuilder\|ObjectInputStream\|Statement.execute" --include="*.java" .
 
-# JavaScript 危险函数
+# JavaScript Dangerous Functions
 grep -rn "eval\|child_process\|innerHTML\|document.write" --include="*.js" .
 
-# Go 危险函数
+# Go Dangerous Functions
 grep -rn "exec.Command\|template.HTML" --include="*.go" .
 
-# SQL 注入模式
+# SQL Injection Patterns
 grep -rn "execute.*+\|execute.*f\"\|Query.*+" --include="*.py" --include="*.java" .
 ```
 
-## 漏洞报告格式
+## Vulnerability Report Format
 
 ```markdown
-## [漏洞类型] - [严重程度: Critical/High/Medium/Low]
+## [Vulnerability Type] - [Severity: Critical/High/Medium/Low]
 
-**文件:** `path/to/file.py:行号`
+**File:** `path/to/file.py:LineNumber`
 
-**漏洞代码:**
+**Vulnerable Code:**
 ```python
-# 有问题的代码片段
+# Problematic code snippet
 user_id = request.args.get('id')
 cursor.execute(f"SELECT * FROM users WHERE id = {user_id}")
 ```
 
-**漏洞原理:**
-用户输入直接拼接到 SQL 语句中，未经过滤或参数化，导致 SQL 注入。
+**Vulnerability Principle:**
+User input is directly concatenated into the SQL statement without filtering or parameterization, resulting in SQL injection.
 
-**污点追踪:**
+**Taint Tracking:**
 ```
 request.args.get('id')  [Source]
     ↓
-f"SELECT ... {user_id}" [传播]
+f"SELECT ... {user_id}" [Propagation]
     ↓
 cursor.execute(query)   [Sink]
 ```
@@ -223,43 +222,42 @@ cursor.execute(query)   [Sink]
 GET /api/users?id=1' OR '1'='1
 ```
 
-**修复建议:**
+**Remediation Suggestion:**
 ```python
 cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
 ```
 ```
 
-## 审计检查清单
+## Audit Checklist
 
-### 输入验证
-- [ ] 所有用户输入是否经过验证
-- [ ] 是否使用白名单验证
-- [ ] 是否有长度限制
+### Input Validation
+- [ ] Are all user inputs validated?
+- [ ] Is whitelist validation used?
+- [ ] Are there length limits?
 
-### SQL 注入
-- [ ] 是否使用参数化查询
-- [ ] 是否有 ORM 保护
-- [ ] 动态表名/列名是否白名单
+### SQL Injection
+- [ ] Are parameterized queries used?
+- [ ] Is there ORM protection?
+- [ ] Are dynamic table/column names whitelisted?
 
-### 命令注入
-- [ ] 是否避免 shell=True
-- [ ] 参数是否正确转义
-- [ ] 是否使用白名单命令
+### Command Injection
+- [ ] Is shell=True avoided?
+- [ ] Are parameters properly escaped?
+- [ ] Are whitelisted commands used?
 
-### 文件操作
-- [ ] 路径是否规范化
-- [ ] 是否检查路径穿越
-- [ ] 文件类型是否验证
+### File Operations
+- [ ] Are paths normalized?
+- [ ] Is path traversal checked?
+- [ ] Is file type validated?
 
-### 认证授权
-- [ ] 敏感操作是否验证身份
-- [ ] 是否有越权检查
-- [ ] 会话管理是否安全
+### Authentication & Authorization
+- [ ] Do sensitive operations verify identity?
+- [ ] Are there broken object level authorization (BOLA/IDOR) checks?
+- [ ] Is session management secure?
 
-### 加密
-- [ ] 是否使用安全算法
-- [ ] 密钥管理是否安全
-- [ ] 是否有硬编码密钥
+### Cryptography
+- [ ] Are secure algorithms used?
+- [ ] Is key management secure?
+- [ ] Are there hardcoded keys?
 
 ---
-

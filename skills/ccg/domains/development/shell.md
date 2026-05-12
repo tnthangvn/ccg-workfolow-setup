@@ -1,82 +1,82 @@
 ---
 name: shell
-description: Shell 脚本开发。Bash、自动化、系统管理。当用户提到 Shell、Bash、脚本、自动化、Linux命令时使用。
+description: Shell Script Development. Bash, automation, system administration. Use when the user mentions Shell, Bash, scripting, automation, or Linux commands.
 ---
 
-# 📜 符箓秘典 · Shell
+# 📜 Talisman Grimoire · Shell
 
 
-## Bash 基础
+## Bash Basics
 
-### 变量与字符串
+### Variables and Strings
 ```bash
 #!/bin/bash
 
-# 变量
+# Variables
 name="Alice"
 age=25
 readonly PI=3.14
 
-# 字符串操作
+# String Operations
 str="Hello World"
-echo ${#str}           # 长度: 11
-echo ${str:0:5}        # 截取: Hello
-echo ${str/World/Bash} # 替换: Hello Bash
-echo ${str,,}          # 小写: hello world
-echo ${str^^}          # 大写: HELLO WORLD
+echo ${#str}           # Length: 11
+echo ${str:0:5}        # Substring: Hello
+echo ${str/World/Bash} # Replacement: Hello Bash
+echo ${str,,}          # Lowercase: hello world
+echo ${str^^}          # Uppercase: HELLO WORLD
 
-# 默认值
-echo ${var:-default}   # 如果 var 未设置，返回 default
-echo ${var:=default}   # 如果 var 未设置，设置并返回 default
+# Default Values
+echo ${var:-default}   # If var is unset, return default
+echo ${var:=default}   # If var is unset, set to and return default
 ```
 
-### 数组
+### Arrays
 ```bash
-# 索引数组
+# Indexed Array
 arr=("a" "b" "c")
-echo ${arr[0]}         # 第一个元素
-echo ${arr[@]}         # 所有元素
-echo ${#arr[@]}        # 数组长度
+echo ${arr[0]}         # First element
+echo ${arr[@]}         # All elements
+echo ${#arr[@]}        # Array length
 
-# 遍历
+# Iteration
 for item in "${arr[@]}"; do
     echo "$item"
 done
 
-# 关联数组 (Bash 4+)
+# Associative Array (Bash 4+)
 declare -A map
 map[name]="Alice"
 map[age]=25
 echo ${map[name]}
 ```
 
-### 条件判断
+### Conditionals
 ```bash
-# 字符串比较
+# String Comparison
 if [[ "$str1" == "$str2" ]]; then
     echo "Equal"
 fi
 
-# 数值比较
+# Numeric Comparison
 if [[ $a -eq $b ]]; then echo "Equal"; fi
 if [[ $a -lt $b ]]; then echo "Less"; fi
 if [[ $a -gt $b ]]; then echo "Greater"; fi
 
-# 文件测试
+# File Tests
 if [[ -f "$file" ]]; then echo "File exists"; fi
 if [[ -d "$dir" ]]; then echo "Directory exists"; fi
 if [[ -r "$file" ]]; then echo "Readable"; fi
 if [[ -w "$file" ]]; then echo "Writable"; fi
 if [[ -x "$file" ]]; then echo "Executable"; fi
 
-# 逻辑运算
+# Logical Operations
 if [[ $a -gt 0 && $b -gt 0 ]]; then echo "Both positive"; fi
 if [[ $a -gt 0 || $b -gt 0 ]]; then echo "At least one positive"; fi
 ```
 
-### 循环
+### Loops
 ```bash
-# for 循环
+# for loop
 for i in {1..5}; do
     echo $i
 done
@@ -85,12 +85,12 @@ for file in *.txt; do
     echo "Processing $file"
 done
 
-# while 循环
+# while loop
 while read -r line; do
     echo "$line"
 done < file.txt
 
-# until 循环
+# until loop
 count=0
 until [[ $count -ge 5 ]]; do
     echo $count
@@ -98,29 +98,29 @@ until [[ $count -ge 5 ]]; do
 done
 ```
 
-### 函数
+### Functions
 ```bash
-# 定义函数
+# Define Function
 greet() {
     local name="$1"
     echo "Hello, $name!"
     return 0
 }
 
-# 调用
+# Call
 greet "Alice"
-result=$?  # 获取返回值
+result=$?  # Get return value
 
-# 返回字符串
+# Return String
 get_date() {
     echo "$(date +%Y-%m-%d)"
 }
 today=$(get_date)
 ```
 
-## 实用脚本模板
+## Useful Script Templates
 
-### 带参数的脚本
+### Script with Arguments
 ```bash
 #!/bin/bash
 set -euo pipefail
@@ -137,11 +137,11 @@ EOF
     exit 1
 }
 
-# 默认值
+# Default values
 OUTPUT=""
 VERBOSE=false
 
-# 解析参数
+# Parse arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -o|--output)
@@ -166,28 +166,28 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# 检查必需参数
+# Check required arguments
 if [[ -z "${INPUT:-}" ]]; then
     echo "Error: Input is required"
     usage
 fi
 
-# 主逻辑
+# Main logic
 main() {
     if $VERBOSE; then
         echo "Processing $INPUT..."
     fi
-    # 处理逻辑
+    # Processing logic
 }
 
 main
 ```
 
-### 日志函数
+### Logging Functions
 ```bash
 #!/bin/bash
 
-# 颜色定义
+# Color Definitions
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -211,15 +211,15 @@ die() {
 }
 ```
 
-### 错误处理
+### Error Handling
 ```bash
 #!/bin/bash
 set -euo pipefail
 
-# 错误处理
+# Error Handling
 trap 'echo "Error on line $LINENO"; exit 1' ERR
 
-# 清理函数
+# Cleanup Function
 cleanup() {
     rm -f "$TEMP_FILE"
 }
@@ -228,86 +228,85 @@ trap cleanup EXIT
 TEMP_FILE=$(mktemp)
 ```
 
-## 常用命令组合
+## Common Command Combinations
 
-### 文本处理
+### Text Processing
 ```bash
-# grep - 搜索
+# grep - Search
 grep -r "pattern" .
-grep -v "exclude"          # 排除
-grep -i "case insensitive" # 忽略大小写
-grep -E "regex"            # 正则
+grep -v "exclude"          # Exclude
+grep -i "case insensitive" # Ignore case
+grep -E "regex"            # Regular expression
 
-# sed - 替换
+# sed - Replace
 sed 's/old/new/g' file
-sed -i 's/old/new/g' file  # 原地修改
-sed -n '10,20p' file       # 打印行
+sed -i 's/old/new/g' file  # Edit in place
+sed -n '10,20p' file       # Print lines
 
-# awk - 处理
-awk '{print $1}' file      # 第一列
+# awk - Process
+awk '{print $1}' file      # First column
 awk -F: '{print $1}' /etc/passwd
 awk 'NR>1 {sum+=$1} END {print sum}' file
 
-# 组合
+# Combination
 cat file | grep "pattern" | awk '{print $2}' | sort | uniq -c
 ```
 
-### 文件操作
+### File Operations
 ```bash
-# 查找
+# Find
 find . -name "*.txt"
-find . -type f -mtime -7   # 7天内修改
-find . -size +100M         # 大于100M
+find . -type f -mtime -7   # Modified within 7 days
+find . -size +100M         # Greater than 100M
 find . -name "*.log" -exec rm {} \;
 
-# 批量重命名
+# Batch Rename
 for f in *.txt; do
     mv "$f" "${f%.txt}.md"
 done
 
-# 批量处理
+# Batch Process
 find . -name "*.py" | xargs grep "TODO"
 ```
 
-### 网络
+### Networking
 ```bash
 # curl
 curl -s https://api.example.com/data
 curl -X POST -H "Content-Type: application/json" -d '{"key":"value"}' URL
 curl -o output.file URL
 
-# 端口检查
+# Port Check
 nc -zv host 80
 ss -tulpn | grep :80
 ```
 
-## 最佳实践
+## Best Practices
 
 ```bash
 #!/bin/bash
-# 1. 使用 set 选项
+# 1. Use set options
 set -euo pipefail
 
-# 2. 引用变量
+# 2. Quote variables
 echo "$variable"
 
-# 3. 使用 [[ ]] 而非 [ ]
+# 3. Use [[ ]] instead of [ ]
 if [[ -f "$file" ]]; then
 
-# 4. 使用 $() 而非反引号
+# 4. Use $() instead of backticks
 result=$(command)
 
-# 5. 使用 local 声明局部变量
+# 5. Use local to declare local variables
 func() {
     local var="value"
 }
 
-# 6. 检查命令是否存在
+# 6. Check if command exists
 command -v git &>/dev/null || die "git not found"
 
-# 7. 使用 shellcheck 检查
+# 7. Use shellcheck for linting
 # shellcheck script.sh
 ```
 
 ---
-

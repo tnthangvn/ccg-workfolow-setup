@@ -1,14 +1,14 @@
 ---
 name: python
-description: Python 开发。Web框架、数据处理、自动化脚本、测试。当用户提到 Python、Django、Flask、FastAPI、pytest、pandas 时使用。
+description: Python Development. Web frameworks, data processing, automation scripts, testing. Route to here when the user mentions Python, Django, Flask, FastAPI, pytest, or pandas.
 ---
 
-# 📜 符箓秘典 · Python
+# 📜 Talisman Grimoire · Python
 
 
-## Web 框架
+## Web Frameworks
 
-### FastAPI (推荐)
+### FastAPI (Recommended)
 ```python
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
@@ -29,7 +29,7 @@ async def get_user(user_id: int):
 async def create_user(user: User):
     return user
 
-# 依赖注入
+# Dependency Injection
 async def get_db():
     db = Database()
     try:
@@ -85,7 +85,7 @@ urlpatterns = [
 ]
 ```
 
-## 异步编程
+## Asynchronous Programming
 
 ```python
 import asyncio
@@ -100,51 +100,51 @@ async def fetch_all(urls: list[str]) -> list[str]:
     tasks = [fetch(url) for url in urls]
     return await asyncio.gather(*tasks)
 
-# 运行
+# Run
 asyncio.run(fetch_all(['http://example.com', 'http://example.org']))
 ```
 
-## 数据处理
+## Data Processing
 
 ### Pandas
 ```python
 import pandas as pd
 
-# 读取数据
+# Read data
 df = pd.read_csv('data.csv')
 df = pd.read_json('data.json')
 
-# 数据清洗
+# Data cleaning
 df = df.dropna()
 df = df.drop_duplicates()
 df['column'] = df['column'].str.strip()
 
-# 数据转换
+# Data transformation
 df['date'] = pd.to_datetime(df['date'])
 df['category'] = df['category'].astype('category')
 
-# 聚合分析
+# Aggregation and analysis
 result = df.groupby('category').agg({
     'value': ['sum', 'mean', 'count']
 })
 
-# 导出
+# Export
 df.to_csv('output.csv', index=False)
 df.to_json('output.json', orient='records')
 ```
 
-## 测试
+## Testing
 
 ### pytest
 ```python
 import pytest
 from myapp import calculate, UserService
 
-# 基础测试
+# Basic test
 def test_add():
     assert calculate.add(1, 2) == 3
 
-# 参数化
+# Parametrization
 @pytest.mark.parametrize("a,b,expected", [
     (1, 2, 3),
     (0, 0, 0),
@@ -173,26 +173,26 @@ def test_fetch(mock_get):
     result = fetch_user(1)
     assert result["id"] == 1
 
-# 异步测试
+# Async test
 @pytest.mark.asyncio
 async def test_async_fetch():
     result = await async_fetch()
     assert result is not None
 ```
 
-### 运行测试
+### Running Tests
 ```bash
-pytest                      # 运行所有
-pytest test_file.py         # 指定文件
-pytest -k "test_add"        # 匹配名称
-pytest -v                   # 详细输出
-pytest --cov=myapp          # 覆盖率
-pytest -x                   # 失败即停
+pytest                      # Run all
+pytest test_file.py         # Specify file
+pytest -k "test_add"        # Match name
+pytest -v                   # Verbose output
+pytest --cov=myapp          # Coverage
+pytest -x                   # Stop on first failure
 ```
 
-## CLI 工具
+## CLI Tools
 
-### Typer (推荐)
+### Typer (Recommended)
 ```python
 import typer
 
@@ -227,11 +227,11 @@ parser.add_argument('-v', '--verbose', action='store_true')
 args = parser.parse_args()
 ```
 
-## 项目结构
+## Project Structure
 
 ```
 myproject/
-├── pyproject.toml          # 项目配置
+├── pyproject.toml          # Project configuration
 ├── README.md
 ├── src/
 │   └── myproject/
@@ -271,18 +271,17 @@ line-length = 120
 select = ["E", "F", "I"]
 ```
 
-## 常用库
+## Common Libraries
 
-| 库 | 用途 |
+| Library | Purpose |
 |---|------|
-| requests/httpx | HTTP 客户端 |
-| aiohttp | 异步 HTTP |
+| requests/httpx | HTTP Client |
+| aiohttp | Async HTTP |
 | SQLAlchemy | ORM |
-| Pydantic | 数据验证 |
+| Pydantic | Data Validation |
 | Click/Typer | CLI |
-| pytest | 测试 |
-| pandas | 数据处理 |
-| loguru | 日志 |
+| pytest | Testing |
+| pandas | Data Processing |
+| loguru | Logging |
 
 ---
-

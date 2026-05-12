@@ -1,16 +1,16 @@
 ---
 name: cloud-native
-description: 云原生架构。容器、Kubernetes、Serverless、微服务。当用户提到云原生、容器、Docker、Kubernetes、K8s、Serverless时使用。
+description: Cloud Native Architecture. Containers, Kubernetes, Serverless, Microservices. Use when the user mentions cloud native, containers, Docker, Kubernetes, K8s, or Serverless.
 ---
 
-# 🏗 阵法秘典 · 云原生架构
+# 🏗 Array Manual · Cloud Native Architecture
 
 
 ## Docker
 
 ### Dockerfile
 ```dockerfile
-# 多阶段构建
+# Multi-stage build
 FROM node:18-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
@@ -57,24 +57,24 @@ volumes:
   postgres_data:
 ```
 
-### 安全最佳实践
+### Security Best Practices
 ```yaml
-镜像安全:
-  - 使用官方基础镜像
-  - 最小化镜像 (alpine/distroless)
-  - 扫描漏洞 (Trivy)
-  - 固定版本标签
+Image Security:
+  - Use official base images
+  - Minimize images (alpine/distroless)
+  - Scan for vulnerabilities (Trivy)
+  - Pin version tags
 
-运行时安全:
-  - 非 root 用户运行
-  - 只读文件系统
-  - 限制资源
-  - 禁用特权模式
+Runtime Security:
+  - Run as non-root user
+  - Read-only file systems
+  - Limit resources
+  - Disable privileged mode
 ```
 
 ## Kubernetes
 
-### 基础资源
+### Basic Resources
 ```yaml
 # Deployment
 apiVersion: apps/v1
@@ -154,7 +154,7 @@ spec:
               number: 80
 ```
 
-### 配置管理
+### Configuration Management
 ```yaml
 # ConfigMap
 apiVersion: v1
@@ -175,7 +175,7 @@ stringData:
   DATABASE_URL: postgres://user:pass@db:5432/mydb
 ```
 
-### 安全策略
+### Security Policies
 ```yaml
 # NetworkPolicy
 apiVersion: networking.k8s.io/v1
@@ -204,7 +204,7 @@ spec:
     ports:
     - port: 5432
 ---
-# PodSecurityPolicy (已废弃，使用 Pod Security Standards)
+# PodSecurityPolicy (Deprecated, use Pod Security Standards)
 # Pod Security Admission
 apiVersion: v1
 kind: Namespace
@@ -261,25 +261,24 @@ resources:
       Type: AWS::SQS::Queue
 ```
 
-## 微服务模式
+## Microservices Patterns
 
 ```yaml
-服务发现:
+Service Discovery:
   - DNS (Kubernetes Service)
   - Service Mesh (Istio)
 
-负载均衡:
-  - 客户端负载均衡
-  - 服务端负载均衡
+Load Balancing:
+  - Client-side load balancing
+  - Server-side load balancing
 
-熔断器:
+Circuit Breaker:
   - Circuit Breaker
   - Retry with backoff
   - Timeout
 
-可观测性:
-  - 日志聚合 (ELK)
-  - 指标监控 (Prometheus)
-  - 分布式追踪 (Jaeger)
+Observability:
+  - Log aggregation (ELK)
+  - Metrics monitoring (Prometheus)
+  - Distributed tracing (Jaeger)
 ```
-

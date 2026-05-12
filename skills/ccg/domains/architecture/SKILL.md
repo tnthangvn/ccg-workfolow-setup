@@ -1,42 +1,41 @@
 ---
 name: architecture
-description: 架构设计能力索引。API设计、安全架构、云原生、数据安全。当用户提到架构、设计、API、云原生时路由到此。
+description: Architecture design capabilities index. API design, security architecture, cloud native, data security. Route here when the user mentions architecture, design, API, or cloud native.
 license: MIT
 user-invocable: false
 disable-model-invocation: false
 ---
 
-# 🏗 阵法秘典 · 架构设计能力中枢
+# 🏗 Array Manual · Architecture Design Capability Hub
 
 
-## 能力矩阵
+## Capability Matrix
 
-| Skill | 定位 | 核心能力 |
+| Skill | Positioning | Core Capabilities |
 |-------|------|----------|
-| [api-design](api-design.md) | API 设计 | RESTful、GraphQL、OpenAPI |
-| [security-arch](security-arch.md) | 安全架构 | 零信任、IAM、威胁建模、数据安全、合规审计 |
-| [cloud-native](cloud-native.md) | 云原生 | 容器、K8s、Serverless |
-| [message-queue](message-queue.md) | 消息队列 | Kafka、RabbitMQ、事件驱动 |
-| [caching](caching.md) | 缓存策略 | Redis、CDN、缓存一致性 |
+| [api-design](api-design.md) | API Design | RESTful, GraphQL, OpenAPI |
+| [security-arch](security-arch.md) | Security Architecture | Zero Trust, IAM, Threat Modeling, Data Security, Compliance Auditing |
+| [cloud-native](cloud-native.md) | Cloud Native | Containers, K8s, Serverless |
+| [message-queue](message-queue.md) | Message Queue | Kafka, RabbitMQ, Event-Driven |
+| [caching](caching.md) | Caching Strategy | Redis, CDN, Cache Consistency |
 
-## 架构原则
+## Architectural Principles
 
 ```yaml
 SOLID:
-  - S: 单一职责
-  - O: 开闭原则
-  - L: 里氏替换
-  - I: 接口隔离
-  - D: 依赖倒置
+  - S: Single Responsibility
+  - O: Open/Closed Principle
+  - L: Liskov Substitution
+  - I: Interface Segregation
+  - D: Dependency Inversion
 
-分布式:
-  - CAP 定理
-  - BASE 理论
-  - 最终一致性
+Distributed:
+  - CAP Theorem
+  - BASE Theory
+  - Eventual Consistency
 
-安全:
-  - 纵深防御
-  - 最小权限
-  - 零信任
+Security:
+  - Defense in Depth
+  - Least Privilege
+  - Zero Trust
 ```
-

@@ -1,36 +1,36 @@
 ---
 name: threat-intel
-description: 威胁情报。OSINT、威胁狩猎、情报分析、IOC管理。当用户提到威胁情报、OSINT、开源情报、威胁狩猎、IOC、TTP、ATT&CK时使用。
+description: Threat intelligence. OSINT, threat hunting, intelligence analysis, IOC management. Use when the user mentions threat intelligence, OSINT, open-source intelligence, threat hunting, IOC, TTP, or ATT&CK.
 ---
 
-# 👁 天眼秘典 · 威胁情报 (Threat Intelligence)
+# 👁 Heavenly Eye Tome · Threat Intelligence
 
 
-## 情报层次
+## Intelligence Levels
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    威胁情报金字塔                             │
+│                 Threat Intelligence Pyramid                 │
 ├─────────────────────────────────────────────────────────────┤
-│                      战略情报                                │
-│                   (决策层/长期趋势)                          │
-│                    ─────────────                             │
-│                     战术情报                                 │
-│                  (TTP/攻击手法)                              │
-│                   ─────────────                              │
-│                    运营情报                                  │
-│                 (攻击活动/APT)                               │
-│                  ─────────────                               │
-│                   技术情报                                   │
-│                (IOC/IP/域名/Hash)                            │
+│                    Strategic Intelligence                   │
+│             (Decision Makers / Long-term Trends)            │
+│                    ────────────────────                     │
+│                     Tactical Intelligence                   │
+│                     (TTP / Attack Methods)                  │
+│                   ───────────────────────                   │
+│                   Operational Intelligence                  │
+│                (Attack Campaigns / APTs)                    │
+│                  ────────────────────────                   │
+│                    Technical Intelligence                   │
+│                 (IOC / IP / Domain / Hash)                  │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## OSINT 信息收集
+## OSINT Information Gathering
 
-### 域名/IP 情报
+### Domain/IP Intelligence
 ```bash
-# DNS 查询
+# DNS Queries
 dig +short example.com
 dig +short -x 1.2.3.4
 host example.com
@@ -39,33 +39,33 @@ host example.com
 whois example.com
 whois 1.2.3.4
 
-# 子域名枚举
+# Subdomain Enumeration
 subfinder -d example.com
 amass enum -d example.com
 ```
 
-### 在线情报平台
+### Online Intelligence Platforms
 ```yaml
-IP/域名信誉:
+IP/Domain Reputation:
   - VirusTotal: https://www.virustotal.com
   - AbuseIPDB: https://www.abuseipdb.com
   - Shodan: https://www.shodan.io
   - Censys: https://search.censys.io
   - GreyNoise: https://www.greynoise.io
 
-恶意软件分析:
+Malware Analysis:
   - Any.Run: https://any.run
   - Hybrid Analysis: https://www.hybrid-analysis.com
   - Joe Sandbox: https://www.joesandbox.com
   - MalwareBazaar: https://bazaar.abuse.ch
 
-威胁情报:
+Threat Intelligence:
   - AlienVault OTX: https://otx.alienvault.com
   - MISP: https://www.misp-project.org
   - ThreatFox: https://threatfox.abuse.ch
 ```
 
-### 搜索引擎 Dorking
+### Search Engine Dorking
 ```
 # Google Dorks
 site:example.com filetype:pdf
@@ -84,13 +84,13 @@ services.http.response.html_title:"Admin"
 services.tls.certificates.leaf.subject.common_name:example.com
 ```
 
-### 社交媒体情报
+### Social Media Intelligence
 ```yaml
-平台:
-  - LinkedIn: 员工信息、组织架构
-  - GitHub: 代码泄露、API密钥
-  - Twitter: 安全事件、漏洞披露
-  - Pastebin: 数据泄露
+Platforms:
+  - LinkedIn: Employee info, organizational structure
+  - GitHub: Code leaks, API keys
+  - Twitter: Security incidents, vulnerability disclosures
+  - Pastebin: Data leaks
 
 GitHub Dorks:
   - "example.com" password
@@ -99,29 +99,29 @@ GitHub Dorks:
   - org:example filename:.env
 ```
 
-## IOC 管理
+## IOC Management
 
-### IOC 类型
+### IOC Types
 ```yaml
-网络层:
-  - IP 地址
-  - 域名
+Network Layer:
+  - IP Address
+  - Domain Name
   - URL
   - User-Agent
 
-主机层:
-  - 文件 Hash (MD5/SHA1/SHA256)
-  - 文件路径
-  - 注册表键
-  - 进程名
+Host Layer:
+  - File Hash (MD5/SHA1/SHA256)
+  - File Path
+  - Registry Key
+  - Process Name
 
-行为层:
-  - YARA 规则
-  - Sigma 规则
-  - Snort 规则
+Behavioral Layer:
+  - YARA Rules
+  - Sigma Rules
+  - Snort Rules
 ```
 
-### IOC 格式 (STIX/TAXII)
+### IOC Format (STIX/TAXII)
 ```json
 {
   "type": "indicator",
@@ -138,10 +138,10 @@ GitHub Dorks:
 }
 ```
 
-### IOC 自动化查询
+### Automated IOC Query
 ```python
 #!/usr/bin/env python3
-"""IOC 批量查询"""
+"""Batch IOC Querying"""
 import requests
 
 class IOCChecker:
@@ -149,7 +149,7 @@ class IOCChecker:
         self.vt_key = vt_api_key
 
     def check_hash(self, file_hash):
-        """VirusTotal Hash 查询"""
+        """VirusTotal Hash Query"""
         url = f"https://www.virustotal.com/api/v3/files/{file_hash}"
         headers = {"x-apikey": self.vt_key}
         resp = requests.get(url, headers=headers)
@@ -164,28 +164,28 @@ class IOCChecker:
         return None
 
     def check_ip(self, ip):
-        """AbuseIPDB 查询"""
+        """AbuseIPDB Query"""
         url = "https://api.abuseipdb.com/api/v2/check"
         params = {"ipAddress": ip, "maxAgeInDays": 90}
-        # 需要 API Key
+        # Requires API Key
         pass
 
     def check_domain(self, domain):
-        """域名信誉查询"""
+        """Domain Reputation Query"""
         pass
 ```
 
-## ATT&CK 映射
+## ATT&CK Mapping
 
-### TTP 分析
+### TTP Analysis
 ```yaml
-# 攻击者画像
+# Threat Actor Profile
 APT_Profile:
   name: "APT-XX"
   aliases: ["Group A", "Group B"]
   targets:
-    - 金融行业
-    - 政府机构
+    - Financial Industry
+    - Government Agencies
   techniques:
     initial_access:
       - T1566.001: Spearphishing Attachment
@@ -207,7 +207,7 @@ APT_Profile:
 
 ### ATT&CK Navigator
 ```python
-# 生成 ATT&CK Navigator 层
+# Generate ATT&CK Navigator Layer
 def generate_navigator_layer(techniques):
     layer = {
         "name": "Threat Actor Coverage",
@@ -226,38 +226,38 @@ def generate_navigator_layer(techniques):
     return layer
 ```
 
-## 威胁狩猎
+## Threat Hunting
 
-### 狩猎流程
+### Hunting Workflow
 ```
-假设生成 → 数据收集 → 分析调查 → 发现验证 → 知识沉淀
-    │           │           │           │           │
-    └─ ATT&CK ──┴─ SIEM ────┴─ 查询 ────┴─ IOC ────┴─ 规则
+Hypothesis Generation → Data Collection → Analysis & Investigation → Discovery & Validation → Knowledge Accumulation
+          │                     │                    │                        │                         │
+          └─ ATT&CK ────────────┴─ SIEM ─────────────┴─ Queries ──────────────┴─ IOCs ──────────────────┴─ Rules
 ```
 
-### 狩猎假设模板
+### Hunting Hypothesis Template
 ```yaml
-hypothesis: "攻击者可能通过 PowerShell 下载执行恶意代码"
+hypothesis: "Attacker might be downloading and executing malicious code via PowerShell"
 technique: T1059.001
 data_sources:
-  - Windows PowerShell 日志 (4103, 4104)
-  - Sysmon 进程创建 (Event ID 1)
+  - Windows PowerShell Logs (4103, 4104)
+  - Sysmon Process Creation (Event ID 1)
 query: |
   EventID=4104 AND ScriptBlockText CONTAINS
   ("IEX" OR "Invoke-Expression" OR "DownloadString" OR "Net.WebClient")
 expected_results:
-  - 可疑脚本块
-  - 外部 URL 下载
-  - 编码命令
+  - Suspicious script blocks
+  - External URL downloads
+  - Encoded commands
 response:
-  - 隔离主机
-  - 提取样本
-  - 扩展狩猎
+  - Isolate host
+  - Extract samples
+  - Expand hunting scope
 ```
 
-### 狩猎查询库
+### Hunting Query Library
 ```sql
--- 异常 PowerShell 执行
+-- Anomalous PowerShell Execution
 SELECT timestamp, hostname, user, command_line
 FROM process_events
 WHERE process_name = 'powershell.exe'
@@ -265,14 +265,14 @@ WHERE process_name = 'powershell.exe'
        OR command_line LIKE '%DownloadString%'
        OR command_line LIKE '%-enc%')
 
--- 异常网络连接
+-- Anomalous Network Connections
 SELECT timestamp, process_name, remote_address, remote_port
 FROM network_events
 WHERE remote_port NOT IN (80, 443, 53, 22)
   AND remote_address NOT LIKE '10.%'
   AND remote_address NOT LIKE '192.168.%'
 
--- 可疑文件创建
+-- Suspicious File Creation
 SELECT timestamp, process_name, file_path
 FROM file_events
 WHERE file_path LIKE '%\Temp\%'
@@ -280,15 +280,15 @@ WHERE file_path LIKE '%\Temp\%'
   AND process_name IN ('powershell.exe', 'cmd.exe', 'wscript.exe')
 ```
 
-## 情报共享
+## Intelligence Sharing
 
-### MISP 集成
+### MISP Integration
 ```python
 from pymisp import PyMISP
 
 misp = PyMISP(url, key, ssl=False)
 
-# 创建事件
+# Create Event
 event = misp.new_event(
     distribution=0,
     info="Phishing Campaign 2024-01",
@@ -296,77 +296,76 @@ event = misp.new_event(
     threat_level_id=2
 )
 
-# 添加 IOC
+# Add IOCs
 misp.add_attribute(event, type='ip-dst', value='1.2.3.4')
 misp.add_attribute(event, type='domain', value='malicious.com')
 misp.add_attribute(event, type='sha256', value='abc123...')
 
-# 添加标签
+# Add Tags
 misp.tag(event, 'tlp:amber')
 misp.tag(event, 'misp-galaxy:mitre-attack-pattern="T1566"')
 ```
 
-## 工具清单
+## Tool Checklist
 
-| 工具 | 用途 |
-|------|------|
-| MISP | 威胁情报平台 |
-| OpenCTI | 威胁情报管理 |
-| TheHive | 事件响应平台 |
-| Maltego | 关系分析 |
-| Shodan | 网络空间搜索 |
-| VirusTotal | 恶意软件分析 |
-| ATT&CK Navigator | TTP 可视化 |
+| Tool | Purpose |
+|------|---------|
+| MISP | Threat Intelligence Platform |
+| OpenCTI | Threat Intelligence Management |
+| TheHive | Incident Response Platform |
+| Maltego | Relationship Analysis |
+| Shodan | Cyberspace Search Engine |
+| VirusTotal | Malware Analysis |
+| ATT&CK Navigator | TTP Visualization |
 
-## 威胁建模
+## Threat Modeling
 
-### 建模流程
+### Modeling Workflow
 ```
-资产识别 → 架构分解 → 威胁枚举 → 风险评级 → 缓解措施 → 验证
-```
-
-### STRIDE 速查
-| 威胁 | 含义 | 缓解 |
-|------|------|------|
-| Spoofing | 身份伪造 | 强认证、MFA |
-| Tampering | 数据篡改 | 完整性校验、签名 |
-| Repudiation | 否认操作 | 审计日志、数字签名 |
-| Info Disclosure | 信息泄露 | 加密、访问控制 |
-| DoS | 拒绝服务 | 限流、冗余 |
-| EoP | 权限提升 | 最小权限、输入验证 |
-
-### PASTA 七阶段
-```
-定义目标 → 技术范围 → 应用分解 → 威胁分析 → 漏洞分析 → 攻击建模 → 风险管理
+Asset Identification → Architecture Decomposition → Threat Enumeration → Risk Rating → Mitigation Measures → Validation
 ```
 
-### 攻击树建模
+### STRIDE Cheat Sheet
+| Threat | Meaning | Mitigation |
+|--------|---------|------------|
+| Spoofing | Identity forgery | Strong authentication, MFA |
+| Tampering | Data alteration | Integrity checks, signatures |
+| Repudiation | Denying actions | Audit logs, digital signatures |
+| Info Disclosure | Information leak | Encryption, access control |
+| DoS | Denial of service | Rate limiting, redundancy |
+| EoP | Privilege escalation | Least privilege, input validation |
+
+### PASTA 7 Stages
+```
+Define Objectives → Technical Scope → Application Decomposition → Threat Analysis → Vulnerability Analysis → Attack Modeling → Risk Management
+```
+
+### Attack Tree Modeling
 ```yaml
-# OR节点: 任一子成功即成功, 风险=1-∏(1-Pi)
-# AND节点: 全部子成功才成功, 风险=∏Pi
-# 每节点属性: goal, cost, skill, detection, success_rate, mitigations
+# OR node: Success if any child succeeds, Risk = 1-∏(1-Pi)
+# AND node: Success only if all children succeed, Risk = ∏Pi
+# Node attributes: goal, cost, skill, detection, success_rate, mitigations
 ```
 
-### 风险矩阵
+### Risk Matrix
 ```
->=15 严重(立即) / >=10 高(优先) / >=6 中(计划) / <6 低(监控)
-风险分 = 可能性(1-5) x 影响(1-5)
+>=15 Critical (Immediate) / >=10 High (Priority) / >=6 Medium (Planned) / <6 Low (Monitor)
+Risk Score = Likelihood (1-5) x Impact (1-5)
 ```
 
-### 威胁建模检查清单
+### Threat Modeling Checklist
 ```yaml
-准备: 识别关键资产 + 定义安全目标 + 组建跨职能团队
-建模: 数据流图+信任边界 + STRIDE/PASTA枚举 + 风险评级 + 缓解措施
-验证: 安全测试 + 定期更新模型 + 跟踪缓解实施 + 事件后复盘
+Preparation: Identify critical assets + Define security goals + Form cross-functional team
+Modeling: DFD & trust boundaries + STRIDE/PASTA enumeration + Risk rating + Mitigations
+Validation: Security testing + Model updates + Tracking mitigations + Post-incident review
 ```
 
-### 工具
-| 工具 | 特点 |
-|------|------|
-| Microsoft Threat Modeling Tool | STRIDE 自动化 |
-| OWASP Threat Dragon | 开源、DFD 支持 |
-| Threagile | CLI、代码化建模 |
-| PyTM | Python 编程式建模 |
+### Tools
+| Tool | Features |
+|------|----------|
+| Microsoft Threat Modeling Tool | STRIDE automation |
+| OWASP Threat Dragon | Open-source, DFD support |
+| Threagile | CLI, code-based modeling |
+| PyTM | Python programmatic modeling |
 
 ---
-

@@ -1,39 +1,39 @@
-# UX 原则
+# UX Principles
 
-## 可用性
+## Usability
 
-### Nielsen十大可用性原则
-1. 系统状态可见
-2. 系统匹配现实
-3. 用户控制自由
-4. 一致性标准
-5. 防错
-6. 识别优于回忆
-7. 灵活高效
-8. 美学简约
-9. 帮助识别错误
-10. 帮助文档
+### Nielsen's Ten Usability Heuristics
+1. Visibility of system status
+2. Match between system and the real world
+3. User control and freedom
+4. Consistency and standards
+5. Error prevention
+6. Recognition rather than recall
+7. Flexibility and efficiency of use
+8. Aesthetic and minimalist design
+9. Help users recognize, diagnose, and recover from errors
+10. Help and documentation
 
-## 无障碍
+## Accessibility
 
-### WCAG 2.1速查
-- **可感知**：文本替代、时基媒体、适配性、可辨别
-- **可操作**：键盘、足够时间、无癫痫、导航
-- **可理解**：可读、可预测、输入辅助
-- **健壮**：兼容性
+### WCAG 2.1 Quick Reference
+- **Perceivable**: Text alternatives, time-based media, adaptable, distinguishable
+- **Operable**: Keyboard accessible, enough time, seizures and physical reactions, navigable
+- **Understandable**: Readable, predictable, input assistance
+- **Robust**: Compatible
 
-### ARIA标签最佳实践
+### ARIA Labels Best Practices
 ```html
-<button aria-label="关闭对话框">
+<button aria-label="Close Dialog">
   <svg aria-hidden="true">...</svg>
 </button>
-<nav aria-label="主导航">
+<nav aria-label="Main Navigation">
   <ul role="list">...</ul>
 </nav>
-<div role="alert" aria-live="assertive">错误消息</div>
+<div role="alert" aria-live="assertive">Error message</div>
 ```
 
-### 键盘导航支持
+### Keyboard Navigation Support
 ```javascript
 element.addEventListener("keydown", e => {
   if (e.key === "Enter" || e.key === " ") {
@@ -47,25 +47,25 @@ element.addEventListener("keydown", e => {
 element.setAttribute("tabindex", "0");
 ```
 
-## 信息架构
+## Information Architecture
 
-### 信息架构设计模式
-- 层级结构(树形)
-- 顺序结构(线性)
-- 矩阵结构(网格)
-- 数据库结构(标签)
+### Information Architecture Design Patterns
+- Hierarchical structure (Tree)
+- Sequential structure (Linear)
+- Matrix structure (Grid)
+- Database structure (Tags)
 
-导航深度≤3层，广度5±2项。
+Navigation depth ≤ 3 levels, breadth 5±2 items.
 
-## 用户流程
+## User Flow
 
-### 用户流程设计原则
-减少步骤、清晰进度、允许跳过、保存状态、提供退出、即时反馈。关键流程≤3步。
+### User Flow Design Principles
+Reduce steps, clear progress, allow skipping, save state, provide exit, immediate feedback. Critical flows ≤ 3 steps.
 
-## 加载体验
+## Loading Experience
 
-### 骨架屏与加载策略
-优先级：骨架屏>进度条>加载动画>空白。首屏<1s，交互<100ms，加载>1s显示进度。
+### Skeleton Screens and Loading Strategies
+Priority: Skeleton Screen > Progress Bar > Loading Animation > Blank. First screen < 1s, interaction < 100ms, loading > 1s show progress.
 
 ```css
 .skeleton {
@@ -79,15 +79,15 @@ element.setAttribute("tabindex", "0");
 }
 ```
 
-## 反馈设计
+## Feedback Design
 
-### 用户反馈模式
-- **Toast**(临时提示)
-- **Alert**(重要警告)
-- **Modal**(阻断操作)
-- **Inline**(表单验证)
+### User Feedback Patterns
+- **Toast** (Temporary notification)
+- **Alert** (Important warning)
+- **Modal** (Blocking operation)
+- **Inline** (Form validation)
 
-成功绿、警告黄、错误红、信息蓝。
+Success Green, Warning Yellow, Error Red, Info Blue.
 
 ```css
 .toast {
@@ -112,10 +112,10 @@ element.setAttribute("tabindex", "0");
 }
 ```
 
-## 移动端优先
+## Mobile First
 
-### 移动端设计原则
-触摸目标≥44px、拇指热区、避免悬停、简化导航、减少输入、优化性能、考虑单手操作。
+### Mobile Design Principles
+Touch targets ≥ 44px, thumb heat zones, avoid hover, simplify navigation, reduce input, optimize performance, consider one-handed operation.
 
 ```css
 .btn-touch {
@@ -133,24 +133,24 @@ element.setAttribute("tabindex", "0");
 }
 ```
 
-## 性能感知
+## Perceived Performance
 
-### 感知性能优化
-骨架屏、乐观更新、预加载、懒加载、渐进增强。让用户感觉快比实际快更重要。
+### Perceived Performance Optimization
+Skeleton screens, optimistic updates, preloading, lazy loading, progressive enhancement. Making the user feel it's fast is more important than actual speed.
 
-## 审查清单
+## Review Checklist
 
-- [ ] 符合Nielsen原则
-- [ ] WCAG AA达标
-- [ ] 键盘可访问
-- [ ] 移动端友好
-- [ ] 加载状态清晰
-- [ ] 反馈及时
+- [ ] Complies with Nielsen's heuristics
+- [ ] Meets WCAG AA standards
+- [ ] Keyboard accessible
+- [ ] Mobile friendly
+- [ ] Clear loading states
+- [ ] Timely feedback
 
-## 最佳实践
+## Best Practices
 
-1. 用户优先于技术
-2. 简单优于复杂
-3. 一致性建立信任
-4. 反馈建立信心
-5. 可访问性非可选
+1. Users prioritize over technology
+2. Simple over complex
+3. Consistency builds trust
+4. Feedback builds confidence
+5. Accessibility is not optional

@@ -1,263 +1,263 @@
-# 多Agent协同
+# Multi-Agent Coordination
 
-## 启用条件
+## Activation Conditions
 
-### TeamCreate vs Task(subagent) 决策树
+### TeamCreate vs Task(subagent) Decision Tree
 
 ```
-收到任务 → 评估规模
+Receive Task → Assess Scale
   │
-  ├─ 涉及 ≥3 个独立文件/模块？ → TeamCreate
-  ├─ 需要 ≥2 个并行工作流？   → TeamCreate
-  ├─ 总步骤 >10 步？          → TeamCreate
-  ├─ 魔尊明确要求并行/团队？   → TeamCreate
+  ├─ Involves ≥3 independent files/modules? → TeamCreate
+  ├─ Requires ≥2 parallel workflows?        → TeamCreate
+  ├─ Total steps >10?                       → TeamCreate
+  ├─ Demon Lord explicitly requested parallel/team? → TeamCreate
   │
-  ├─ 单一探索/搜索任务？       → Task(subagent_type=Explore)
-  ├─ 单文件独立操作？          → Task(subagent)
-  └─ 简单查询/单步操作？       → 直接执行
+  ├─ Single exploration/search task?        → Task(subagent_type=Explore)
+  ├─ Single file independent operation?     → Task(subagent)
+  └─ Simple query/single-step operation?    → Execute directly
 ```
 
-**铁律**：当犹豫时，优先 TeamCreate。多 Agent 并行效率远高于串行 subagent。
+**Iron Rule**: When in doubt, prefer TeamCreate. Multi-Agent parallel efficiency is far higher than serial subagents.
 
-## Codex 原生动作映射
+## Codex Native Action Mapping
 
-| 协同动作 | Codex 工具 |
-|---------|------------|
-| 创建子任务 | `spawn_agent` |
-| 下发/追问 | `send_input` |
-| 等待完成 | `wait` |
-| 长耗时任务 | `awaiter` agent |
-| 代码探索 | `explorer` agent |
-| 执行改动 | `worker` agent |
-| 收尾回收 | `close_agent` |
+| Coordination Action | Codex Tool |
+|---------------------|------------|
+| Create sub-task | `spawn_agent` |
+| Dispatch/Follow-up | `send_input` |
+| Wait for completion | `wait` |
+| Long-running task | `awaiter` agent |
+| Code exploration | `explorer` agent |
+| Execute changes | `worker` agent |
+| Cleanup/Reclaim | `close_agent` |
 
-执行顺序：锁文件 → 并行执行 → 审查修复 → 汇总 → 回收子 Agent。
+Execution Order: Lock files → Parallel execute → Review & Fix → Consolidate → Reclaim sub-Agents.
 
-### 决策矩阵
+### Decision Matrix
 
-满足**任意 1 条**即启用 TeamCreate：
+Enable TeamCreate if **ANY** of the following 1 condition is met:
 
-| 条件 | 说明 | 示例 |
-|------|------|------|
-| 多文件独立变更 | ≥3 个无交叉依赖的文件 | 6个新秘典各自独立 |
-| 可并行子任务 | ≥2 个无数据依赖的工作流 | 前端+后端+文档 |
-| 复杂度高 | 单Agent需 >10 步 | 全栈重构 |
-| 时间紧迫 | 劫钟催命，需加速 | 紧急修复多服务 |
+| Condition | Description | Example |
+|-----------|-------------|---------|
+| Multi-file independent changes | ≥3 files with no cross-dependencies | 6 new codexes, each independent |
+| Parallelizable subtasks | ≥2 workflows with no data dependencies | Frontend + Backend + Docs |
+| High complexity | Single Agent needs >10 steps | Full-stack refactoring |
+| Urgent time | Looming deadline, need acceleration | Urgent fix for multiple services |
 
-## 角色定义
+## Role Definitions
 
-| 角色 | 道语 | 职责 | 工具权限 |
-|------|------|------|----------|
-| 主修 (Lead) | 天罗主修 | 任务分解、进度追踪、结果汇总 | `spawn_agent/send_input/wait/close_agent` |
-| 道侣 (Worker) | 天罗道侣 | 执行具体子任务、报告进度 | `worker` + Read/Write/Edit/Bash |
-| 护法 (Reviewer) | 天罗护法 | 代码审查、质量校验、冲突检测 | `worker`(审查模式) + Read/Grep/Glob |
-| 斥候 (Scout) | 天罗斥候 | 只读探索、依赖定位 | `explorer` + Read/Grep/Glob |
+| Role | Dao Term | Responsibilities | Tool Permissions |
+|------|----------|------------------|------------------|
+| Lead | Heavenly Net Lead | Task decomposition, progress tracking, result consolidation | `spawn_agent/send_input/wait/close_agent` |
+| Worker | Heavenly Net Companion | Execute specific subtasks, report progress | `worker` + Read/Write/Edit/Bash |
+| Reviewer | Heavenly Net Protector | Code review, quality check, conflict detection | `worker`(review mode) + Read/Grep/Glob |
+| Scout | Heavenly Net Scout | Read-only exploration, dependency locating | `explorer` + Read/Grep/Glob |
 
-## 任务分解策略
+## Task Decomposition Strategy
 
-### 按文件拆分（首选）
-每个Agent负责独立的文件集合，零交叉：
+### Split by File (Preferred)
+Each Agent is responsible for an independent set of files, zero crossover:
 ```
-Agent-A: [file1.md, file2.md]  — 互不干涉
-Agent-B: [file3.md, file4.md]  — 互不干涉
-Agent-C: [file5.md]            — 互不干涉
-```
-
-### 按模块拆分
-每个Agent负责一个功能模块：
-```
-Agent-前端: src/components/
-Agent-后端: src/api/
-Agent-基础: src/lib/
+Agent-A: [file1.md, file2.md]  — Mutually exclusive
+Agent-B: [file3.md, file4.md]  — Mutually exclusive
+Agent-C: [file5.md]            — Mutually exclusive
 ```
 
-### 按流水线拆分
-串行依赖时，前一个Agent的输出是后一个的输入：
+### Split by Module
+Each Agent is responsible for a functional module:
 ```
-Agent-生成 → Agent-校验 → Agent-集成
-```
-
-## 并行vs串行决策
-
-```
-子任务A和B是否共享文件？
-  ├─ 否 → 并行执行
-  └─ 是 → 是否写同一文件？
-       ├─ 否（一读一写）→ 先写后读，串行
-       └─ 是（都写）→ 严格串行，或拆分文件区域
+Agent-Frontend: src/components/
+Agent-Backend: src/api/
+Agent-Infrastructure: src/lib/
 ```
 
-### 依赖矩阵示例
+### Split by Pipeline
+For serial dependencies, the output of the previous Agent is the input of the next:
+```
+Agent-Generate → Agent-Validate → Agent-Integrate
+```
+
+## Parallel vs Serial Decision
+
+```
+Do Subtask A and B share files?
+  ├─ No → Execute in parallel
+  └─ Yes → Are they writing to the same file?
+       ├─ No (one read, one write) → Write first then read, serial
+       └─ Yes (both write) → Strictly serial, or split file regions
+```
+
+### Dependency Matrix Example
 
 | | Task-A | Task-B | Task-C |
 |---|--------|--------|--------|
-| Task-A | - | 无依赖 | 无依赖 |
-| Task-B | 无依赖 | - | B→C |
-| Task-C | 无依赖 | B→C | - |
+| Task-A | - | No dependency | No dependency |
+| Task-B | No dependency | - | B→C |
+| Task-C | No dependency | B→C | - |
 
-结论：A与B并行，C等B完成后执行。
+Conclusion: A and B run in parallel, C executes after B completes.
 
-## 通信协议
+## Communication Protocol
 
-### SendMessage规范
+### SendMessage Standard
 
-| 类型 | 用途 | 格式 |
-|------|------|------|
-| message | 点对点通信 | `{type: "message", recipient: "agent-name", content: "...", summary: "5字摘要"}` |
-| broadcast | 全体通知 | `{type: "broadcast", content: "...", summary: "5字摘要"}` |
-| shutdown_request | 请求关闭 | `{type: "shutdown_request", recipient: "agent-name", content: "原因"}` |
+| Type | Purpose | Format |
+|------|---------|--------|
+| message | Point-to-point communication | `{type: "message", recipient: "agent-name", content: "...", summary: "5-word summary"}` |
+| broadcast | Broadcast notification | `{type: "broadcast", content: "...", summary: "5-word summary"}` |
+| shutdown_request | Request shutdown | `{type: "shutdown_request", recipient: "agent-name", content: "Reason"}` |
 
-### 通信时机
+### Communication Timing
 
-| 事件 | 发送者 | 接收者 | 内容 |
-|------|--------|--------|------|
-| 任务分配 | 主修 | 道侣 | 文件列表+要求 |
-| 进度更新 | 道侣 | 主修 | 完成百分比+当前状态 |
-| 任务完成 | 道侣 | 主修 | 文件清单+验证结果 |
-| 遇阻报告 | 道侣 | 主修 | 阻塞原因+建议 |
-| 汇总指令 | 主修 | 全体 | broadcast进入汇总阶段 |
+| Event | Sender | Receiver | Content |
+|-------|--------|----------|---------|
+| Task Assignment | Lead | Worker | File list + requirements |
+| Progress Update | Worker | Lead | Completion percentage + current status |
+| Task Completion | Worker | Lead | File manifest + verification results |
+| Blockage Report | Worker | Lead | Blocking reason + suggestion |
+| Consolidation Command | Lead | All | broadcast enter consolidation phase |
 
-## 文件锁定与冲突避免
+## File Locking and Conflict Avoidance
 
-### 黄金规则
+### Golden Rule
 ```
-每个文件在同一时刻只能被一个Agent修改。
-违反此规则 = 道基裂痕+1。
-```
-
-### 锁定策略
-1. **分配时锁定** — 主修分配任务时明确文件归属
-2. **声明式锁定** — 道侣开始前声明要操作的文件
-3. **冲突检测** — 主修检查文件分配无重叠后才启动
-
-### 冲突解决
-
-| 冲突类型 | 解决方案 |
-|----------|----------|
-| 两个Agent需写同一文件 | 串行执行，先完成的先写 |
-| 写入内容矛盾 | 主修裁决，以业务逻辑为准 |
-| 依赖文件未就绪 | 阻塞等待，主修协调优先级 |
-
-## 状态共享
-
-### TaskCreate/TaskUpdate规范
-```
-TaskCreate: 主修创建总任务+子任务
-TaskUpdate: 道侣更新子任务状态
-TaskList:   主修查看全局进度
+Each file can only be modified by one Agent at any given time.
+Violating this rule = Dao Foundation Crack +1.
 ```
 
-### 状态流转
+### Locking Strategy
+1. **Lock at Assignment** — Lead explicitly specifies file ownership when assigning tasks.
+2. **Declarative Locking** — Worker declares files to be operated on before starting.
+3. **Conflict Detection** — Lead checks that file assignments do not overlap before initiating.
+
+### Conflict Resolution
+
+| Conflict Type | Solution |
+|---------------|----------|
+| Two Agents need to write the same file | Serial execution, first to complete writes first |
+| Conflicting written content | Lead adjudicates, based on business logic |
+| Dependent file not ready | Block and wait, Lead coordinates priority |
+
+## State Sharing
+
+### TaskCreate/TaskUpdate Standard
+```
+TaskCreate: Lead creates main task + subtasks
+TaskUpdate: Worker updates subtask status
+TaskList:   Lead views global progress
+```
+
+### State Transitions
 ```
 pending → in_progress → completed
-                     → blocked (需等待依赖)
+                     → blocked (needs to wait for dependency)
 ```
 
-## 错误处理与容错
+## Error Handling and Fault Tolerance
 
-### 单Agent失败
+### Single Agent Failure
 ```
-道侣失败 → 报告主修 → 主修评估影响
-  ├─ 可重试 → 同一道侣重试（≤2次）
-  ├─ 需换策略 → 主修调整方案后重新分配
-  └─ 不可恢复 → 主修接管该子任务
-```
-
-### 通信超时
-```
-道侣无响应 → 主修等待30s → 再次发送 → 仍无响应 → 标记异常，重新分配
+Worker fails → Reports to Lead → Lead assesses impact
+  ├─ Retryable → Same Worker retries (≤2 times)
+  ├─ Needs strategy change → Lead adjusts plan then reassigns
+  └─ Unrecoverable → Lead takes over the subtask
 ```
 
-### 降级策略
+### Communication Timeout
 ```
-多Agent协同失败 → 降级为单Agent串行执行
-宁可慢，不可错。
+Worker unresponsive → Lead waits 30s → Sends again → Still unresponsive → Mark as anomalous, reassign
 ```
 
-## 结果汇总
+### Downgrade Strategy
+```
+Multi-Agent coordination fails → Downgrade to single Agent serial execution
+Better slow than wrong.
+```
 
-### 汇总流程
-1. 收集所有道侣完成报告
-2. 验证文件完整性（所有预期文件存在）
-3. 验证内容一致性（交叉引用正确）
-4. 统一 git add + commit
-5. 输出汇总报告
+## Result Consolidation
 
-### 统一Commit规范
+### Consolidation Workflow
+1. Collect completion reports from all Workers
+2. Verify file completeness (all expected files exist)
+3. Verify content consistency (cross-references are correct)
+4. Unified git add + commit
+5. Output consolidation report
+
+### Unified Commit Standard
 ```bash
-# 主修负责最终commit，道侣不单独commit
+# Lead is responsible for final commit, Workers do not commit individually
 git add -A
-git commit -m "feat: {任务描述}
+git commit -m "feat: {Task Description}
 
 Co-authored-by: Agent-A
 Co-authored-by: Agent-B"
 ```
 
-### 汇总报告模板
+### Consolidation Report Template
 ```
-🕸 天罗收阵！
+🕸 Heavenly Net Closes!
 
-【阵法】{团队名称}
-【阵员】{Agent数量} 道侣
-【战果】
-  - Agent-A: {文件数} 文件，{行数} 行
-  - Agent-B: {文件数} 文件，{行数} 行
-【验证】全部文件存在 ✓ | 交叉引用正确 ✓
-【耗时】{总时间}
+[Formation] {Team Name}
+[Members] {Agent Count} Workers
+[Results]
+  - Agent-A: {File Count} files, {Line Count} lines
+  - Agent-B: {File Count} files, {Line Count} lines
+[Verification] All files exist ✓ | Cross-references correct ✓
+[Time Taken] {Total Time}
 ```
 
-## 最佳实践
+## Best Practices
 
-### 命名规范
+### Naming Conventions
 ```yaml
-team_name: "{项目}-{任务类型}"  # 如 "abyss-skill-expansion"
-agent_type: "{角色}"            # 如 "lead", "developer", "reviewer"
-description: "一句话说明团队目标"
+team_name: "{Project}-{Task Type}"  # e.g., "abyss-skill-expansion"
+agent_type: "{Role}"                # e.g., "lead", "developer", "reviewer"
+description: "One-sentence description of team goal"
 ```
 
-### 主修启动模板
+### Lead Startup Template
 ```
-你是天罗主修，负责协调多Agent协同任务。
+You are the Heavenly Net Lead, responsible for coordinating multi-Agent collaborative tasks.
 
-职责：
-1. 将大任务分解为独立子任务
-2. 为每个道侣分配文件集合（不可重叠）
-3. 追踪进度，处理阻塞
-4. 汇总结果，统一验证
+Responsibilities:
+1. Decompose large tasks into independent subtasks
+2. Assign a file set to each Worker (cannot overlap)
+3. Track progress, handle blockages
+4. Consolidate results, unify verification
 
-铁律：
-- 每个文件只能分配给一个Agent
-- 独立任务必须并行启动
-- 收到所有道侣完成消息后才能进入汇总
-```
-
-### 道侣启动模板
-```
-你是天罗道侣，负责执行分配的子任务。
-
-职责：
-1. 严格按照分配的文件列表操作
-2. 不触碰未分配的文件
-3. 完成后通过SendMessage报告主修
-4. 遇阻时立即报告，不自行扩大范围
-
-报告格式：
-- 完成：列出创建/修改的文件+行数
-- 阻塞：说明原因+建议方案
+Iron Rules:
+- Each file can only be assigned to one Agent
+- Independent tasks must be started in parallel
+- Must receive completion messages from all Workers before entering consolidation
 ```
 
-### 强约束模板（Codex）
+### Worker Startup Template
+```
+You are a Heavenly Net Worker, responsible for executing the assigned subtask.
+
+Responsibilities:
+1. Strictly operate according to the assigned file list
+2. Do not touch unassigned files
+3. Upon completion, report to Lead via SendMessage
+4. When blocked, report immediately, do not expand scope on your own
+
+Report Format:
+- Completed: List created/modified files + line counts
+- Blocked: State reason + suggested solution
+```
+
+### Strict Constraint Template (Codex)
 ```text
-你仅可修改：{owned_files}
-不得触碰未分配文件；若需要跨文件修改，先报告阻塞。
-输出必须包含：变更文件、验证命令、剩余风险。
+You may only modify: {owned_files}
+Do not touch unassigned files; if cross-file modifications are needed, report blockage first.
+Output must include: changed files, verification commands, remaining risks.
 ```
 
-## 审查清单
+## Review Checklist
 
-- [ ] 任务分解无文件冲突
-- [ ] 依赖关系明确
-- [ ] 通信协议遵守
-- [ ] 状态同步及时
-- [ ] 错误处理完备
-- [ ] 结果汇总完整
+- [ ] Task decomposition has no file conflicts
+- [ ] Dependencies are clear
+- [ ] Communication protocol is followed
+- [ ] State synchronization is timely
+- [ ] Error handling is complete
+- [ ] Result consolidation is comprehensive

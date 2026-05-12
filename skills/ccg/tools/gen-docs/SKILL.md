@@ -1,116 +1,116 @@
 ---
 name: gen-docs
-description: 文档生成器。自动分析模块结构，生成 README.md 和 DESIGN.md 骨架。当用户提到生成文档、创建README、创建DESIGN、文档骨架、文档模板时使用。在新建模块开始时自动触发。
+description: Document generator. Automatically analyzes module structure and generates README.md and DESIGN.md skeletons. Use when the user mentions generating docs, creating README, creating DESIGN, doc skeleton, or doc template. Automatically triggered at the start of a new module.
 license: MIT
 compatibility: node>=18
 user-invocable: true
 disable-model-invocation: false
 allowed-tools: Bash, Read, Write, Glob
-argument-hint: <模块路径> [--force]
+argument-hint: <module_path> [--force]
 ---
 
-# 📝 造典关卡 · 文档生成器
+# 📝 Creation Checkpoint · Document Generator
 
 
-## 核心原则
+## Core Principles
 
 ```
-无文档不成模块
-文档是模块的身份证
-没有身份证的模块不允许上线
+No documentation, no module.
+Documentation is the ID card of a module.
+Modules without ID cards are not allowed to go online.
 ```
 
-## 自动生成
+## Automated Generation
 
-运行文档生成脚本（跨平台）：
+Run the document generation script (cross-platform):
 
 ```bash
-# 在 skill 目录下运行
-node scripts/doc_generator.js <模块路径>
-node scripts/doc_generator.js <模块路径> --force  # 强制覆盖已存在的文档
-node scripts/doc_generator.js <模块路径> --json   # JSON 输出
+# Run in the skill directory
+node scripts/doc_generator.js <module_path>
+node scripts/doc_generator.js <module_path> --force  # Force overwrite existing documents
+node scripts/doc_generator.js <module_path> --json   # JSON output
 ```
 
-## 生成内容
+## Generated Content
 
-### README.md 骨架
+### README.md Skeleton
 
-自动生成的 README.md 包含：
+The automatically generated README.md contains:
 
-- **模块名称** — 从目录名提取
-- **描述** — 从代码文档字符串提取（如有）
-- **特性列表** — 待填充
-- **依赖** — 从 requirements.txt/pyproject.toml 提取
-- **使用方法** — 基础模板
-- **API 概览** — 从代码提取类和函数列表
-- **目录结构** — 自动扫描生成
+- **Module Name** — Extracted from the directory name
+- **Description** — Extracted from code docstrings (if any)
+- **Features List** — To be filled
+- **Dependencies** — Extracted from requirements.txt/pyproject.toml
+- **Usage** — Basic template
+- **API Overview** — List of classes and functions extracted from code
+- **Directory Structure** — Auto-scanned and generated
 
-### DESIGN.md 骨架
+### DESIGN.md Skeleton
 
-自动生成的 DESIGN.md 包含：
+The automatically generated DESIGN.md contains:
 
-- **设计概述** — 目标与非目标模板
-- **架构设计** — 架构图占位符
-- **核心组件** — 从代码提取类列表
-- **设计决策** — 决策记录表格模板
-- **技术选型** — 自动检测语言和依赖
-- **权衡取舍** — 已知限制和技术债务模板
-- **安全考量** — 威胁模型和安全措施模板
-- **变更历史** — 初始版本记录
+- **Design Overview** — Goals and non-goals template
+- **Architecture Design** — Architecture diagram placeholder
+- **Core Components** — Class list extracted from code
+- **Design Decisions** — Decision record table template
+- **Technology Stack** — Auto-detected languages and dependencies
+- **Trade-offs** — Known limitations and technical debt template
+- **Security Considerations** — Threat model and security measures template
+- **Change History** — Initial version record
 
-## 智能分析
+## Intelligent Analysis
 
-### 支持的语言
+### Supported Languages
 
-| 语言 | 分析能力 |
-|------|----------|
-| **Python** | 类、函数、文档字符串、依赖 |
-| **Go** | 目录结构、依赖 |
-| **TypeScript** | 目录结构、依赖 |
-| **Rust** | 目录结构、依赖 |
-| **其他** | 基础目录结构 |
+| Language | Analysis Capability |
+|----------|---------------------|
+| **Python** | Classes, functions, docstrings, dependencies |
+| **Go** | Directory structure, dependencies |
+| **TypeScript**| Directory structure, dependencies |
+| **Rust** | Directory structure, dependencies |
+| **Others** | Basic directory structure |
 
-### 提取的信息
+### Extracted Information
 
-- 模块名称（目录名）
-- 主要编程语言
-- 代码文件列表
-- 类和函数定义（Python）
-- 文档字符串（Python）
-- 依赖列表
-- 入口点文件
+- Module name (directory name)
+- Primary programming language
+- Code file list
+- Class and function definitions (Python)
+- Docstrings (Python)
+- Dependency list
+- Entry point file
 
-## 自动触发时机
+## Automatic Trigger Timing
 
-| 场景 | 触发条件 |
-|------|----------|
-| 新建模块 | 模块创建开始时 |
-| 缺失文档 | 检测到模块缺少文档时 |
+| Scenario | Trigger Condition |
+|----------|-------------------|
+| New Module | When starting module creation |
+| Missing Docs| When a module is detected to be missing documentation |
 
-## 使用流程
+## Usage Workflow
 
 ```
-1. 运行 doc_generator.js 生成骨架
-2. 填充 TODO 标记的内容
-3. 补充设计决策和理由
-4. 添加使用示例
-5. 运行 /verify-module 校验完整性
+1. Run doc_generator.js to generate skeletons
+2. Fill in the content marked with TODO
+3. Supplement design decisions and reasoning
+4. Add usage examples
+5. Run /verify-module to verify completeness
 ```
 
-## 生成后检查清单
+## Post-Generation Checklist
 
 ### README.md
 
-- [ ] 填充模块描述
-- [ ] 补充特性列表
-- [ ] 添加使用示例
-- [ ] 确认依赖完整
+- [ ] Fill in module description
+- [ ] Supplement features list
+- [ ] Add usage examples
+- [ ] Confirm dependencies are complete
 
 ### DESIGN.md
 
-- [ ] 明确设计目标
-- [ ] 记录设计决策
-- [ ] 说明技术选型理由
-- [ ] 列出已知限制
+- [ ] Clarify design goals
+- [ ] Record design decisions
+- [ ] Explain reasons for technology stack
+- [ ] List known limitations
 
 ---

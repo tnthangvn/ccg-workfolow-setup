@@ -1,35 +1,35 @@
 ---
 name: database
-description: 数据库设计与优化。SQL、NoSQL、索引、查询优化。当用户提到数据库、SQL、PostgreSQL、MySQL、MongoDB、Redis时使用。
+description: Database design and optimization. SQL, NoSQL, indexes, query optimization. Use when the user mentions database, SQL, PostgreSQL, MySQL, MongoDB, or Redis.
 ---
 
-# 🔧 炼器秘典 · 数据库
+# 🔧 炼器秘典 · Database
 
 
-## SQL 基础
+## SQL Basics
 
-### 查询
+### Querying
 ```sql
--- 基础查询
+-- Basic query
 SELECT id, name, email
 FROM users
 WHERE status = 'active'
 ORDER BY created_at DESC
 LIMIT 10 OFFSET 0;
 
--- 聚合
+-- Aggregation
 SELECT department, COUNT(*) as count, AVG(salary) as avg_salary
 FROM employees
 GROUP BY department
 HAVING COUNT(*) > 5;
 
--- 连接
+-- Joins
 SELECT u.name, o.total
 FROM users u
 INNER JOIN orders o ON u.id = o.user_id
 WHERE o.created_at > '2024-01-01';
 
--- 子查询
+-- Subqueries
 SELECT * FROM users
 WHERE id IN (
     SELECT user_id FROM orders
@@ -42,58 +42,58 @@ WITH active_users AS (
 )
 SELECT * FROM active_users WHERE created_at > '2024-01-01';
 
--- 窗口函数
+-- Window functions
 SELECT name, salary,
     RANK() OVER (PARTITION BY department ORDER BY salary DESC) as rank
 FROM employees;
 ```
 
-### 索引
+### Indexes
 ```sql
--- 创建索引
+-- Create index
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_orders_user_date ON orders(user_id, created_at);
 CREATE UNIQUE INDEX idx_users_email_unique ON users(email);
 
--- 部分索引
+-- Partial index
 CREATE INDEX idx_active_users ON users(email) WHERE status = 'active';
 
--- 查看执行计划
+-- View execution plan
 EXPLAIN ANALYZE SELECT * FROM users WHERE email = 'test@example.com';
 ```
 
-### 索引策略
+### Index Strategy
 ```yaml
-适合索引:
-  - WHERE 条件列
-  - JOIN 关联列
-  - ORDER BY 排序列
-  - 高选择性列
+Suitable for indexing:
+  - WHERE condition columns
+  - JOIN correlation columns
+  - ORDER BY sorting columns
+  - High-selectivity columns
 
-不适合索引:
-  - 频繁更新的列
-  - 低选择性列 (如性别)
-  - 小表
+Unsuitable for indexing:
+  - Frequently updated columns
+  - Low-selectivity columns (e.g., gender)
+  - Small tables
 
-复合索引:
-  - 最左前缀原则
-  - 选择性高的列在前
+Composite indexes:
+  - Leftmost prefix principle
+  - High-selectivity columns first
 ```
 
 ## PostgreSQL
 
-### 特性
+### Features
 ```sql
--- JSON 支持
+-- JSON support
 SELECT data->>'name' as name
 FROM users
 WHERE data @> '{"status": "active"}';
 
--- 数组
+-- Arrays
 SELECT * FROM posts
 WHERE tags @> ARRAY['python', 'web'];
 
--- 全文搜索
+-- Full-text search
 SELECT * FROM articles
 WHERE to_tsvector('english', content) @@ to_tsquery('python & web');
 
@@ -106,9 +106,9 @@ DO UPDATE SET name = EXCLUDED.name;
 
 ## MySQL
 
-### 特性
+### Features
 ```sql
--- 全文搜索
+-- Full-text search
 SELECT * FROM articles
 WHERE MATCH(title, content) AGAINST('python web' IN NATURAL LANGUAGE MODE);
 
@@ -117,7 +117,7 @@ SELECT JSON_EXTRACT(data, '$.name') as name
 FROM users
 WHERE JSON_EXTRACT(data, '$.status') = 'active';
 
--- 分区表
+-- Partitioned tables
 CREATE TABLE orders (
     id INT,
     created_at DATE
@@ -131,12 +131,12 @@ CREATE TABLE orders (
 
 ### MongoDB
 ```javascript
-// 查询
+// Query
 db.users.find({ status: "active" })
 db.users.find({ age: { $gt: 18 } })
 db.users.find({ tags: { $in: ["python", "web"] } })
 
-// 聚合
+// Aggregation
 db.orders.aggregate([
     { $match: { status: "completed" } },
     { $group: { _id: "$user_id", total: { $sum: "$amount" } } },
@@ -144,74 +144,73 @@ db.orders.aggregate([
     { $limit: 10 }
 ])
 
-// 索引
+// Indexing
 db.users.createIndex({ email: 1 }, { unique: true })
 db.users.createIndex({ location: "2dsphere" })
 ```
 
 ### Redis
 ```bash
-# 字符串
+# Strings
 SET key value
 GET key
-SETEX key 3600 value  # 带过期时间
+SETEX key 3600 value  # With expiration
 
-# 哈希
+# Hashes
 HSET user:1 name "Alice" email "alice@example.com"
 HGET user:1 name
 HGETALL user:1
 
-# 列表
+# Lists
 LPUSH queue task1
 RPOP queue
 
-# 集合
+# Sets
 SADD tags python web
 SMEMBERS tags
 SINTER tags1 tags2
 
-# 有序集合
+# Sorted Sets
 ZADD leaderboard 100 user1
 ZRANGE leaderboard 0 9 WITHSCORES
 
-# 过期
+# Expiration
 EXPIRE key 3600
 TTL key
 ```
 
-## 查询优化
+## Query Optimization
 
 ```yaml
-原则:
-  - 只查询需要的列
-  - 避免 SELECT *
-  - 使用索引
-  - 避免全表扫描
-  - 分页查询
+Principles:
+  - Query only required columns
+  - Avoid SELECT *
+  - Use indexes
+  - Avoid full table scans
+  - Paged queries
 
-技巧:
-  - EXPLAIN 分析执行计划
-  - 避免在索引列上使用函数
-  - 使用覆盖索引
-  - 批量操作代替循环
-  - 合理使用缓存
+Techniques:
+  - EXPLAIN to analyze execution plans
+  - Avoid using functions on indexed columns
+  - Use covering indexes
+  - Batch operations instead of loops
+  - Use caching reasonably
 ```
 
-## 数据库设计
+## Database Design
 
 ```yaml
-范式:
-  - 1NF: 原子性
-  - 2NF: 消除部分依赖
-  - 3NF: 消除传递依赖
+Normal Forms:
+  - 1NF: Atomicity
+  - 2NF: Eliminate partial dependency
+  - 3NF: Eliminate transitive dependency
 
-反范式:
-  - 适当冗余提高查询性能
-  - 读多写少场景
+Denormalization:
+  - Appropriate redundancy to improve query performance
+  - Read-heavy, write-light scenarios
 
-命名规范:
-  - 表名: 复数小写 (users, orders)
-  - 列名: 小写下划线 (created_at)
-  - 索引: idx_表名_列名
+Naming Conventions:
+  - Table names: Plural lowercase (users, orders)
+  - Column names: Lowercase with underscores (created_at)
+  - Indexes: idx_tablename_columnname
 ```
-

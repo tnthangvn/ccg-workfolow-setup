@@ -1,35 +1,35 @@
 ---
 name: observability
-description: 可观测性秘典。日志、指标、追踪三大支柱，告警设计，SLI/SLO/SLA。当用户提到可观测性、日志、监控、指标、追踪、告警、SLO时路由到此。
+description: Observability manual. The three pillars of logs, metrics, and traces, alert design, SLI/SLO/SLA. Route here when the user mentions observability, logs, monitoring, metrics, traces, alerts, or SLO.
 ---
 
-# 🔧 炼器秘典 · 可观测性
+# 🔧 炼器秘典 · Observability
 
 
-## 三大支柱
+## Three Pillars
 
 ```
 ┌─────────────────────────────────────────┐
-│            可观测性 (Observability)       │
+│            Observability                  │
 ├─────────────┬─────────────┬─────────────┤
-│   📋 日志   │   📊 指标   │   🔗 追踪   │
-│   Logs      │   Metrics   │   Traces    │
-│  离散事件   │  聚合数值   │  请求链路   │
+│   📋 Logs   │   📊 Metrics│   🔗 Traces │
+│  Logs       │  Metrics    │   Traces    │
+│Discrete Evts│Aggregated Val│Request Links│
 │  What       │  How much   │  Where      │
 └─────────────┴─────────────┴─────────────┘
 ```
 
-| 支柱 | 特征 | 适用场景 | 代表工具 |
+| Pillar | Characteristics | Applicable Scenarios | Representative Tools |
 |------|------|----------|----------|
-| 日志 | 离散、非结构化/结构化事件 | 调试、审计、错误追踪 | ELK, Loki, CloudWatch |
-| 指标 | 聚合数值、时间序列 | 告警、趋势、容量规划 | Prometheus, Datadog, CloudWatch |
-| 追踪 | 分布式请求链路 | 延迟分析、依赖映射 | Jaeger, Zipkin, X-Ray |
+| Logs | Discrete, unstructured/structured events | Debugging, auditing, error tracking | ELK, Loki, CloudWatch |
+| Metrics | Aggregated numerical values, time series | Alerts, trends, capacity planning | Prometheus, Datadog, CloudWatch |
+| Traces | Distributed request links | Latency analysis, dependency mapping | Jaeger, Zipkin, X-Ray |
 
 ---
 
-## 日志 (Logs)
+## Logs
 
-### 结构化日志
+### Structured Logs
 
 ```json
 {
@@ -47,92 +47,92 @@ description: 可观测性秘典。日志、指标、追踪三大支柱，告警�
 }
 ```
 
-### 日志级别规范
+### Log Level Specifications
 
-| 级别 | 用途 | 生产环境 |
+| Level | Purpose | Production Environment |
 |------|------|----------|
-| TRACE | 极细粒度调试 | ❌ 关闭 |
-| DEBUG | 开发调试信息 | ❌ 关闭 |
-| INFO | 业务关键事件 | ✅ 开启 |
-| WARN | 潜在问题，可自愈 | ✅ 开启 |
-| ERROR | 错误，需关注 | ✅ 开启 + 告警 |
-| FATAL | 致命错误，服务不可用 | ✅ 开启 + 紧急告警 |
+| TRACE | Extremely fine-grained debugging | ❌ Off |
+| DEBUG | Development debugging info | ❌ Off |
+| INFO | Key business events | ✅ On |
+| WARN | Potential issues, self-healing possible | ✅ On |
+| ERROR | Errors, requires attention | ✅ On + Alert |
+| FATAL | Fatal errors, service unavailable | ✅ On + Critical Alert |
 
-### 日志聚合架构
+### Log Aggregation Architecture
 
 ```
-应用 → Filebeat/Fluentd → Kafka(缓冲) → Logstash → Elasticsearch → Kibana
-                                       → S3(归档)
+App → Filebeat/Fluentd → Kafka (Buffer) → Logstash → Elasticsearch → Kibana
+                                       → S3 (Archive)
 ```
 
-### 日志最佳实践
+### Log Best Practices
 
-- ✅ 结构化 JSON 格式
-- ✅ 包含 trace_id 关联追踪
-- ✅ 敏感数据脱敏
-- ✅ 合理的保留策略（热/温/冷）
-- ❌ 不记录密码/Token
-- ❌ 不在循环中打日志
-- ❌ 不用字符串拼接（用参数化）
+- ✅ Structured JSON format
+- ✅ Include `trace_id` for trace correlation
+- ✅ Desensitize sensitive data
+- ✅ Reasonable retention policies (Hot/Warm/Cold)
+- ❌ Do not log passwords/Tokens
+- ❌ Do not log in loops
+- ❌ Do not use string concatenation (use parameterization)
 
 ---
 
-## 指标 (Metrics)
+## Metrics
 
-### Prometheus 指标类型
+### Prometheus Metric Types
 
-| 类型 | 用途 | 示例 |
+| Type | Purpose | Example |
 |------|------|------|
-| Counter | 只增不减的计数器 | 请求总数、错误总数 |
-| Gauge | 可增可减的瞬时值 | 当前连接数、队列长度 |
-| Histogram | 分布统计（桶） | 请求延迟分布 |
-| Summary | 分布统计（分位数） | 请求延迟 P99 |
+| Counter | Monotonically increasing counter | Total requests, total errors |
+| Gauge | Instantaneous value that can go up and down | Current connections, queue length |
+| Histogram | Distribution statistics (buckets) | Request latency distribution |
+| Summary | Distribution statistics (quantiles) | Request latency P99 |
 
-### 关键 PromQL
+### Key PromQL
 
 ```promql
-# 请求速率
+# Request rate
 rate(http_requests_total[5m])
 
-# 错误率
+# Error rate
 rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])
 
-# P99 延迟
+# P99 Latency
 histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))
 
-# CPU 使用率
+# CPU Usage
 1 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) by (instance)
 
-# 内存使用率
+# Memory Usage
 (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes
 ```
 
-### Grafana Dashboard 设计
+### Grafana Dashboard Design
 
 ```yaml
-四大黄金信号 Dashboard:
-  Row 1 - 流量:
+Four Golden Signals Dashboard:
+  Row 1 - Traffic:
     - QPS (rate)
-    - 按 endpoint 分组
-  Row 2 - 错误:
-    - 错误率 (%)
-    - 按错误类型分组
-  Row 3 - 延迟:
+    - Grouped by endpoint
+  Row 2 - Errors:
+    - Error rate (%)
+    - Grouped by error type
+  Row 3 - Latency:
     - P50/P95/P99
-    - 延迟热力图
-  Row 4 - 饱和度:
+    - Latency heatmap
+  Row 4 - Saturation:
     - CPU/Memory/Disk
-    - 连接池使用率
+    - Connection pool usage
 ```
 
 ---
 
-## 追踪 (Traces)
+## Traces
 
-### OpenTelemetry 集成
+### OpenTelemetry Integration
 
 ```python
-# Python 示例
+# Python Example
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -149,41 +149,41 @@ tracer = trace.get_tracer(__name__)
 def process_order(order_id: str):
     span = trace.get_current_span()
     span.set_attribute("order.id", order_id)
-    # 业务逻辑...
+    # Business logic...
 ```
 
-### 追踪架构
+### Tracing Architecture
 
 ```
 Service-A → Service-B → Service-C
     │            │            │
     └── Span ────┴── Span ────┴── Span
          │
-    Trace (trace_id 贯穿全链路)
+    Trace (trace_id spans the entire link)
 ```
 
 ### Context Propagation
 
 ```
 HTTP Header: traceparent: 00-{trace_id}-{span_id}-{flags}
-gRPC Metadata: 自动传播
-Message Queue: 消息头注入 trace context
+gRPC Metadata: Automatic propagation
+Message Queue: Message header injection of trace context
 ```
 
 ---
 
-## 告警设计
+## Alert Design
 
-### 告警分级
+### Alert Tiers
 
-| 级别 | 响应时间 | 通知方式 | 示例 |
+| Level | Response Time | Notification Method | Example |
 |------|----------|----------|------|
-| P0 Critical | 立即 | 电话 + PagerDuty | 服务完全不可用 |
-| P1 High | 15 min | Slack + 短信 | 错误率 > 5% |
-| P2 Medium | 1 hour | Slack | 延迟 P99 > 阈值 |
-| P3 Low | 次日 | 邮件/工单 | 磁盘使用 > 70% |
+| P0 Critical | Immediate | Phone + PagerDuty | Service completely unavailable |
+| P1 High | 15 min | Slack + SMS | Error rate > 5% |
+| P2 Medium | 1 hour | Slack | Latency P99 > threshold |
+| P3 Low | Next day | Email/Ticket | Disk usage > 70% |
 
-### 告警规则示例
+### Alert Rule Example
 
 ```yaml
 # Prometheus AlertManager
@@ -205,76 +205,75 @@ groups:
           severity: warning
 ```
 
-### 告警最佳实践
+### Alert Best Practices
 
-- ✅ 基于 SLO 告警，而非资源指标
-- ✅ 设置合理的 `for` 持续时间，避免抖动
-- ✅ 告警必须可操作（收到告警知道该做什么）
-- ✅ 定期审查告警，清理无效告警
-- ❌ 不对每个指标都告警（告警疲劳）
-- ❌ 不设过低阈值（噪音）
+- ✅ Alert based on SLOs, not resource metrics
+- ✅ Set a reasonable `for` duration to avoid flapping
+- ✅ Alerts must be actionable (knowing what to do upon receiving)
+- ✅ Regularly review alerts, clean up invalid alerts
+- ❌ Do not alert on every single metric (alert fatigue)
+- ❌ Do not set thresholds too low (noise)
 
 ---
 
 ## SLI / SLO / SLA
 
-### 定义
+### Definitions
 
-| 概念 | 含义 | 示例 |
+| Concept | Meaning | Example |
 |------|------|------|
-| SLI (指标) | 服务质量的量化度量 | 请求成功率、P99 延迟 |
-| SLO (目标) | SLI 的目标值 | 可用性 99.9%、P99 < 200ms |
-| SLA (协议) | 对外承诺 + 违约后果 | 99.9% 可用，否则赔偿 |
+| SLI (Indicator) | Quantitative measure of service quality | Request success rate, P99 latency |
+| SLO (Objective) | Target value for SLI | Availability 99.9%, P99 < 200ms |
+| SLA (Agreement) | External commitment + consequences of breach | 99.9% availability, otherwise compensation |
 
 ### Error Budget
 
 ```
-SLO = 99.9% 可用性
+SLO = 99.9% Availability
 Error Budget = 1 - 0.999 = 0.1%
-每月 Error Budget = 30天 × 24小时 × 60分钟 × 0.001 = 43.2 分钟
+Monthly Error Budget = 30 days × 24 hours × 60 minutes × 0.001 = 43.2 minutes
 
-已消耗: 15 分钟
-剩余: 28.2 分钟
+Consumed: 15 minutes
+Remaining: 28.2 minutes
 ```
 
 ### SLO Dashboard
 
 ```yaml
 SLO Dashboard:
-  - 当前 SLI 值 vs SLO 目标
-  - Error Budget 剩余百分比
-  - Error Budget 消耗速率
-  - 30天滚动窗口趋势
-  - Burn Rate 告警状态
+  - Current SLI value vs SLO target
+  - Error Budget remaining percentage
+  - Error Budget burn rate
+  - 30-day rolling window trend
+  - Burn Rate alert status
 ```
 
 ---
 
-## 可观测性清单
+## Observability Checklist
 
 ```yaml
-日志:
-  - [ ] 结构化 JSON 格式
-  - [ ] trace_id 关联
-  - [ ] 敏感数据脱敏
-  - [ ] 保留策略配置
+Logs:
+  - [ ] Structured JSON format
+  - [ ] trace_id correlation
+  - [ ] Desensitize sensitive data
+  - [ ] Retention policy configuration
 
-指标:
-  - [ ] 四大黄金信号覆盖
-  - [ ] 自定义业务指标
-  - [ ] Dashboard 就绪
-  - [ ] 告警规则配置
+Metrics:
+  - [ ] Four golden signals coverage
+  - [ ] Custom business metrics
+  - [ ] Dashboard ready
+  - [ ] Alert rules configuration
 
-追踪:
-  - [ ] OpenTelemetry 集成
-  - [ ] 跨服务 Context Propagation
-  - [ ] 采样策略配置
-  - [ ] 关键路径标注
+Traces:
+  - [ ] OpenTelemetry integration
+  - [ ] Cross-service Context Propagation
+  - [ ] Sampling strategy configuration
+  - [ ] Critical path annotation
 
-告警:
-  - [ ] 基于 SLO 的告警
-  - [ ] 分级通知渠道
-  - [ ] Runbook 关联
-  - [ ] 定期审查机制
+Alerts:
+  - [ ] SLO-based alerts
+  - [ ] Tiered notification channels
+  - [ ] Runbook correlation
+  - [ ] Regular review mechanism
 ```
-

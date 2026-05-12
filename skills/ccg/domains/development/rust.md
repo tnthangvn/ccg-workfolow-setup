@@ -1,27 +1,27 @@
 ---
 name: rust
-description: Rust 开发。系统编程、内存安全、高性能、WebAssembly。当用户提到 Rust、Cargo、tokio、内存安全时使用。
+description: Rust Development. Systems programming, memory safety, high performance, WebAssembly. Use when the user mentions Rust, Cargo, tokio, or memory safety.
 ---
 
-# 📜 符箓秘典 · Rust
+# 📜 Talisman Grimoire · Rust
 
 
-## 基础语法
+## Basic Syntax
 
-### 所有权系统
+### Ownership System
 ```rust
 fn main() {
-    // 所有权转移
+    // Ownership transfer
     let s1 = String::from("hello");
-    let s2 = s1;  // s1 不再有效
-    // println!("{}", s1);  // 编译错误
+    let s2 = s1;  // s1 is no longer valid
+    // println!("{}", s1);  // Compilation error
 
-    // 借用
+    // Borrowing
     let s3 = String::from("world");
-    let len = calculate_length(&s3);  // 借用
-    println!("{} has length {}", s3, len);  // s3 仍有效
+    let len = calculate_length(&s3);  // Borrow
+    println!("{} has length {}", s3, len);  // s3 is still valid
 
-    // 可变借用
+    // Mutable Borrowing
     let mut s4 = String::from("hello");
     change(&mut s4);
 }
@@ -35,9 +35,9 @@ fn change(s: &mut String) {
 }
 ```
 
-### 结构体与枚举
+### Structs and Enums
 ```rust
-// 结构体
+// Struct
 struct User {
     name: String,
     email: String,
@@ -54,7 +54,7 @@ impl User {
     }
 }
 
-// 枚举
+// Enum
 enum Result<T, E> {
     Ok(T),
     Err(E),
@@ -66,7 +66,7 @@ enum Message {
     Write(String),
 }
 
-// 模式匹配
+// Pattern Matching
 fn handle_message(msg: Message) {
     match msg {
         Message::Quit => println!("Quit"),
@@ -76,20 +76,20 @@ fn handle_message(msg: Message) {
 }
 ```
 
-### 错误处理
+### Error Handling
 ```rust
 use std::fs::File;
 use std::io::{self, Read};
 
-// Result 处理
+// Result handling
 fn read_file(path: &str) -> Result<String, io::Error> {
-    let mut file = File::open(path)?;  // ? 操作符
+    let mut file = File::open(path)?;  // ? operator
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
     Ok(contents)
 }
 
-// 自定义错误
+// Custom Error
 #[derive(Debug)]
 enum AppError {
     IoError(io::Error),
@@ -103,7 +103,7 @@ impl From<io::Error> for AppError {
 }
 ```
 
-## 异步编程
+## Asynchronous Programming
 
 ### Tokio
 ```rust
@@ -123,7 +123,7 @@ async fn fetch_data() -> Result<String, reqwest::Error> {
     Ok(resp)
 }
 
-// 并发执行
+// Concurrent execution
 async fn fetch_all(urls: Vec<&str>) -> Vec<String> {
     let futures: Vec<_> = urls.iter()
         .map(|url| fetch_url(url))
@@ -148,7 +148,7 @@ async fn channel_example() {
 }
 ```
 
-## Web 框架
+## Web Frameworks
 
 ### Axum
 ```rust
@@ -205,7 +205,7 @@ async fn main() -> std::io::Result<()> {
 }
 ```
 
-## CLI 工具
+## CLI Tools
 
 ### Clap
 ```rust
@@ -247,7 +247,7 @@ fn main() {
 }
 ```
 
-## 测试
+## Testing
 
 ```rust
 #[cfg(test)]
@@ -276,10 +276,10 @@ mod tests {
 ```bash
 cargo test
 cargo test --release
-cargo test -- --nocapture  # 显示输出
+cargo test -- --nocapture  # Show output
 ```
 
-## 项目结构
+## Project Structure
 
 ```
 myproject/
@@ -297,17 +297,16 @@ myproject/
     └── benchmark.rs
 ```
 
-## 常用库
+## Common Libraries
 
-| 库 | 用途 |
+| Library | Purpose |
 |---|------|
-| tokio | 异步运行时 |
-| axum/actix-web | Web 框架 |
-| serde | 序列化 |
-| reqwest | HTTP 客户端 |
-| sqlx | 数据库 |
+| tokio | Async Runtime |
+| axum/actix-web | Web Frameworks |
+| serde | Serialization |
+| reqwest | HTTP Client |
+| sqlx | Database |
 | clap | CLI |
-| tracing | 日志 |
+| tracing | Logging |
 
 ---
-
