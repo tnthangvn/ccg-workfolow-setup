@@ -20,7 +20,7 @@ $ARGUMENTS
 ```
 # New session invocation
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|gemini> --gemini-model gemini-3.1-pro-preview - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -35,7 +35,7 @@ EOF",
 
 # Resume session invocation
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|gemini> --gemini-model gemini-3.1-pro-preview resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -53,10 +53,10 @@ EOF",
 
 | Phase | Backend | Frontend |
 |-------|---------|----------|
-| Analysis | `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md` | `/home/thangtn/.claude/.ccg/prompts/gemini/analyzer.md` |
-| Planning | `/home/thangtn/.claude/.ccg/prompts/codex/architect.md` | `/home/thangtn/.claude/.ccg/prompts/gemini/architect.md` |
-| Implementation | `/home/thangtn/.claude/.ccg/prompts/codex/architect.md` | `/home/thangtn/.claude/.ccg/prompts/gemini/frontend.md` |
-| Review | `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md` | `/home/thangtn/.claude/.ccg/prompts/gemini/reviewer.md` |
+| Analysis | `/home/pc/.claude/.ccg/prompts/codex/analyzer.md` | `/home/pc/.claude/.ccg/prompts/antigravity/analyzer.md` |
+| Planning | `/home/pc/.claude/.ccg/prompts/codex/architect.md` | `/home/pc/.claude/.ccg/prompts/antigravity/architect.md` |
+| Implementation | `/home/pc/.claude/.ccg/prompts/codex/architect.md` | `/home/pc/.claude/.ccg/prompts/antigravity/frontend.md` |
+| Review | `/home/pc/.claude/.ccg/prompts/codex/reviewer.md` | `/home/pc/.claude/.ccg/prompts/antigravity/reviewer.md` |
 
 **Session reuse**: Each call returns `SESSION_ID: xxx`, subsequent phases use `resume xxx` to reuse context.
 
@@ -119,14 +119,14 @@ Call `mcp__fast-context__fast_context_search` to retrieve related code, componen
 
 **Frontend/Full-stack tasks**: First call `ui-ux-designer` agent.
 ```
-Execute agent: /home/thangtn/.claude/agents/ccg/ui-ux-designer.md
+Execute agent: /home/pc/.claude/agents/ccg/ui-ux-designer.md
 Input: Project context + User requirements + Tech stack
 Output: UI/UX design solution
 ```
 
 **All tasks**: Call `planner` agent.
 ```
-Execute agent: /home/thangtn/.claude/agents/ccg/planner.md
+Execute agent: /home/pc/.claude/agents/ccg/planner.md
 Input: Project context + UI design (if any) + User requirements
 Output: Feature planning document
 ```
@@ -161,9 +161,9 @@ Extract task classification from planning: Frontend / Backend / Full-stack.
 
 Call external models according to invocation rules:
 
-- **Frontend tasks**: Call gemini using implementation prompt.
+- **Frontend tasks**: Call antigravity using implementation prompt.
 - **Backend tasks**: Call codex using implementation prompt.
-- **Full-stack tasks**: Parallel calling codex + gemini (`run_in_background: true`), wait for results with `TaskOutput`.
+- **Full-stack tasks**: Parallel calling codex + antigravity (`run_in_background: true`), wait for results with `TaskOutput`.
 
 **⚠️ Mandatory Rule: Must wait for TaskOutput to return full results from all models before entering the next phase.**
 
@@ -186,7 +186,7 @@ Ask the user whether to run code review (`/ccg:review`).
 2. **Document Consistency**: Planning documents are kept in sync with actual implementation.
 3. **Dependency Management**: Frontend tasks must ensure UI design integrity.
 4. **Multi-model Trust Rules**:
-   - Frontend based on gemini.
+   - Frontend based on antigravity.
    - Backend based on codex.
 5. **Transparent Communication**: All judgments and actions must be clearly communicated to the user.
 

@@ -59,15 +59,15 @@ description: 'Initialize OpenSpec (OPSX) environment + Verify multi-model MCP to
    - Report any errors with remediation steps.
 
 4. **Validate Multi-Model MCP Tools**
-   - Check `codeagent-wrapper` availability: `/home/thangtn/.claude/bin/codeagent-wrapper --version`
+   - Check `codeagent-wrapper` availability: `/home/pc/.claude/bin/codeagent-wrapper --version`
    - **Working directory**: `{{WORKDIR}}` **must obtain the absolute path of the current working directory by running Bash `pwd` (Unix) or `cd` (Windows CMD)**; do not infer it from `$HOME` or environment variables. If the user added multiple workspaces via `/add-dir`, identify the relevant workspace first.
    - Test codex backend:
      ```bash
-     echo "echo test" | /home/thangtn/.claude/bin/codeagent-wrapper --backend codex - "{{WORKDIR}}"
+     echo "echo test" | /home/pc/.claude/bin/codeagent-wrapper --backend codex - "{{WORKDIR}}"
      ```
-   - Test gemini backend:
+   - Test antigravity backend:
      ```bash
-     echo "echo test" | /home/thangtn/.claude/bin/codeagent-wrapper --backend gemini --gemini-model gemini-3.1-pro-preview - "{{WORKDIR}}"
+     echo "echo test" | /home/pc/.claude/bin/codeagent-wrapper --backend antigravity - "{{WORKDIR}}"
      ```
    - For each unavailable tool, display warning with installation instructions.
 
@@ -81,7 +81,7 @@ description: 'Initialize OpenSpec (OPSX) environment + Verify multi-model MCP to
    OPSX Skills               ✓/✗
    codeagent-wrapper         ✓/✗
    codex backend             ✓/✗
-   gemini backend            ✓/✗
+   antigravity backend            ✓/✗
    ```
 
    **Next Steps (Use CCG Encapsulated Commands)**

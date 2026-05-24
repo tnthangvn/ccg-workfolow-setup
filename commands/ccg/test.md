@@ -1,5 +1,5 @@
 ---
-description: 'Multi-model Test Generation: Intelligent routing to codex for backend tests / gemini for frontend tests'
+description: 'Multi-model Test Generation: Intelligent routing to codex for backend tests / antigravity for frontend tests'
 ---
 
 # Test - Multi-model Test Generation
@@ -15,14 +15,14 @@ Intelligently route based on code type to generate high-quality test cases.
 ## Context
 
 - Test target: $ARGUMENTS
-- Intelligent routing: Backend → codex, Frontend → gemini, Full-stack → parallel
+- Intelligent routing: Backend → codex, Frontend → antigravity, Full-stack → parallel
 - Comply with existing project test frameworks and styles
 
 ## Your role
 
 You are the **test engineer**, orchestrating the test generation flow:
 - **codex** – Backend test generation (**backend authoritative**)
-- **gemini** – Frontend test generation (**frontend authoritative**)
+- **antigravity** – Frontend test generation (**frontend authoritative**)
 - **Claude (self)** – Integrating tests, verifying execution
 
 ---
@@ -38,7 +38,7 @@ You are the **test engineer**, orchestrating the test generation flow:
 
 ```
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|gemini> --gemini-model gemini-3.1-pro-preview - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: Generate tests for the following code:
@@ -60,15 +60,15 @@ EOF",
 
 | Model | Prompt |
 |------|--------|
-| Backend | `/home/thangtn/.claude/.ccg/prompts/codex/tester.md` |
-| Frontend | `/home/thangtn/.claude/.ccg/prompts/gemini/tester.md` |
+| Backend | `/home/pc/.claude/.ccg/prompts/codex/tester.md` |
+| Frontend | `/home/pc/.claude/.ccg/prompts/antigravity/tester.md` |
 
 **Intelligent Routing**:
 
 | Code Type | Route |
 |-----------|-------|
 | Backend | codex |
-| Frontend | gemini |
+| Frontend | antigravity |
 | Full-stack | Execute both in parallel |
 
 **Parallel calls**: Start with `run_in_background: true`, wait for results with `TaskOutput`. **Must wait for all models before entering the next phase.**
@@ -112,14 +112,14 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 **⚠️ Must call the corresponding model based on code type** (refer to invocation rules above):
 
 - **Backend code** → `Bash({ command: "...--backend codex...", run_in_background: false })`
-  - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/tester.md`
-- **Frontend code** → `Bash({ command: "...--backend gemini...", run_in_background: false })`
-  - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/gemini/tester.md`
+  - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/tester.md`
+- **Frontend code** → `Bash({ command: "...--backend antigravity...", run_in_background: false })`
+  - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/tester.md`
 - **Full-stack code** → Call both in parallel:
   1. `Bash({ command: "...--backend codex...", run_in_background: true })`
-     - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/tester.md`
-  2. `Bash({ command: "...--backend gemini...", run_in_background: true })`
-     - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/gemini/tester.md`
+     - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/tester.md`
+  2. `Bash({ command: "...--backend antigravity...", run_in_background: true })`
+     - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/tester.md`
   Wait for results with `TaskOutput`.
 
 OUTPUT: Complete test code (using existing project test framework, covering happy paths, boundary conditions, and exception handling).
@@ -176,6 +176,6 @@ OUTPUT: Complete test code (using existing project test framework, covering happ
 ## Key rules
 
 1. **Test behavior, not implementation** – Focus on inputs and outputs.
-2. **Intelligent Routing** – Backend tests via codex, frontend tests via gemini.
+2. **Intelligent Routing** – Backend tests via codex, frontend tests via antigravity.
 3. **Reuse Existing Patterns** – Follow the project’s established test style.
 4. External models have **zero write access** to the filesystem.

@@ -1,5 +1,5 @@
 ---
-description: 'Frontend-specific workflow (Research → Ideation → Planning → Execution → Refinement → Review), led by gemini'
+description: 'Frontend-specific workflow (Research → Ideation → Planning → Execution → Refinement → Review), led by antigravity'
 ---
 
 # Frontend - Frontend Development
@@ -13,7 +13,7 @@ description: 'Frontend-specific workflow (Research → Ideation → Planning →
 ## Context
 
 - Frontend task: $ARGUMENTS
-- gemini led, codex as auxiliary reference
+- antigravity led, codex as auxiliary reference
 - Applies to: Component design, responsive layout, UI animation, style refinement
 
 ## Your role
@@ -21,7 +21,7 @@ description: 'Frontend-specific workflow (Research → Ideation → Planning →
 You are the **frontend orchestrator**, coordinating multiple models to complete UI/UX tasks (Research → Ideation → Planning → Execution → Refinement → Review). Use English to assist the user.
 
 **Collaboration Models**:
-- **gemini** – Frontend UI/UX (**frontend authoritative, trusted**)
+- **antigravity** – Frontend UI/UX (**frontend authoritative, trusted**)
 - **codex** – Backend perspective (**frontend opinions for reference only**)
 - **Claude (self)** – Orchestration, Planning, Execution, Delivery
 
@@ -39,7 +39,7 @@ You are the **frontend orchestrator**, coordinating multiple models to complete 
 ```
 # New session invocation
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend gemini --gemini-model gemini-3.1-pro-preview - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend antigravity - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -54,7 +54,7 @@ EOF",
 
 # Resume session invocation
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend gemini --gemini-model gemini-3.1-pro-preview resume <GEMINI_SESSION> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend antigravity resume <GEMINI_SESSION> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -72,9 +72,9 @@ EOF",
 
 | Phase | Frontend |
 |-------|----------|
-| Analysis | `/home/thangtn/.claude/.ccg/prompts/gemini/analyzer.md` |
-| Planning | `/home/thangtn/.claude/.ccg/prompts/gemini/architect.md` |
-| Review | `/home/thangtn/.claude/.ccg/prompts/gemini/reviewer.md` |
+| Analysis | `/home/pc/.claude/.ccg/prompts/antigravity/analyzer.md` |
+| Planning | `/home/pc/.claude/.ccg/prompts/antigravity/architect.md` |
+| Review | `/home/pc/.claude/.ccg/prompts/antigravity/reviewer.md` |
 
 **Session reuse**: Each call returns `SESSION_ID: xxx`, subsequent phases use `resume xxx` to reuse context. Phase 2 saves `GEMINI_SESSION`, Phase 3 and 5 use `resume` for reuse.
 
@@ -94,7 +94,7 @@ EOF",
 
 ### 🔍 Phase 0: Prompt enhancement (optional)
 
-`[Mode: Preparation]` - **Prompt enhancement** (follow `/ccg:enhance` execution logic): Analyze the intent, missing information, and implicit assumptions in $ARGUMENTS, and expand it into a structured requirement (clear goals, technical constraints, scope boundaries, acceptance criteria). **Replace the original $ARGUMENTS with the enhanced result, and pass the enhanced requirement to gemini in later calls.**
+`[Mode: Preparation]` - **Prompt enhancement** (follow `/ccg:enhance` execution logic): Analyze the intent, missing information, and implicit assumptions in $ARGUMENTS, and expand it into a structured requirement (clear goals, technical constraints, scope boundaries, acceptance criteria). **Replace the original $ARGUMENTS with the enhanced result, and pass the enhanced requirement to antigravity in later calls.**
 
 ### 🔍 Phase 1: Research
 
@@ -105,10 +105,10 @@ EOF",
 
 ### 💡 Phase 2: Ideation
 
-`[Mode: Ideation]` - gemini-led analysis
+`[Mode: Ideation]` - antigravity-led analysis
 
-**⚠️ Must call gemini** (refer to invocation rules above):
-- ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/gemini/analyzer.md`
+**⚠️ Must call antigravity** (refer to invocation rules above):
+- ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/analyzer.md`
 - Requirement: Enhanced requirement (or $ARGUMENTS if not enhanced)
 - Context: Project context collected in Phase 1
 - OUTPUT: UI feasibility analysis, recommended options (at least 2), user experience assessment
@@ -119,10 +119,10 @@ Output options (at least 2) and wait for the user to choose.
 
 ### 📋 Phase 3: Planning
 
-`[Mode: Planning]` - gemini-led planning
+`[Mode: Planning]` - antigravity-led planning
 
-**⚠️ Must call gemini** (using `resume <GEMINI_SESSION>` to reuse session):
-- ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/gemini/architect.md`
+**⚠️ Must call antigravity** (using `resume <GEMINI_SESSION>` to reuse session):
+- ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/architect.md`
 - Requirement: The solution chosen by the user
 - Context: Analysis results from Phase 2
 - OUTPUT: Component structure, UI flow, style solution
@@ -139,10 +139,10 @@ Claude synthesizes the plan and saves it to `.claude/plan/task-name.md` after us
 
 ### 🚀 Phase 5: Refinement
 
-`[Mode: Refinement]` - gemini-led review
+`[Mode: Refinement]` - antigravity-led review
 
-**⚠️ Must call gemini** (refer to invocation rules above):
-- ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/gemini/reviewer.md`
+**⚠️ Must call antigravity** (refer to invocation rules above):
+- ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/reviewer.md`
 - Requirement: Review the following frontend code changes
 - Context: git diff or code content
 - OUTPUT: List of issues regarding accessibility, responsiveness, performance, and design consistency
@@ -161,7 +161,7 @@ Incorporate review feedback and apply refinements after user confirmation.
 
 ## Key rules
 
-1. **gemini frontend opinions are trusted**
+1. **antigravity frontend opinions are trusted**
 2. **codex frontend opinions are for reference only**
 3. External models have **zero write access** to the filesystem
 4. Claude is responsible for all code writes and file operations

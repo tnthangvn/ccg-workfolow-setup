@@ -22,8 +22,8 @@ I misspoke just now, I will now complete it. I have re-examined the Demon Lord's
 ```
 
 Automatically detects the runtime environment (Claude Code vs Codex CLI) and locates the corresponding session file:
-- Claude Code: `/home/thangtn/.claude/projects/<cwd-slug>/*.jsonl` (gets the newest by mtime)
-- Codex CLI: `/home/thangtn/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl` (recursively scans and gets the newest by mtime)
+- Claude Code: `/home/pc/.claude/projects/<cwd-slug>/*.jsonl` (gets the newest by mtime)
+- Codex CLI: `/home/pc/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl` (recursively scans and gets the newest by mtime)
 
 **It is not regex matching, it is a full replacement. Simple, brute force, zero exceptions.**
 

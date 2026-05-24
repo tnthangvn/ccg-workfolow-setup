@@ -5,10 +5,10 @@ description: 'Agent Teams Planning - Lead calls Backend/Frontend models for para
 **Core Philosophy**
 - Produced planning must allow Builder teammates to execute mechanically without decisions.
 - File scopes for each subtask must be isolated to ensure no parallel conflicts.
-- Multi-model collaboration is mandatory: codex (backend authoritative) + gemini (frontend authoritative).
+- Multi-model collaboration is mandatory: codex (backend authoritative) + antigravity (frontend authoritative).
 
 **Guardrails**
-- Multi-model analysis is **mandatory**: must call both codex and gemini.
+- Multi-model analysis is **mandatory**: must call both codex and antigravity.
 - Do not write product code, only analysis and planning.
 - Planning file must contain actual analysis summaries from external models.
 - Use `AskUserQuestion` to resolve any ambiguity.
@@ -26,27 +26,27 @@ description: 'Agent Teams Planning - Lead calls Backend/Frontend models for para
    **FIRST Bash call (codex)**:
    ```
    Bash({
-     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/thangtn/.claude/.ccg/prompts/codex/analyzer.md\n<TASK>\nRequirement: $ARGUMENTS\nContext: <Project structure and key code collected in Step 1>\n</TASK>\nOUTPUT:\n1) Technical feasibility assessment\n2) Recommended architectural solution (precise to files and functions)\n3) Detailed implementation steps\n4) Risk assessment\nEOF",
+     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/analyzer.md\n<TASK>\nRequirement: $ARGUMENTS\nContext: <Project structure and key code collected in Step 1>\n</TASK>\nOUTPUT:\n1) Technical feasibility assessment\n2) Recommended architectural solution (precise to files and functions)\n3) Detailed implementation steps\n4) Risk assessment\nEOF",
      run_in_background: true,
      timeout: 3600000,
      description: "codex backend analysis"
    })
    ```
 
-   **SECOND Bash call (gemini) - IN THE SAME MESSAGE**:
+   **SECOND Bash call (antigravity) - IN THE SAME MESSAGE**:
    ```
    Bash({
-     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend gemini --gemini-model gemini-3.1-pro-preview - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/thangtn/.claude/.ccg/prompts/gemini/analyzer.md\n<TASK>\nRequirement: $ARGUMENTS\nContext: <Project structure and key code collected in Step 1>\n</TASK>\nOUTPUT:\n1) UI/UX solution\n2) Component breakdown suggestions (precise to files and functions)\n3) Detailed implementation steps\n4) Interactive design key points\nEOF",
+     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend antigravity - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/antigravity/analyzer.md\n<TASK>\nRequirement: $ARGUMENTS\nContext: <Project structure and key code collected in Step 1>\n</TASK>\nOUTPUT:\n1) UI/UX solution\n2) Component breakdown suggestions (precise to files and functions)\n3) Detailed implementation steps\n4) Interactive design key points\nEOF",
      run_in_background: true,
      timeout: 3600000,
-     description: "gemini frontend analysis"
+     description: "antigravity frontend analysis"
    })
    ```
 
    **Wait for results**:
    ```
    TaskOutput({ task_id: "<codex_task_id>", block: true, timeout: 600000 })
-   TaskOutput({ task_id: "<gemini_task_id>", block: true, timeout: 600000 })
+   TaskOutput({ task_id: "<antigravity_task_id>", block: true, timeout: 600000 })
    ```
 
    - Must specify `timeout: 600000`, otherwise the default 30 seconds will cause an early timeout.
@@ -55,7 +55,7 @@ description: 'Agent Teams Planning - Lead calls Backend/Frontend models for para
    - ⛔ **Backend model output must be awaited**: Backend model execution taking 5-15 minutes is normal. After TaskOutput times out, continue polling; **strictly prohibit skipping when the backend model hasn't returned results**.
 
 3. **Synthesized Analysis + Task Breakdown**
-   - Backend solution based on codex, frontend solution based on gemini.
+   - Backend solution based on codex, frontend solution based on antigravity.
    - Breakdown into independent subtasks, each with:
      * Non-overlapping file scopes (**mandatory**)
      * Set as dependency if overlap is unavoidable
@@ -75,7 +75,7 @@ description: 'Agent Teams Planning - Lead calls Backend/Frontend models for para
    ## codex Analysis Summary
    <Actual key content returned by backend model>
 
-   ## gemini Analysis Summary
+   ## antigravity Analysis Summary
    <Actual key content returned by frontend model>
 
    ## Technical Solution
@@ -113,7 +113,7 @@ description: 'Agent Teams Planning - Lead calls Backend/Frontend models for para
    - If approaching 80K: Suggest running `/ccg:team-exec` after `/clear`.
 
 **Exit Criteria**
-- [ ] codex + gemini analysis complete
+- [ ] codex + antigravity analysis complete
 - [ ] No subtask file scope conflicts
 - [ ] Planning file written to `.claude/team-plan/`
 - [ ] User has confirmed planning

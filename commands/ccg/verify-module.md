@@ -11,7 +11,7 @@ Module Integrity Verification Checkpoint. Scans directory structure, detects mis
 Execute the following command:
 
 ```bash
-node "/home/thangtn/.claude/skills/ccg/run_skill.js" verify-module $ARGUMENTS
+node "/home/pc/.claude/skills/ccg/run_skill.js" verify-module $ARGUMENTS
 ```
 
-For a detailed description of this skill, please read: /home/thangtn/.claude/skills/ccg/tools/verify-module/SKILL.md
+For a detailed description of this skill, please read: /home/pc/.claude/skills/ccg/tools/verify-module/SKILL.md

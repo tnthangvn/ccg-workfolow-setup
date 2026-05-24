@@ -11,7 +11,7 @@ Change Verification Checkpoint. Analyzes code changes, detects documentation syn
 Execute the following command:
 
 ```bash
-node "/home/thangtn/.claude/skills/ccg/run_skill.js" verify-change $ARGUMENTS
+node "/home/pc/.claude/skills/ccg/run_skill.js" verify-change $ARGUMENTS
 ```
 
-For a detailed description of this skill, please read: /home/thangtn/.claude/skills/ccg/tools/verify-change/SKILL.md
+For a detailed description of this skill, please read: /home/pc/.claude/skills/ccg/tools/verify-change/SKILL.md

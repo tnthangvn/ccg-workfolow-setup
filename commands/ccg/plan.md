@@ -29,7 +29,7 @@ $ARGUMENTS
 
 ```
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|gemini> --gemini-model gemini-3.1-pro-preview - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement>
@@ -47,8 +47,8 @@ EOF",
 
 | Phase | Backend | Frontend |
 |-------|---------|----------|
-| Analysis | `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md` | `/home/thangtn/.claude/.ccg/prompts/gemini/analyzer.md` |
-| Planning | `/home/thangtn/.claude/.ccg/prompts/codex/architect.md` | `/home/thangtn/.claude/.ccg/prompts/gemini/architect.md` |
+| Analysis | `/home/pc/.claude/.ccg/prompts/codex/analyzer.md` | `/home/pc/.claude/.ccg/prompts/antigravity/analyzer.md` |
+| Planning | `/home/pc/.claude/.ccg/prompts/codex/architect.md` | `/home/pc/.claude/.ccg/prompts/antigravity/architect.md` |
 
 **Session reuse**: Each call returns `SESSION_ID: xxx` (usually output by the wrapper), **must be saved** for later use in `/ccg:execute`.
 
@@ -111,17 +111,17 @@ mcp__fast-context__fast_context_search({
 
 #### 2.1 Distribute Input
 
-**Parallel calling** codex and gemini (`run_in_background: true`):
+**Parallel calling** codex and antigravity (`run_in_background: true`):
 
 Distribute the **original requirement** (without preset viewpoints) to both models:
 
 1. **codex backend analysis**:
-   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md`
+   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/analyzer.md`
    - Focus: technical feasibility, architectural impact, performance considerations, potential risks.
    - OUTPUT: multi-perspective solutions + pros and cons analysis.
 
-2. **gemini frontend analysis**:
-   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/gemini/analyzer.md`
+2. **antigravity frontend analysis**:
+   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/analyzer.md`
    - Focus: UI/UX impact, user experience, visual design.
    - OUTPUT: multi-perspective solutions + pros and cons analysis.
 
@@ -133,7 +133,7 @@ Synthesize thoughts from all sides, perform iterative refinement:
 
 1. **Identify aligned views** (strong signals).
 2. **Identify points of divergence** (need tradeoffs).
-3. **Complementary strengths**: Backend logic based on codex, frontend design based on gemini.
+3. **Complementary strengths**: Backend logic based on codex, frontend design based on antigravity.
 4. **Logical deduction**: Eliminate logic gaps in the solutions.
 
 #### 2.3 (Optional but Recommended) Dual-model "Draft Plans"
@@ -141,11 +141,11 @@ Synthesize thoughts from all sides, perform iterative refinement:
 To reduce the risk of omissions in Claude's synthesized plan, have both models output "Draft Plans" in parallel (still **not allowed** to modify files):
 
 1. **codex Draft Plan** (backend authoritative):
-   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/architect.md`
+   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/architect.md`
    - OUTPUT: Step-by-step plan + pseudo-code (focus: data flow/boundary conditions/error handling/testing strategy).
 
-2. **gemini Draft Plan** (frontend authoritative):
-   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/gemini/architect.md`
+2. **antigravity Draft Plan** (frontend authoritative):
+   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/architect.md`
    - OUTPUT: Step-by-step plan + pseudo-code (focus: information architecture/interaction/accessibility/visual consistency).
 
 Use `TaskOutput` to wait for full results from both models, and record the key differences in their suggestions.
@@ -158,7 +158,7 @@ Synthesize analysis from both sides, generate a **Step-by-step Implementation Pl
 ## 📋 Implementation Plan: <task_name>
 
 ### Task Type
-- [ ] Frontend (→ gemini)
+- [ ] Frontend (→ antigravity)
 - [ ] Backend (→ codex)
 - [ ] Full-stack (→ parallel)
 
@@ -252,6 +252,6 @@ After the user is satisfied with the review, **manually** execute:
 
 1. **Planning Only, No Implementation** – This command executes no code changes.
 2. **Do Not Ask Y/N** – Just present the plan and let the user decide the next step.
-3. **Trust Rules** – Backend based on codex, frontend based on gemini.
+3. **Trust Rules** – Backend based on codex, frontend based on antigravity.
 4. External models have **zero write access** to the filesystem.
 5. **SESSION_ID Handover** – The end of the plan must contain `CODEX_SESSION` / `GEMINI_SESSION` (for `/ccg:execute resume <SESSION_ID>` use).

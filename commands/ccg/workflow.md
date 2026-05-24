@@ -1,5 +1,5 @@
 ---
-description: 'Multi-model Collaborative Development Workflow (Research → Ideation → Planning → Execution → Refinement → Review), intelligent routing Frontend → gemini, Backend → codex'
+description: 'Multi-model Collaborative Development Workflow (Research → Ideation → Planning → Execution → Refinement → Review), intelligent routing Frontend → antigravity, Backend → codex'
 ---
 
 # Workflow - Multi-model Collaborative Development
@@ -16,7 +16,7 @@ Execute structured development workflows using quality gates, MCP services, and 
 
 - Task to develop: $ARGUMENTS
 - Structured 6-phase workflow with quality gates
-- Multi-model collaboration: codex (Backend) + gemini (Frontend) + Claude (Orchestration)
+- Multi-model collaboration: codex (Backend) + antigravity (Frontend) + Claude (Orchestration)
 - MCP service integration (ace-tool) for enhanced functionality
 
 ## Your role
@@ -25,7 +25,7 @@ You are the **orchestrator**, coordinating the multi-model collaboration system 
 
 **Collaboration Models**:
 - **codex** – Backend logic, algorithms, debugging (**backend authoritative, trusted**)
-- **gemini** – Frontend UI/UX, visual design (**Frontend expert, backend opinions for reference only**)
+- **antigravity** – Frontend UI/UX, visual design (**Frontend expert, backend opinions for reference only**)
 - **Claude (self)** – Orchestration, Planning, Execution, Delivery
 
 ---
@@ -42,7 +42,7 @@ You are the **orchestrator**, coordinating the multi-model collaboration system 
 ```
 # New session invocation
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|gemini> --gemini-model gemini-3.1-pro-preview - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -57,7 +57,7 @@ EOF",
 
 # Resume session invocation
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|gemini> --gemini-model gemini-3.1-pro-preview resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -75,9 +75,9 @@ EOF",
 
 | Phase | Backend | Frontend |
 |-------|---------|----------|
-| Analysis | `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md` | `/home/thangtn/.claude/.ccg/prompts/gemini/analyzer.md` |
-| Planning | `/home/thangtn/.claude/.ccg/prompts/codex/architect.md` | `/home/thangtn/.claude/.ccg/prompts/gemini/architect.md` |
-| Review | `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md` | `/home/thangtn/.claude/.ccg/prompts/gemini/reviewer.md` |
+| Analysis | `/home/pc/.claude/.ccg/prompts/codex/analyzer.md` | `/home/pc/.claude/.ccg/prompts/antigravity/analyzer.md` |
+| Planning | `/home/pc/.claude/.ccg/prompts/codex/architect.md` | `/home/pc/.claude/.ccg/prompts/antigravity/architect.md` |
+| Review | `/home/pc/.claude/.ccg/prompts/codex/reviewer.md` | `/home/pc/.claude/.ccg/prompts/antigravity/reviewer.md` |
 
 **Session reuse**: Each call returns `SESSION_ID: xxx`, subsequent phases use `resume xxx` to reuse context (Note: use `resume`, not `--resume`).
 
@@ -128,7 +128,7 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 
 **Parallel calling** (`run_in_background: true`):
 - codex: use analysis prompt, output technical feasibility, solutions, and risks.
-- gemini: use analysis prompt, output UI feasibility, solutions, and experience.
+- antigravity: use analysis prompt, output UI feasibility, solutions, and experience.
 
 Wait for results with `TaskOutput`. **📌 Save SESSION_ID** (`CODEX_SESSION` and `GEMINI_SESSION`).
 
@@ -142,13 +142,13 @@ Synthesize analysis from both sides, output solution comparison (at least 2 solu
 
 **Parallel calling** (reuse sessions):
 - codex: use planning prompt + `resume $CODEX_SESSION`, output backend architecture.
-- gemini: use planning prompt + `resume $GEMINI_SESSION`, output frontend architecture.
+- antigravity: use planning prompt + `resume $GEMINI_SESSION`, output frontend architecture.
 
 Wait for results with `TaskOutput`.
 
 **Be sure to follow the `Important` instructions in the `Multi-model invocation rules` above.**
 
-**Claude Synthesized Planning**: Adopt codex backend planning + gemini frontend planning, save to `.claude/plan/<task-name>.md` after user approval.
+**Claude Synthesized Planning**: Adopt codex backend planning + antigravity frontend planning, save to `.claude/plan/<task-name>.md` after user approval.
 
 ### ⚡ Phase 4: Implementation
 
@@ -164,7 +164,7 @@ Wait for results with `TaskOutput`.
 
 **Parallel calling**:
 - codex: use review prompt, focus on security, performance, and error handling.
-- gemini: use review prompt, focus on accessibility and design consistency.
+- antigravity: use review prompt, focus on accessibility and design consistency.
 
 Wait for results with `TaskOutput`. Incorporate review feedback and apply refinements after user confirmation.
 

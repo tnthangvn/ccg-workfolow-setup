@@ -49,7 +49,7 @@ description: 'Requirement → Constraint Sets (Parallel Exploration + OPSX Propo
    - Each boundary should be self-contained: no cross-communication needed.
 
 4. **Parallel Multi-Model Exploration**
-   - **CRITICAL**: You MUST launch BOTH codex AND gemini in a SINGLE message with TWO Bash tool calls.
+   - **CRITICAL**: You MUST launch BOTH codex AND antigravity in a SINGLE message with TWO Bash tool calls.
    - **DO NOT** call one model first and wait. Launch BOTH simultaneously with `run_in_background: true`.
    - **Working directory**: `{{WORKDIR}}` **must obtain the absolute path of the current working directory by running Bash `pwd` (Unix) or `cd` (Windows CMD)**; do not infer it from `$HOME` or environment variables. If the user added multiple workspaces via `/add-dir`, identify the relevant workspace first.
 
@@ -72,27 +72,27 @@ description: 'Requirement → Constraint Sets (Parallel Exploration + OPSX Propo
    **FIRST Bash call (codex — backend boundaries)**:
    ```
    Bash({
-     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nExplore backend context boundaries for <change description>:\n- Existing structures and patterns\n- Conventions in use\n- Hard constraints limiting solution space\n- Dependencies and risks\nOUTPUT: JSON using the output template above\nEOF",
+     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nExplore backend context boundaries for <change description>:\n- Existing structures and patterns\n- Conventions in use\n- Hard constraints limiting solution space\n- Dependencies and risks\nOUTPUT: JSON using the output template above\nEOF",
      run_in_background: true,
      timeout: 300000,
      description: "codex: backend boundary exploration"
    })
    ```
 
-   **SECOND Bash call (gemini — frontend boundaries) - IN THE SAME MESSAGE**:
+   **SECOND Bash call (antigravity — frontend boundaries) - IN THE SAME MESSAGE**:
    ```
    Bash({
-     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend gemini --gemini-model gemini-3.1-pro-preview - \"{{WORKDIR}}\" <<'EOF'\nExplore frontend context boundaries for <change description>:\n- Existing structures and patterns\n- Conventions in use\n- Hard constraints limiting solution space\n- Dependencies and risks\nOUTPUT: JSON using the output template above\nEOF",
+     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend antigravity - \"{{WORKDIR}}\" <<'EOF'\nExplore frontend context boundaries for <change description>:\n- Existing structures and patterns\n- Conventions in use\n- Hard constraints limiting solution space\n- Dependencies and risks\nOUTPUT: JSON using the output template above\nEOF",
      run_in_background: true,
      timeout: 300000,
-     description: "gemini: frontend boundary exploration"
+     description: "antigravity: frontend boundary exploration"
    })
    ```
 
    **Step 4.2**: After BOTH Bash calls return task IDs, wait for results with TWO TaskOutput calls:
    ```
    TaskOutput({ task_id: "<codex_task_id>", block: true, timeout: 600000 })
-   TaskOutput({ task_id: "<gemini_task_id>", block: true, timeout: 600000 })
+   TaskOutput({ task_id: "<antigravity_task_id>", block: true, timeout: 600000 })
    ```
 
    ⛔ **Frontend model failures must be retried**: if the frontend model call fails, retry up to 2 times (5-second intervals). Skip only if all 3 attempts fail.

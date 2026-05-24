@@ -1,5 +1,5 @@
 ---
-description: 'Multi-model Debugging: codex backend diagnosis + gemini frontend diagnosis, cross-validation to locate issues'
+description: 'Multi-model Debugging: codex backend diagnosis + antigravity frontend diagnosis, cross-validation to locate issues'
 ---
 
 # Debug - Multi-model Debugging
@@ -16,7 +16,7 @@ Dual-model parallel diagnosis, cross-validation for fast root cause localization
 
 You are the **debugging coordinator**, orchestrating the multi-model diagnosis flow:
 - **codex** – Backend diagnosis (**authoritative for backend issues**)
-- **gemini** – Frontend diagnosis (**authoritative for frontend issues**)
+- **antigravity** – Frontend diagnosis (**authoritative for frontend issues**)
 - **Claude (self)** – Synthesis, execution of fixes
 
 ---
@@ -32,8 +32,8 @@ You are the **debugging coordinator**, orchestrating the multi-model diagnosis f
 
 **codex backend diagnosis**:
 ```bash
-/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - "$(pwd)" <<'EOF'
-ROLE_FILE: /home/thangtn/.claude/.ccg/prompts/codex/debugger.md
+/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex - "$(pwd)" <<'EOF'
+ROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/debugger.md
 <TASK>
 Requirement: <enhanced requirement>
 Context: <error logs, stack traces, reproduction steps>
@@ -42,10 +42,10 @@ OUTPUT: Diagnostic hypotheses (sorted by probability)
 EOF
 ```
 
-**gemini frontend diagnosis**:
+**antigravity frontend diagnosis**:
 ```bash
-/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend gemini --gemini-model gemini-3.1-pro-preview - "$(pwd)" <<'EOF'
-ROLE_FILE: /home/thangtn/.claude/.ccg/prompts/gemini/debugger.md
+/home/pc/.claude/bin/codeagent-wrapper --progress --backend antigravity - "$(pwd)" <<'EOF'
+ROLE_FILE: /home/pc/.claude/.ccg/prompts/antigravity/debugger.md
 <TASK>
 Requirement: <enhanced requirement>
 Context: <error logs, stack traces, reproduction steps>
@@ -58,12 +58,12 @@ EOF
 
 | Model | Prompt |
 |------|--------|
-| Backend | `/home/thangtn/.claude/.ccg/prompts/codex/debugger.md` |
-| Frontend | `/home/thangtn/.claude/.ccg/prompts/gemini/debugger.md` |
+| Backend | `/home/pc/.claude/.ccg/prompts/codex/debugger.md` |
+| Frontend | `/home/pc/.claude/.ccg/prompts/antigravity/debugger.md` |
 
 **Parallel calls**:
 1. Use the `Bash` tool with `run_in_background: true` and `timeout: 600000` (10 minutes).
-2. Launch two background tasks simultaneously (codex + gemini).
+2. Launch two background tasks simultaneously (codex + antigravity).
 3. Use `TaskOutput` to wait for results: `TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })`.
 
 **Important**:
@@ -98,11 +98,11 @@ EOF
 **⚠️ Must launch two parallel Bash calls** (per the invocation rules above):
 
 1. **codex backend diagnosis**: `Bash({ command: "...--backend codex...", run_in_background: true })`
-   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/debugger.md`
+   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/debugger.md`
    - OUTPUT: Diagnostic hypotheses (sorted by probability), each containing cause, evidence, and fix suggestions.
 
-2. **gemini frontend diagnosis**: `Bash({ command: "...--backend gemini...", run_in_background: true })`
-   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/gemini/debugger.md`
+2. **antigravity frontend diagnosis**: `Bash({ command: "...--backend antigravity...", run_in_background: true })`
+   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/debugger.md`
    - OUTPUT: Diagnostic hypotheses (sorted by probability), each containing cause, evidence, and fix suggestions.
 
 Wait for diagnostic results from both models using `TaskOutput`. **Must wait for all models to return before proceeding to the next phase.**
@@ -127,7 +127,7 @@ Wait for diagnostic results from both models using `TaskOutput`. **Must wait for
 ### codex Analysis (backend perspective)
 <Diagnostic summary>
 
-### gemini Analysis (frontend perspective)
+### antigravity Analysis (frontend perspective)
 <Diagnostic summary>
 
 ### Synthesis
@@ -153,5 +153,5 @@ After user confirmation:
 ## Key rules
 
 1. **User Confirmation** – Must get confirmation before fixing.
-2. **Trust Rules** – Backend issues based on codex, frontend issues based on gemini.
+2. **Trust Rules** – Backend issues based on codex, frontend issues based on antigravity.
 3. External models have **zero write access** to the filesystem.

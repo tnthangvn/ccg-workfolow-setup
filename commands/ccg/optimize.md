@@ -1,5 +1,5 @@
 ---
-description: 'Multi-model Performance Refinement: codex backend refinement + gemini frontend refinement'
+description: 'Multi-model Performance Refinement: codex backend refinement + antigravity frontend refinement'
 ---
 
 # Optimize - Multi-model Performance Refinement
@@ -16,13 +16,13 @@ Dual-model parallel analysis of performance bottlenecks, sorting refinement sugg
 
 - Refinement target: $ARGUMENTS
 - codex focuses on backend performance (database, algorithms, caching)
-- gemini focuses on frontend performance (rendering, loading, interaction)
+- antigravity focuses on frontend performance (rendering, loading, interaction)
 
 ## Your role
 
 You are the **performance engineer**, orchestrating the multi-model refinement flow:
 - **codex** – Backend performance refinement (**backend authoritative**)
-- **gemini** – Frontend performance refinement (**frontend authoritative**)
+- **antigravity** – Frontend performance refinement (**frontend authoritative**)
 - **Claude (self)** – Synthesis, implementing changes
 
 ---
@@ -38,7 +38,7 @@ You are the **performance engineer**, orchestrating the multi-model refinement f
 
 ```
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|gemini> --gemini-model gemini-3.1-pro-preview - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -56,8 +56,8 @@ EOF",
 
 | Model | Prompt |
 |------|--------|
-| Backend | `/home/thangtn/.claude/.ccg/prompts/codex/optimizer.md` |
-| Frontend | `/home/thangtn/.claude/.ccg/prompts/gemini/optimizer.md` |
+| Backend | `/home/pc/.claude/.ccg/prompts/codex/optimizer.md` |
+| Frontend | `/home/pc/.claude/.ccg/prompts/antigravity/optimizer.md` |
 
 **Parallel calls**: Start with `run_in_background: true`, wait for results with `TaskOutput`. **Must wait for all models before entering the next phase.**
 
@@ -105,12 +105,12 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 **⚠️ Must launch two parallel Bash calls** (per the invocation rules above):
 
 1. **codex backend analysis**: `Bash({ command: "...--backend codex...", run_in_background: true })`
-   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/optimizer.md`
+   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/optimizer.md`
    - Requirement: Analyze backend performance issues ($ARGUMENTS)
    - OUTPUT: Performance bottleneck list, refinement solutions, expected benefits
 
-2. **gemini frontend analysis**: `Bash({ command: "...--backend gemini...", run_in_background: true })`
-   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/gemini/optimizer.md`
+2. **antigravity frontend analysis**: `Bash({ command: "...--backend antigravity...", run_in_background: true })`
+   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/optimizer.md`
    - Requirement: Analyze frontend performance issues (Core Web Vitals)
    - OUTPUT: Performance bottleneck list, refinement solutions, expected benefits
 
@@ -163,4 +163,4 @@ Run tests to verify functionality, and compare metrics before and after refineme
 1. **Measure Before Refining** – Don't refine blindly without data.
 2. **Cost-effectiveness First** – High impact + low difficulty takes priority.
 3. **Do Not Break Functionality** – Refinement must not introduce bugs.
-4. **Trust Rules** – Backend based on codex, frontend based on gemini.
+4. **Trust Rules** – Backend based on codex, frontend based on antigravity.

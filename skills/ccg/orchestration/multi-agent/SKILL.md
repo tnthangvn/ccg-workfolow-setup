@@ -121,18 +121,18 @@ The `/ccg:team` command adds 3 enterprise-grade professional roles on top of the
 |------|----------|------|------|----------|------|
 | 🏗 Architect | `team-architect` | Heavenly Net Strategist (天罗军师) | Codebase scanning, architecture blueprints, file allocation matrix | Read/Glob/Grep (Read-only) | Sonnet |
 | 🧪 QA Engineer | `team-qa` | Heavenly Net Poison Tester (天罗验毒) | Write tests, run tests, lint, typecheck | Read/Write/Edit/Bash/Glob/Grep | Sonnet |
-| 🔬 Reviewer | `team-reviewer` | Heavenly Net Soldier (天罗护法) | Comprehensive Codex/Gemini review, graded verdicts | Read/Glob/Grep (Read-only) | Sonnet |
+| 🔬 Reviewer | `team-reviewer` | Heavenly Net Soldier (天罗护法) | Comprehensive Codex/Antigravity review, graded verdicts | Read/Glob/Grep (Read-only) | Sonnet |
 
 ### 8-Stage Pipeline
 
 ```
 Phase 0: PRE-FLIGHT    → Environment check + argument parsing
 Phase 1: REQUIREMENT   → Lead requirement enhancement → mini-PRD
-Phase 2: ARCHITECTURE  → Codex∥Gemini assistance + Architect teammate drafts blueprint
+Phase 2: ARCHITECTURE  → Codex∥Antigravity assistance + Architect teammate drafts blueprint
 Phase 3: PLANNING      → Lead breaks down tasks → Zero-decision parallel planning
 Phase 4: DEVELOPMENT   → Dev×N teammates code in parallel (file isolation)
 Phase 5: TESTING       → QA teammate writes tests + runs full verification
-Phase 6: REVIEW        → Codex∥Gemini assistance + Reviewer teammate comprehensive review
+Phase 6: REVIEW        → Codex∥Antigravity assistance + Reviewer teammate comprehensive review
 Phase 7: FIX           → Dev teammate(s) fix Critical issues (max 2 rounds)
 Phase 8: INTEGRATION   → Lead full verification + report + cleanup
 ```

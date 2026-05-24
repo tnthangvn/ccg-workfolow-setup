@@ -13,18 +13,18 @@ $ARGUMENTS
 **Use with `/ccg:plan`**:
 
 ```
-/ccg:plan → Multi-model collaborative planning (Codex ∥ Gemini analysis → Claude synthesis)
+/ccg:plan → Multi-model collaborative planning (Codex ∥ Antigravity analysis → Claude synthesis)
                 ↓ Planning file (.claude/plan/xxx.md)
 /ccg:codex-exec → Codex full ownership execution (MCP search + code implementation + tests)
                 ↓ Code changes
-                → Multi-model review (Codex ∥ Gemini cross-review)
+                → Multi-model review (Codex ∥ Antigravity cross-review)
 ```
 
 **Difference from `/ccg:execute`**:
 
 | Dimension | `/ccg:execute` | `/ccg:codex-exec` |
 |------|---------------|-------------------|
-| Code implementation | Claude refactors codex/gemini diffs | **codex implements directly** |
+| Code implementation | Claude refactors codex/antigravity diffs | **codex implements directly** |
 | MCP search | Claude calls MCP | **codex calls MCP** |
 | Claude context | High (search results + full code come in) | **Very low (summary + diff only)** |
 | Claude tokens | Heavy usage | **Very low usage** |
@@ -50,7 +50,7 @@ $ARGUMENTS
 
 ```
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EXEC_EOF'
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EXEC_EOF'
 <TASK>
 <Instruction content>
 </TASK>
@@ -65,7 +65,7 @@ EXEC_EOF",
 
 ```
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EXEC_EOF'
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EXEC_EOF'
 <TASK>
 <Instruction content>
 </TASK>
@@ -76,11 +76,11 @@ EXEC_EOF",
 })
 ```
 
-**Review invocation syntax** (Codex ∥ Gemini parallel review):
+**Review invocation syntax** (Codex ∥ Antigravity parallel review):
 
 ```
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|gemini> --gemini-model gemini-3.1-pro-preview - \"{{WORKDIR}}\" <<'REVIEW_EOF'
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'REVIEW_EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Scope: Audit the code changes made by Codex.
@@ -104,7 +104,7 @@ REVIEW_EOF",
 
 | Phase | Backend | Frontend |
 |-------|---------|----------|
-| Review | `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md` | `/home/thangtn/.claude/.ccg/prompts/gemini/reviewer.md` |
+| Review | `/home/pc/.claude/.ccg/prompts/codex/reviewer.md` | `/home/pc/.claude/.ccg/prompts/antigravity/reviewer.md` |
 
 **Wait for background tasks** (max timeout 600000ms = 10 minutes):
 
@@ -167,7 +167,7 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 
 ```
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex resume <CODEX_SESSION> - \"{{WORKDIR}}\" <<'EXEC_EOF'
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex resume <CODEX_SESSION> - \"{{WORKDIR}}\" <<'EXEC_EOF'
 <TASK>
 You are a full-stack execution agent. Implement the following plan end to end.
 
@@ -267,7 +267,7 @@ Wait for completion using `TaskOutput`.
 
 ```
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex resume <CODEX_EXEC_SESSION> - \"{{WORKDIR}}\" <<'FIXEOF'
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex resume <CODEX_EXEC_SESSION> - \"{{WORKDIR}}\" <<'FIXEOF'
 <TASK>
 The implementation needs corrections:
 
@@ -296,7 +296,7 @@ Return to Phase 2 after completion. **Maximum 2 rework rounds**, beyond which Cl
 
 `[Mode: Review]`
 
-**Call codex + gemini in parallel for cross-review** (multi-model collaboration unchanged):
+**Call codex + antigravity in parallel for cross-review** (multi-model collaboration unchanged):
 
 1. **Get change diff**:
 
@@ -307,19 +307,19 @@ Return to Phase 2 after completion. **Maximum 2 rework rounds**, beyond which Cl
 2. **Parallel calls** (`run_in_background: true`):
 
    - **codex review**:
-     - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md`
+     - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/reviewer.md`
      - Input: Change Diff + Planning file content
      - Focus: Security, performance, error handling, logical correctness
 
-   - **gemini review**:
-     - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/gemini/reviewer.md`
+   - **antigravity review**:
+     - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/reviewer.md`
      - Input: Change Diff + Planning file content
      - Focus: Code readability, design consistency, maintainability
 
    Wait for full review results from both models using `TaskOutput`.
 
 3. **Integrate review feedback**:
-   - Based on trust rules: Backend issues based on codex, frontend issues based on gemini.
+   - Based on trust rules: Backend issues based on codex, frontend issues based on antigravity.
    - **Critical** → must fix (Claude fixes directly or delegates to Codex again)
    - **Warning** → recommended fix, report to user for decision
    - **Info** → record only, no action
@@ -357,7 +357,7 @@ Report to the user:
 
 ### Review results
 - Codex review: <Pass/Found N issues>
-- Gemini review: <Pass/Found N issues>
+- Antigravity review: <Pass/Found N issues>
 - Claude handling: <Fixed N Critical, N Warning pending user decision>
 
 ### Follow-up suggestions
@@ -371,8 +371,8 @@ Report to the user:
 
 1. **Claude minimalism principle** — Claude does not call MCP or perform code retrieval. It only reads the plan, directs Codex, and reviews results.
 2. **Codex full ownership execution** — MCP search, documentation lookup, code retrieval, implementation, and testing are all handled by codex.
-3. **Multi-model review unchanged** — review stage still uses Codex ∥ Gemini cross-review to ensure quality.
-4. **Trust rules** — Backend based on codex, frontend based on gemini.
+3. **Multi-model review unchanged** — review stage still uses Codex ∥ Antigravity cross-review to ensure quality.
+4. **Trust rules** — Backend based on codex, frontend based on antigravity.
 5. **One-shot delivery** — give Codex the full instructions + full plan in one go whenever possible to reduce back-and-forth.
 6. **At most 2 rework rounds** — after 2 rounds, Claude takes over directly to avoid infinite loops.
 7. **Plan alignment** — Codex implementation must stay within plan scope; out-of-scope changes are violations.

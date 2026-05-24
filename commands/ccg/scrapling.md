@@ -8,7 +8,7 @@ Use scrapling for web scraping and data extraction. Automatically selects Fetche
 
 ## Instruction
 
-Read the skill grimoire file `/home/thangtn/.claude/skills/ccg/scrapling/SKILL.md`, and follow the guidance within to complete the task.
+Read the skill grimoire file `/home/pc/.claude/skills/ccg/scrapling/SKILL.md`, and follow the guidance within to complete the task.
 
 ```
 $ARGUMENTS

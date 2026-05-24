@@ -8,7 +8,7 @@ description: 'Agent Teams Review - Cross-review outputs of parallel implementati
 - Review scope is strictly limited to team-exec changes; do not expand scope.
 
 **Guardrails**
-- **MANDATORY**: Both codex and gemini must complete review before synthesis.
+- **MANDATORY**: Both codex and antigravity must complete review before synthesis.
 - Review scope limited to `git diff` changes; avoid scope creep.
 - Lead can directly fix Critical issues (coding allowed during review phase).
 
@@ -25,27 +25,27 @@ description: 'Agent Teams Review - Cross-review outputs of parallel implementati
    **FIRST Bash call (codex)**:
    ```
    Bash({
-     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/thangtn/.claude/.ccg/prompts/codex/reviewer.md\n<TASK>\nReview the following changes:\n<git diff output or list of modified files>\n</TASK>\nOUTPUT (JSON):\n{\n  \"findings\": [\n    {\n      \"severity\": \"Critical|Warning|Info\",\n      \"dimension\": \"logic|security|performance|error_handling\",\n      \"file\": \"path/to/file\",\n      \"line\": 42,\n      \"description\": \"Issue description\",\n      \"fix_suggestion\": \"Fix suggestion\"\n    }\n  ],\n  \"passed_checks\": [\"Verified check items\"],\n  \"summary\": \"Overall assessment\"\n}\nEOF",
+     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/reviewer.md\n<TASK>\nReview the following changes:\n<git diff output or list of modified files>\n</TASK>\nOUTPUT (JSON):\n{\n  \"findings\": [\n    {\n      \"severity\": \"Critical|Warning|Info\",\n      \"dimension\": \"logic|security|performance|error_handling\",\n      \"file\": \"path/to/file\",\n      \"line\": 42,\n      \"description\": \"Issue description\",\n      \"fix_suggestion\": \"Fix suggestion\"\n    }\n  ],\n  \"passed_checks\": [\"Verified check items\"],\n  \"summary\": \"Overall assessment\"\n}\nEOF",
      run_in_background: true,
      timeout: 3600000,
      description: "codex backend review"
    })
    ```
 
-   **SECOND Bash call (gemini) - IN THE SAME MESSAGE**:
+   **SECOND Bash call (antigravity) - IN THE SAME MESSAGE**:
    ```
    Bash({
-     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend gemini --gemini-model gemini-3.1-pro-preview - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/thangtn/.claude/.ccg/prompts/gemini/reviewer.md\n<TASK>\nReview the following changes:\n<git diff output or list of modified files>\n</TASK>\nOUTPUT (JSON):\n{\n  \"findings\": [\n    {\n      \"severity\": \"Critical|Warning|Info\",\n      \"dimension\": \"patterns|maintainability|accessibility|ux|frontend_security\",\n      \"file\": \"path/to/file\",\n      \"line\": 42,\n      \"description\": \"Issue description\",\n      \"fix_suggestion\": \"Fix suggestion\"\n    }\n  ],\n  \"passed_checks\": [\"Verified check items\"],\n  \"summary\": \"Overall assessment\"\n}\nEOF",
+     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend antigravity - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/antigravity/reviewer.md\n<TASK>\nReview the following changes:\n<git diff output or list of modified files>\n</TASK>\nOUTPUT (JSON):\n{\n  \"findings\": [\n    {\n      \"severity\": \"Critical|Warning|Info\",\n      \"dimension\": \"patterns|maintainability|accessibility|ux|frontend_security\",\n      \"file\": \"path/to/file\",\n      \"line\": 42,\n      \"description\": \"Issue description\",\n      \"fix_suggestion\": \"Fix suggestion\"\n    }\n  ],\n  \"passed_checks\": [\"Verified check items\"],\n  \"summary\": \"Overall assessment\"\n}\nEOF",
      run_in_background: true,
      timeout: 3600000,
-     description: "gemini frontend review"
+     description: "antigravity frontend review"
    })
    ```
 
    **Wait for results**:
    ```
    TaskOutput({ task_id: "<codex_task_id>", block: true, timeout: 600000 })
-   TaskOutput({ task_id: "<gemini_task_id>", block: true, timeout: 600000 })
+   TaskOutput({ task_id: "<antigravity_task_id>", block: true, timeout: 600000 })
    ```
 
    ⛔ **Frontend model failures must be retried**: if the frontend model call fails, retry up to 2 times (5-second intervals). Skip only if all 3 attempts fail.
@@ -81,7 +81,7 @@ description: 'Agent Teams Review - Cross-review outputs of parallel implementati
 5. **Decision Gate**
    - **Critical > 0**:
      * Display findings, use `AskUserQuestion` to ask: "Fix now / Skip".
-     * Choice "Fix now" → Lead directly fixes (Backend issues refer to codex suggestions, frontend refer to gemini suggestions).
+     * Choice "Fix now" → Lead directly fixes (Backend issues refer to codex suggestions, frontend refer to antigravity suggestions).
      * After fix, re-run affected review dimensions.
      * Repeat until Critical = 0.
    - **Critical = 0**:
@@ -91,7 +91,7 @@ description: 'Agent Teams Review - Cross-review outputs of parallel implementati
    - Report current context usage.
 
 **Exit Criteria**
-- [ ] codex + gemini review complete
+- [ ] codex + antigravity review complete
 - [ ] All findings synthesized and classified
 - [ ] Critical = 0 (fixed or user confirmed skip)
 - [ ] Review report output

@@ -40,14 +40,14 @@ description: 'Execute according to specification + Multi-model collaboration + A
    - Announce: "Implementing Phase X: [task group name]"
 
 4. **Route Tasks to Appropriate Model**
-   - **Route A: gemini** — Frontend/UI/styling (CSS, React, Vue, HTML, components)
+   - **Route A: antigravity** — Frontend/UI/styling (CSS, React, Vue, HTML, components)
    - **Route B: codex** — Backend/logic/algorithm (API, data processing, business logic)
 
    **Working directory**: `{{WORKDIR}}` **must obtain the absolute path of the current working directory by running Bash `pwd` (Unix) or `cd` (Windows CMD)**; do not infer it from `$HOME` or environment variables. If the user added multiple workspaces via `/add-dir`, identify the relevant workspace first.
 
    For each task:
    ```
-   codeagent-wrapper --progress --backend <codex|gemini> --gemini-model gemini-3.1-pro-preview - "{{WORKDIR}}" <<'EOF'
+   codeagent-wrapper --progress --backend <codex|antigravity> - "{{WORKDIR}}" <<'EOF'
    TASK: <task description from tasks.md>
    CONTEXT: <relevant code context>
    CONSTRAINTS: <constraints from spec>
@@ -55,7 +55,7 @@ description: 'Execute according to specification + Multi-model collaboration + A
    EOF
    ```
 
-   **Session reuse**: Save the returned `SESSION_ID:` (codex → `CODEX_PROTO_SESSION`, gemini → `GEMINI_PROTO_SESSION`) for reuse during review in Step 7.
+   **Session reuse**: Save the returned `SESSION_ID:` (codex → `CODEX_PROTO_SESSION`, antigravity → `GEMINI_PROTO_SESSION`) for reuse during review in Step 7.
 
 5. **Rewrite Prototype to Production Code**
    Upon receiving diff patch, **NEVER apply directly**. Rewrite by:
@@ -75,7 +75,7 @@ description: 'Execute according to specification + Multi-model collaboration + A
    If issues found, make targeted corrections.
 
 7. **Multi-Model Review (PARALLEL)**
-   - **CRITICAL**: You MUST launch BOTH codex AND gemini in a SINGLE message with TWO Bash tool calls.
+   - **CRITICAL**: You MUST launch BOTH codex AND antigravity in a SINGLE message with TWO Bash tool calls.
    - **DO NOT** call one model first and wait. Launch BOTH simultaneously with `run_in_background: true`.
 
    **Step 7.1**: In ONE message, make TWO parallel Bash calls:
@@ -83,27 +83,27 @@ description: 'Execute according to specification + Multi-model collaboration + A
    **FIRST Bash call (codex)**:
    ```
    Bash({
-     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex resume <CODEX_PROTO_SESSION> - \"{{WORKDIR}}\" <<'EOF'\nReview the implementation changes:\n- Correctness: logic errors, edge cases\n- Security: injection, auth issues\n- Spec compliance: constraints satisfied\nOUTPUT: JSON with findings\nEOF",
+     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex resume <CODEX_PROTO_SESSION> - \"{{WORKDIR}}\" <<'EOF'\nReview the implementation changes:\n- Correctness: logic errors, edge cases\n- Security: injection, auth issues\n- Spec compliance: constraints satisfied\nOUTPUT: JSON with findings\nEOF",
      run_in_background: true,
      timeout: 300000,
      description: "codex: correctness/security review"
    })
    ```
 
-   **SECOND Bash call (gemini) - IN THE SAME MESSAGE**:
+   **SECOND Bash call (antigravity) - IN THE SAME MESSAGE**:
    ```
    Bash({
-     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend gemini --gemini-model gemini-3.1-pro-preview resume <GEMINI_PROTO_SESSION> - \"{{WORKDIR}}\" <<'EOF'\nReview the implementation changes:\n- Maintainability: readability, complexity\n- Patterns: consistency with project style\n- Integration: cross-module impacts\nOUTPUT: JSON with findings\nEOF",
+     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend antigravity resume <GEMINI_PROTO_SESSION> - \"{{WORKDIR}}\" <<'EOF'\nReview the implementation changes:\n- Maintainability: readability, complexity\n- Patterns: consistency with project style\n- Integration: cross-module impacts\nOUTPUT: JSON with findings\nEOF",
      run_in_background: true,
      timeout: 300000,
-     description: "gemini: maintainability/patterns review"
+     description: "antigravity: maintainability/patterns review"
    })
    ```
 
    **Step 7.2**: After BOTH Bash calls return task IDs, wait for results with TWO TaskOutput calls:
    ```
    TaskOutput({ task_id: "<codex_task_id>", block: true, timeout: 600000 })
-   TaskOutput({ task_id: "<gemini_task_id>", block: true, timeout: 600000 })
+   TaskOutput({ task_id: "<antigravity_task_id>", block: true, timeout: 600000 })
    ```
 
    ⛔ **Frontend model failures must be retried**: if the frontend model call fails, retry up to 2 times (5-second intervals). Skip only if all 3 attempts fail.

@@ -10,7 +10,7 @@ description: 'Multi-model Analysis → Eliminating Ambiguity → Zero-decision E
 
 **Guardrails**
 - Do not proceed to implementation until every ambiguity is resolved.
-- Multi-model collaboration is **mandatory**: use both codex and gemini.
+- Multi-model collaboration is **mandatory**: use both codex and antigravity.
 - If constraints cannot be fully specified, escalate to user or return to research phase.
 - Refer to `openspec/config.yaml` for project conventions.
 - **USER GUIDANCE RULE**: When suggesting next steps to the user, ALWAYS use CCG commands (`/ccg:spec-research`, `/ccg:spec-plan`, `/ccg:spec-impl`, `/ccg:spec-review`). NEVER suggest `/opsx:*` commands to the user. If OpenSpec CLI returns error messages referencing OPSX skills, translate them to CCG equivalents.
@@ -24,7 +24,7 @@ description: 'Multi-model Analysis → Eliminating Ambiguity → Zero-decision E
    - Run `openspec status --change "<change_id>" --json` to review current state.
 
 2. **Multi-Model Implementation Analysis (PARALLEL)**
-   - **CRITICAL**: You MUST launch BOTH codex AND gemini in a SINGLE message with TWO Bash tool calls.
+   - **CRITICAL**: You MUST launch BOTH codex AND antigravity in a SINGLE message with TWO Bash tool calls.
    - **DO NOT** call one model first and wait. Launch BOTH simultaneously with `run_in_background: true`.
    - **Working directory**: `{{WORKDIR}}` **must obtain the absolute path of the current working directory by running Bash `pwd` (Unix) or `cd` (Windows CMD)**; do not infer it from `$HOME` or environment variables. If the user added multiple workspaces via `/add-dir`, identify the relevant workspace first.
 
@@ -33,27 +33,27 @@ description: 'Multi-model Analysis → Eliminating Ambiguity → Zero-decision E
    **FIRST Bash call (codex)**:
    ```
    Bash({
-     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nAnalyze change <change_id> from backend perspective:\n- Implementation approach\n- Technical risks\n- Alternative architectures\n- Edge cases and failure modes\nOUTPUT: JSON with analysis\nEOF",
+     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nAnalyze change <change_id> from backend perspective:\n- Implementation approach\n- Technical risks\n- Alternative architectures\n- Edge cases and failure modes\nOUTPUT: JSON with analysis\nEOF",
      run_in_background: true,
      timeout: 300000,
      description: "codex: backend analysis"
    })
    ```
 
-   **SECOND Bash call (gemini) - IN THE SAME MESSAGE**:
+   **SECOND Bash call (antigravity) - IN THE SAME MESSAGE**:
    ```
    Bash({
-     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend gemini --gemini-model gemini-3.1-pro-preview - \"{{WORKDIR}}\" <<'EOF'\nAnalyze change <change_id> from frontend/integration perspective:\n- Maintainability assessment\n- Scalability considerations\n- Integration conflicts\nOUTPUT: JSON with analysis\nEOF",
+     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend antigravity - \"{{WORKDIR}}\" <<'EOF'\nAnalyze change <change_id> from frontend/integration perspective:\n- Maintainability assessment\n- Scalability considerations\n- Integration conflicts\nOUTPUT: JSON with analysis\nEOF",
      run_in_background: true,
      timeout: 300000,
-     description: "gemini: frontend analysis"
+     description: "antigravity: frontend analysis"
    })
    ```
 
    **Step 2.2**: After BOTH Bash calls return task IDs, wait for results with TWO TaskOutput calls:
    ```
    TaskOutput({ task_id: "<codex_task_id>", block: true, timeout: 600000 })
-   TaskOutput({ task_id: "<gemini_task_id>", block: true, timeout: 600000 })
+   TaskOutput({ task_id: "<antigravity_task_id>", block: true, timeout: 600000 })
    ```
 
    ⛔ **Frontend model failures must be retried**: if the frontend model call fails, retry up to 2 times (5-second intervals). Skip only if all 3 attempts fail.
@@ -63,7 +63,7 @@ description: 'Multi-model Analysis → Eliminating Ambiguity → Zero-decision E
 
 3. **Uncertainty Elimination Audit**
    - **codex**: "Review proposal for unspecified decision points. List each as: [AMBIGUITY] → [REQUIRED CONSTRAINT]"
-   - **gemini**: "Identify implicit assumptions. Specify: [ASSUMPTION] → [EXPLICIT CONSTRAINT NEEDED]"
+   - **antigravity**: "Identify implicit assumptions. Specify: [ASSUMPTION] → [EXPLICIT CONSTRAINT NEEDED]"
 
    **Anti-Pattern Detection** (flag and reject):
    - Information collection without decision boundaries
@@ -79,7 +79,7 @@ description: 'Multi-model Analysis → Eliminating Ambiguity → Zero-decision E
 
 4. **PBT Property Extraction**
    - **codex**: "Extract PBT properties. For each requirement: [INVARIANT] → [FALSIFICATION STRATEGY]"
-   - **gemini**: "Define system properties: [PROPERTY] | [DEFINITION] | [BOUNDARY CONDITIONS] | [COUNTEREXAMPLE GENERATION]"
+   - **antigravity**: "Define system properties: [PROPERTY] | [DEFINITION] | [BOUNDARY CONDITIONS] | [COUNTEREXAMPLE GENERATION]"
 
    **Property Categories**:
    - **Commutativity/Associativity**: Order-independent operations
@@ -96,7 +96,7 @@ description: 'Multi-model Analysis → Eliminating Ambiguity → Zero-decision E
 
      **Multi-Model Analysis Results**:
      - codex (Backend): [Key findings and recommendations]
-     - gemini (Frontend): [Key findings and recommendations]
+     - antigravity (Frontend): [Key findings and recommendations]
      - Consolidated Approach: [Selected implementation strategy]
 
      **Resolved Constraints**:

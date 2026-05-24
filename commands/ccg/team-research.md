@@ -10,7 +10,7 @@ description: 'Agent Teams Requirement Research - Parallel exploration of codebas
 **Guardrails**
 - **STOP! BEFORE ANY OTHER ACTION**: Prompt enhancement must be performed first.
 - Divide exploration scope by context boundaries, not by roles.
-- Multi-model collaboration is **mandatory**: codex (backend boundary) + gemini (frontend boundary).
+- Multi-model collaboration is **mandatory**: codex (backend boundary) + antigravity (frontend boundary).
 - Do not make architectural decisions—only discover constraints.
 - Use `AskUserQuestion` to resolve any ambiguity; never assume.
 
@@ -39,27 +39,27 @@ description: 'Agent Teams Requirement Research - Parallel exploration of codebas
    **FIRST Bash call (codex)**:
    ```
    Bash({
-     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/thangtn/.claude/.ccg/prompts/codex/analyzer.md\n<TASK>\nRequirement: <Enhanced requirement>\nExploration Scope: Backend-related context boundaries\n</TASK>\nOUTPUT (JSON):\n{\n  \"module_name\": \"Context boundary explored\",\n  \"existing_structures\": [\"Key patterns discovered\"],\n  \"existing_conventions\": [\"Standards in use\"],\n  \"constraints_discovered\": [\"Hard constraints limiting solution space\"],\n  \"open_questions\": [\"Ambiguities requiring user confirmation\"],\n  \"dependencies\": [\"Cross-module dependencies\"],\n  \"risks\": [\"Potential blockers\"],\n  \"success_criteria_hints\": [\"Observable success behaviors\"]\n}\nEOF",
+     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/analyzer.md\n<TASK>\nRequirement: <Enhanced requirement>\nExploration Scope: Backend-related context boundaries\n</TASK>\nOUTPUT (JSON):\n{\n  \"module_name\": \"Context boundary explored\",\n  \"existing_structures\": [\"Key patterns discovered\"],\n  \"existing_conventions\": [\"Standards in use\"],\n  \"constraints_discovered\": [\"Hard constraints limiting solution space\"],\n  \"open_questions\": [\"Ambiguities requiring user confirmation\"],\n  \"dependencies\": [\"Cross-module dependencies\"],\n  \"risks\": [\"Potential blockers\"],\n  \"success_criteria_hints\": [\"Observable success behaviors\"]\n}\nEOF",
      run_in_background: true,
      timeout: 3600000,
      description: "codex backend exploration"
    })
    ```
 
-   **SECOND Bash call (gemini) - IN THE SAME MESSAGE**:
+   **SECOND Bash call (antigravity) - IN THE SAME MESSAGE**:
    ```
    Bash({
-     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend gemini --gemini-model gemini-3.1-pro-preview - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/thangtn/.claude/.ccg/prompts/gemini/analyzer.md\n<TASK>\nRequirement: <Enhanced requirement>\nExploration Scope: Frontend-related context boundaries\n</TASK>\nOUTPUT (JSON):\n{\n  \"module_name\": \"Context boundary explored\",\n  \"existing_structures\": [\"Key patterns discovered\"],\n  \"existing_conventions\": [\"Standards in use\"],\n  \"constraints_discovered\": [\"Hard constraints limiting solution space\"],\n  \"open_questions\": [\"Ambiguities requiring user confirmation\"],\n  \"dependencies\": [\"Cross-module dependencies\"],\n  \"risks\": [\"Potential blockers\"],\n  \"success_criteria_hints\": [\"Observable success behaviors\"]\n}\nEOF",
+     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend antigravity - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/antigravity/analyzer.md\n<TASK>\nRequirement: <Enhanced requirement>\nExploration Scope: Frontend-related context boundaries\n</TASK>\nOUTPUT (JSON):\n{\n  \"module_name\": \"Context boundary explored\",\n  \"existing_structures\": [\"Key patterns discovered\"],\n  \"existing_conventions\": [\"Standards in use\"],\n  \"constraints_discovered\": [\"Hard constraints limiting solution space\"],\n  \"open_questions\": [\"Ambiguities requiring user confirmation\"],\n  \"dependencies\": [\"Cross-module dependencies\"],\n  \"risks\": [\"Potential blockers\"],\n  \"success_criteria_hints\": [\"Observable success behaviors\"]\n}\nEOF",
      run_in_background: true,
      timeout: 3600000,
-     description: "gemini frontend exploration"
+     description: "antigravity frontend exploration"
    })
    ```
 
    **Wait for results**:
    ```
    TaskOutput({ task_id: "<codex_task_id>", block: true, timeout: 600000 })
-   TaskOutput({ task_id: "<gemini_task_id>", block: true, timeout: 600000 })
+   TaskOutput({ task_id: "<antigravity_task_id>", block: true, timeout: 600000 })
    ```
 
    ⛔ **Frontend model failures must be retried**: if the frontend model call fails, retry up to 2 times (5-second intervals). Skip only if all 3 attempts fail.
@@ -119,7 +119,7 @@ description: 'Agent Teams Requirement Research - Parallel exploration of codebas
    - Prompt: `Research complete, run /clear then execute /ccg:team-plan <task-name> to start planning`
 
 **Exit Criteria**
-- [ ] codex + gemini exploration complete
+- [ ] codex + antigravity exploration complete
 - [ ] All ambiguities resolved through user confirmation
 - [ ] Constraint set + success criteria written to research file
 - [ ] Zero open questions remaining

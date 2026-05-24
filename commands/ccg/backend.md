@@ -13,7 +13,7 @@ description: 'Backend workflow (research → ideation → planning → execution
 ## Context
 
 - Backend task: $ARGUMENTS
-- codex led, gemini as auxiliary reference
+- codex led, antigravity as auxiliary reference
 - Applies to: API design, algorithm implementation, database optimization, business logic
 
 ## Your role
@@ -22,7 +22,7 @@ You are the **backend orchestrator**, coordinating multiple models to complete s
 
 **Collaboration Models**:
 - **codex** – Backend logic, algorithms (**backend authoritative, trusted**)
-- **gemini** – Frontend perspective (**backend opinions for reference only**)
+- **antigravity** – Frontend perspective (**backend opinions for reference only**)
 - **Claude (self)** – Orchestration, Planning, Execution, Delivery
 
 ---
@@ -39,7 +39,7 @@ You are the **backend orchestrator**, coordinating multiple models to complete s
 ```
 # New session invocation
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -54,7 +54,7 @@ EOF",
 
 # Resume session invocation
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -72,9 +72,9 @@ EOF",
 
 | Phase | Backend |
 |-------|---------|
-| Analysis | `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md` |
-| Planning | `/home/thangtn/.claude/.ccg/prompts/codex/architect.md` |
-| Review | `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md` |
+| Analysis | `/home/pc/.claude/.ccg/prompts/codex/analyzer.md` |
+| Planning | `/home/pc/.claude/.ccg/prompts/codex/architect.md` |
+| Review | `/home/pc/.claude/.ccg/prompts/codex/reviewer.md` |
 
 **Session reuse**: Each call returns `SESSION_ID: xxx`, subsequent phases use `resume xxx` to reuse context. Phase 2 saves `CODEX_SESSION`, Phase 3 and 5 use `resume` for reuse.
 
@@ -108,7 +108,7 @@ EOF",
 `[Mode: Ideation]` - codex-led analysis
 
 **⚠️ Must call codex** (refer to invocation rules above):
-- ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md`
+- ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/analyzer.md`
 - Requirement: Enhanced requirement (or $ARGUMENTS if not enhanced)
 - Context: Project context collected in Phase 1
 - OUTPUT: Technical feasibility analysis, recommended options (at least 2), risk assessment
@@ -122,7 +122,7 @@ Output options (at least 2) and wait for the user to choose.
 `[Mode: Planning]` - codex-led planning
 
 **⚠️ Must call codex** (using `resume <CODEX_SESSION>` to reuse session):
-- ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/architect.md`
+- ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/architect.md`
 - Requirement: The solution chosen by the user
 - Context: Analysis results from Phase 2
 - OUTPUT: File structure, function/class design, dependencies
@@ -142,7 +142,7 @@ Claude synthesizes the plan and saves it to `.claude/plan/task-name.md` after us
 `[Mode: Refinement]` - codex-led review
 
 **⚠️ Must call codex** (refer to invocation rules above):
-- ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md`
+- ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/reviewer.md`
 - Requirement: Review the following backend code changes
 - Context: git diff or code content
 - OUTPUT: A list of issues regarding security, performance, error handling, and API conventions
@@ -162,6 +162,6 @@ Incorporate review feedback and apply refinements after user confirmation.
 ## Key rules
 
 1. **codex backend guidance is authoritative**
-2. **gemini backend guidance is for reference only**
+2. **antigravity backend guidance is for reference only**
 3. External models have **zero write access** to the filesystem
 4. Claude is responsible for all code writes and file operations

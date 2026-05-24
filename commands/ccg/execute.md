@@ -30,7 +30,7 @@ $ARGUMENTS
 ```
 # Resume session invocation (recommended) - Implementation Prototype generation
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|gemini> --gemini-model gemini-3.1-pro-preview resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <task description>
@@ -45,7 +45,7 @@ EOF",
 
 # New session invocation - Implementation Prototype generation
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|gemini> --gemini-model gemini-3.1-pro-preview - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <task description>
@@ -63,7 +63,7 @@ EOF",
 
 ```
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|gemini> --gemini-model gemini-3.1-pro-preview resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Scope: Audit the final code changes.
@@ -88,8 +88,8 @@ EOF",
 
 | Phase | Backend | Frontend |
 |-------|---------|----------|
-| Implementation | `/home/thangtn/.claude/.ccg/prompts/codex/architect.md` | `/home/thangtn/.claude/.ccg/prompts/gemini/frontend.md` |
-| Review | `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md` | `/home/thangtn/.claude/.ccg/prompts/gemini/reviewer.md` |
+| Implementation | `/home/pc/.claude/.ccg/prompts/codex/architect.md` | `/home/pc/.claude/.ccg/prompts/antigravity/frontend.md` |
+| Review | `/home/pc/.claude/.ccg/prompts/codex/reviewer.md` | `/home/pc/.claude/.ccg/prompts/antigravity/reviewer.md` |
 
 **Session reuse**: If `/ccg:plan` provides a SESSION_ID, use `resume <SESSION_ID>` to reuse context.
 
@@ -103,7 +103,7 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 - Must specify `timeout: 600000`, otherwise the default 30 seconds will cause an early timeout.
 - If still unfinished after 10 minutes, continue polling with `TaskOutput`; **never kill the process**.
 - If you skip waiting for the TaskOutput result because the wait is too long, you **must** call `AskUserQuestion` to ask the user whether to continue waiting or kill the task.
-- ⛔ **Frontend model failures must be retried**: if gemini call fails (non-zero exit code or output contains an error), retry up to 2 times (5-second intervals). Only if all 3 attempts fail should you skip the frontend model result and continue with a single-model result.
+- ⛔ **Frontend model failures must be retried**: if antigravity call fails (non-zero exit code or output contains an error), retry up to 2 times (5-second intervals). Only if all 3 attempts fail should you skip the frontend model result and continue with a single-model result.
 - ⛔ **Backend model output must be awaited**: codex execution taking 5-15 minutes is normal. TaskOutput timeout must be followed by further polling with TaskOutput; **never skip ahead or proceed to the next phase while the backend model has not returned a result**. Skipping an already-started task = wasted tokens + lost results.
 
 ---
@@ -132,9 +132,9 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 
    | Task Type | Basis | Route |
    |-----------|-------|-------|
-   | **Frontend** | Pages, components, UI, styles, layout | gemini |
+   | **Frontend** | Pages, components, UI, styles, layout | antigravity |
    | **Backend** | API, interfaces, database, logic, algorithms | codex |
-   | **Full-stack** | Contains both frontend and backend | codex ∥ gemini parallel |
+   | **Full-stack** | Contains both frontend and backend | codex ∥ antigravity parallel |
 
 ---
 
@@ -172,20 +172,20 @@ mcp__fast-context__fast_context_search({
 
 **Route based on task type**:
 
-#### Route A: Frontend/UI/Styles → gemini
+#### Route A: Frontend/UI/Styles → antigravity
 
 **Constraints**: Context < 32k tokens
 
-1. Call gemini (using `/home/thangtn/.claude/.ccg/prompts/gemini/frontend.md`).
+1. Call antigravity (using `/home/pc/.claude/.ccg/prompts/antigravity/frontend.md`).
 2. Input: Planning content + retrieved context + target files.
 3. OUTPUT: `Unified Diff Patch ONLY. Strictly prohibit any actual modifications.`
-4. **gemini is the authority for frontend design; its CSS/React/Vue prototype is the final visual baseline.**
+4. **antigravity is the authority for frontend design; its CSS/React/Vue prototype is the final visual baseline.**
 5. ⚠️ **Warning**: Ignore frontend model's suggestions for backend logic.
 6. If planning contains `FRONTEND_SESSION`: prioritize `resume <FRONTEND_SESSION>`.
 
 #### Route B: Backend/Logic/Algorithms → codex
 
-1. Call codex (using `/home/thangtn/.claude/.ccg/prompts/codex/architect.md`).
+1. Call codex (using `/home/pc/.claude/.ccg/prompts/codex/architect.md`).
 2. Input: Planning content + retrieved context + target files.
 3. OUTPUT: `Unified Diff Patch ONLY. Strictly prohibit any actual modifications.`
 4. **codex is the authority for backend logic, utilizing its logical computation and debugging capabilities.**
@@ -194,7 +194,7 @@ mcp__fast-context__fast_context_search({
 #### Route C: Full-stack → Parallel calling
 
 1. **Parallel calling** (`run_in_background: true`):
-   - gemini: handles frontend part
+   - antigravity: handles frontend part
    - codex: handles backend part
 2. Use `TaskOutput` to wait for full results from both models.
 3. Use respective `SESSION_ID` from planning for `resume` (create new session if missing).
@@ -243,15 +243,15 @@ mcp__fast-context__fast_context_search({
 
 #### 5.1 Automated Audit
 
-**After changes take effect, force immediate parallel calls** to codex and gemini for Code Review:
+**After changes take effect, force immediate parallel calls** to codex and antigravity for Code Review:
 
 1. **codex review** (`run_in_background: true`):
-   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md`
+   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/reviewer.md`
    - Input: Diff of changes + target files.
    - Focus: Security, performance, error handling, logical correctness.
 
-2. **gemini review** (`run_in_background: true`):
-   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/gemini/reviewer.md`
+2. **antigravity review** (`run_in_background: true`):
+   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/reviewer.md`
    - Input: Diff of changes + target files.
    - Focus: Accessibility, design consistency, user experience.
 
@@ -259,8 +259,8 @@ Use `TaskOutput` to wait for full review results from both models. Prioritize re
 
 #### 5.2 Integrated Fixes
 
-1. Synthesize review comments from codex + gemini.
-2. Weight based on trust rules: Backend based on codex, frontend based on gemini.
+1. Synthesize review comments from codex + antigravity.
+2. Weight based on trust rules: Backend based on codex, frontend based on antigravity.
 3. Execute necessary fixes.
 4. Repeat Phase 5.1 as needed after fixes (until risk is acceptable).
 
@@ -278,7 +278,7 @@ After audit passes, report to the user:
 
 ### Audit Results
 - codex: <Pass/Found N issues>
-- gemini: <Pass/Found N issues>
+- antigravity: <Pass/Found N issues>
 
 ### Follow-up Suggestions
 1. [ ] <Suggested testing steps>
@@ -291,7 +291,7 @@ After audit passes, report to the user:
 
 1. **Code Sovereignty** – All file modifications are executed by Claude; external models have zero write access.
 2. **Dirty Prototype Refactoring** – External model output is treated as a draft and must be refactored.
-3. **Trust Rules** – Backend based on codex, frontend based on gemini.
+3. **Trust Rules** – Backend based on codex, frontend based on antigravity.
 4. **Minimal Changes** – Only modify necessary code, do not introduce side effects.
 5. **Mandatory Audit** – Multi-model Code Review must be performed after changes.
 
