@@ -1,123 +1,123 @@
-# CCG 模型路由器 — 运行时模型选择框架
+# CCG Model Router — Runtime Model Selection Framework
 
-> 本文件由策略文件通过 Read 加载，提供动态模型选择和 codeagent-wrapper 调用模板。
+> This file is loaded by strategy files via Read, providing dynamic model selection and codeagent-wrapper invocation templates.
 
-## 1. 获取模型配置
+## 1. Retrieve Model Configuration
 
-读取用户配置确定可用模型：
+Read user configuration to determine available models:
 
 ```
 Read /home/pc/.claude/.ccg/config.toml
 ```
 
-从 `[routing]` 区块提取：
-- `frontend.primary` — 前端模型（默认 `gemini`）
-- `backend.primary` — 后端模型（默认 `codex`）
-- `geminiModel` — Gemini 型号（默认 `gemini-3.1-pro-preview`）
+Extract from the `[routing]` block:
+- `frontend.primary` — Frontend model (default `antigravity`)
+- `backend.primary` — Backend model (default `codex`)
+- `geminiModel` — Gemini model type (default `Gemini 3.5 Flash (Medium)`)
 
-如果配置文件不存在或不可读，使用默认值直接继续。
+If the configuration file does not exist or is unreadable, proceed directly using default values.
 
-## 2. 按阶段选择模型
+## 2. Model Selection by Phase
 
-### 分析/研究阶段
-| 任务领域 | 推荐模型 | 角色提示词 |
+### Analysis/Research Phase
+| Task Domain | Recommended Model | Role Prompt |
 |---------|---------|-----------|
-| 后端/架构 | backend 模型 | `$BACKEND/analyzer.md` |
-| 前端/UI | frontend 模型 | `$FRONTEND/analyzer.md` |
-| 全栈 | 双模型并行 | 各用对应 analyzer |
-| 安全 | backend 模型 | `$BACKEND/analyzer.md` |
+| Backend/Architecture | backend model | `$BACKEND/analyzer.md` |
+| Frontend/UI | frontend model | `$FRONTEND/analyzer.md` |
+| Full-Stack | Dual-model parallel | Each uses corresponding analyzer |
+| Security | backend model | `$BACKEND/analyzer.md` |
 
-### 规划阶段
-| 任务领域 | 推荐模型 | 角色提示词 |
+### Planning Phase
+| Task Domain | Recommended Model | Role Prompt |
 |---------|---------|-----------|
-| 架构设计 | backend 模型 | `$BACKEND/architect.md` |
-| UI/UX 设计 | frontend 模型 | `$FRONTEND/architect.md` |
-| 全栈 | 双模型并行 | 各用对应 architect |
+| Architecture Design | backend model | `$BACKEND/architect.md` |
+| UI/UX Design | frontend model | `$FRONTEND/architect.md` |
+| Full-Stack | Dual-model parallel | Each uses corresponding architect |
 
-### 审查阶段（始终双模型交叉验证）
-- backend 模型 + `$BACKEND/reviewer.md`
-- frontend 模型 + `$FRONTEND/reviewer.md`
+### Review Phase (Always dual-model cross-validation)
+- backend model + `$BACKEND/reviewer.md`
+- frontend model + `$FRONTEND/reviewer.md`
 
-### 调试阶段
-| 任务领域 | 推荐模型 | 角色提示词 |
+### Debugging Phase
+| Task Domain | Recommended Model | Role Prompt |
 |---------|---------|-----------|
-| 后端问题 | backend 模型优先 | `$BACKEND/debugger.md` |
-| 前端问题 | frontend 模型优先 | `$FRONTEND/debugger.md` |
-| 不确定 | 双模型并行 | 各用对应 debugger |
+| Backend Issues | backend model priority | `$BACKEND/debugger.md` |
+| Frontend Issues | frontend model priority | `$FRONTEND/debugger.md` |
+| Uncertain | Dual-model parallel | Each uses corresponding debugger |
 
-### 实施阶段
+### Implementation Phase
 
-**默认模式**（Claude 执行）：
-- 外部模型仅提供建议，Claude 执行所有文件修改
+**Default Mode** (Executed by Claude):
+- External models only provide recommendations; Claude performs all file modifications.
 
-**Codex Builder 模式**（用户选择时）：
-- backend 模型 + `$BACKEND/builder.md` — **有完整写权限**，直接写代码到文件系统
-- Claude 监控进度，审查产出，必要时接管
-- 适用于 M-L 复杂度、低中风险的明确实施任务
+**Codex Builder Mode** (When selected by user):
+- backend model + `$BACKEND/builder.md` — **With full write permissions**, writing code directly to the filesystem.
+- Claude monitors progress, reviews output, and takes over if necessary.
+- Suitable for M-L complexity, low-to-medium risk clear implementation tasks.
 
-## 3. 调用模板
+## 3. Invocation Templates
 
-### 获取工作目录
+### Get Working Directory
 
-先确定当前工作目录（不可从 $HOME 推断）：
+Determine the current working directory first (cannot be inferred from $HOME):
 ```
 WORKDIR=$(pwd)
 ```
 
-### 新会话调用
+### New Session Invocation
 
 ```
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend $MODEL --gemini-model gemini-3.1-pro-preview - \"$WORKDIR\" <<'CODEAGENT_EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/$MODEL/$ROLE.md\n<TASK>\n$TASK_CONTENT\n</TASK>\nOUTPUT: $OUTPUT_FORMAT\nCODEAGENT_EOF",
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend $MODEL --gemini-model \"Gemini 3.5 Flash (Medium)\" - \"$WORKDIR\" <<'CODEAGENT_EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/$MODEL/$ROLE.md\n<TASK>\n$TASK_CONTENT\n</TASK>\nOUTPUT: $OUTPUT_FORMAT\nCODEAGENT_EOF",
   run_in_background: true,
   timeout: 3600000,
   description: "$SHORT_DESCRIPTION"
 })
 ```
 
-变量说明：
-- `$MODEL` — 选定的模型名（`codex` / `gemini` / `claude`）
-- `$ROLE` — 角色文件名（`analyzer` / `architect` / `reviewer` / `debugger` / `optimizer` / `tester` / `builder`）
-- `$TASK_CONTENT` — 任务内容（需求 + 上下文）
-- `$OUTPUT_FORMAT` — 期望输出格式
-- `$SHORT_DESCRIPTION` — 简短描述（用于进度显示）
+Variable Descriptions:
+- `$MODEL` — Selected model name (`codex` / `antigravity` / `claude`)
+- `$ROLE` — Role file name (`analyzer` / `architect` / `reviewer` / `debugger` / `optimizer` / `tester` / `builder`)
+- `$TASK_CONTENT` — Task content (requirements + context)
+- `$OUTPUT_FORMAT` — Expected output format
+- `$SHORT_DESCRIPTION` — Short description (for progress display)
 
-### 复用会话调用
+### Resume Session Invocation
 
 ```
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend $MODEL --gemini-model gemini-3.1-pro-preview resume $SESSION_ID - \"$WORKDIR\" <<'CODEAGENT_EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/$MODEL/$ROLE.md\n<TASK>\n$TASK_CONTENT\n</TASK>\nOUTPUT: $OUTPUT_FORMAT\nCODEAGENT_EOF",
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend $MODEL --gemini-model \"Gemini 3.5 Flash (Medium)\" resume $SESSION_ID - \"$WORKDIR\" <<'CODEAGENT_EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/$MODEL/$ROLE.md\n<TASK>\n$TASK_CONTENT\n</TASK>\nOUTPUT: $OUTPUT_FORMAT\nCODEAGENT_EOF",
   run_in_background: true,
   timeout: 3600000,
   description: "$SHORT_DESCRIPTION"
 })
 ```
 
-### 并行双模型调用模式
+### Parallel Dual-Model Invocation Mode
 
-同时启动两个模型，各自独立分析：
+Start both models simultaneously for independent analyses:
 
-1. 启动 backend 模型（`run_in_background: true`）
-2. 启动 frontend 模型（`run_in_background: true`）
-3. 等待两者完成：
+1. Start backend model (`run_in_background: true`)
+2. Start frontend model (`run_in_background: true`)
+3. Wait for both to complete:
    ```
    TaskOutput({ task_id: "$BACKEND_TASK_ID", block: true, timeout: 600000 })
    TaskOutput({ task_id: "$FRONTEND_TASK_ID", block: true, timeout: 600000 })
    ```
-4. 综合双方结果
+4. Synthesize both results
 
-## 4. 等待与重试规则
+## 4. Wait & Retry Rules
 
-| 场景 | 策略 |
+| Scenario | Strategy |
 |------|------|
-| frontend 模型失败 | 重试最多 2 次，间隔 5s |
-| backend 模型运行中 | 可能需要 5-15 分钟，保持轮询，永不终止 |
-| 3 次全败 | 降级为单模型模式，告知用户 |
-| 超时 | 600s 等待上限，超时后报告并询问用户 |
+| frontend model failure | Retry up to 2 times, interval 5s |
+| backend model running | May require 5-15 minutes, keep polling, never terminate |
+| 3 consecutive failures | Degrade to single-model mode, notify the user |
+| Timeout | 600s wait limit; report and ask the user upon timeout |
 
-## 5. SESSION_ID 管理
+## 5. SESSION_ID Management
 
-- 每次 codeagent-wrapper 调用返回 `Session-ID: xxx`
-- 捕获并保存：`BACKEND_SESSION`、`FRONTEND_SESSION`
-- 后续阶段通过 `resume $SESSION_ID` 复用上下文
-- 复用会话可减少重复分析，提升效率
+- Each codeagent-wrapper invocation returns `Session-ID: xxx`.
+- Capture and save: `BACKEND_SESSION`, `FRONTEND_SESSION`.
+- Subsequent phases reuse the context via `resume $SESSION_ID`.
+- Reusing sessions reduces duplicate analysis and increases efficiency.

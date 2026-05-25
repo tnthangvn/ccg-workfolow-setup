@@ -28,7 +28,7 @@ Dual-model parallel review, cross-validated synthesized feedback. Automatically 
 
 ```
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Review the following code changes:
@@ -46,8 +46,8 @@ EOF",
 
 | Model | Prompt |
 |------|--------|
-| Backend | `/home/pc/.claude/.ccg/prompts/codex/reviewer.md` |
-| Frontend | `/home/pc/.claude/.ccg/prompts/antigravity/reviewer.md` |
+| Backend | `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md` |
+| Frontend | `/home/thangtn/.claude/.ccg/prompts/antigravity/reviewer.md` |
 
 **Parallel calls**: Start with `run_in_background: true`, wait for results with `TaskOutput`. **Must wait for all models before entering the next phase.**
 
@@ -76,7 +76,7 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 
 **With arguments**: use specified code/description.
 
-Call `mcp__fast-context__fast_context_search` to get relevant context.
+Call `mcp__gitnexus__query` to get relevant context. If GitNexus is not available (e.g. missing API key or index not initialized), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
 
 ### 🔬 Phase 2: Parallel Review
 
@@ -85,12 +85,12 @@ Call `mcp__fast-context__fast_context_search` to get relevant context.
 **⚠️ Must launch two parallel Bash calls** (per the invocation rules above):
 
 1. **codex backend review**: `Bash({ command: "...--backend codex...", run_in_background: true })`
-   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/reviewer.md`
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md`
    - Requirement: Review code changes (git diff content).
    - OUTPUT: List security, performance, and error handling issues categorized by Critical/Major/Minor/Suggestion.
 
 2. **antigravity frontend review**: `Bash({ command: "...--backend antigravity...", run_in_background: true })`
-   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/reviewer.md`
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/antigravity/reviewer.md`
    - Requirement: Review code changes (git diff content).
    - OUTPUT: List accessibility, responsiveness, and design consistency issues categorized by Critical/Major/Minor/Suggestion.
 

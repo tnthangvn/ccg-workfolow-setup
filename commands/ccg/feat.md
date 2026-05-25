@@ -20,7 +20,7 @@ $ARGUMENTS
 ```
 # New session invocation
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -35,7 +35,7 @@ EOF",
 
 # Resume session invocation
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -53,10 +53,10 @@ EOF",
 
 | Phase | Backend | Frontend |
 |-------|---------|----------|
-| Analysis | `/home/pc/.claude/.ccg/prompts/codex/analyzer.md` | `/home/pc/.claude/.ccg/prompts/antigravity/analyzer.md` |
-| Planning | `/home/pc/.claude/.ccg/prompts/codex/architect.md` | `/home/pc/.claude/.ccg/prompts/antigravity/architect.md` |
-| Implementation | `/home/pc/.claude/.ccg/prompts/codex/architect.md` | `/home/pc/.claude/.ccg/prompts/antigravity/frontend.md` |
-| Review | `/home/pc/.claude/.ccg/prompts/codex/reviewer.md` | `/home/pc/.claude/.ccg/prompts/antigravity/reviewer.md` |
+| Analysis | `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/analyzer.md` |
+| Planning | `/home/thangtn/.claude/.ccg/prompts/codex/architect.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/architect.md` |
+| Implementation | `/home/thangtn/.claude/.ccg/prompts/codex/architect.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/frontend.md` |
+| Review | `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/reviewer.md` |
 
 **Session reuse**: Each call returns `SESSION_ID: xxx`, subsequent phases use `resume xxx` to reuse context.
 
@@ -105,7 +105,7 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 
 #### 2.1 Context Retrieval
 
-Call `mcp__fast-context__fast_context_search` to retrieve related code, components, and tech stacks.
+Call `mcp__gitnexus__query` to retrieve related code, components, and tech stacks. If GitNexus is not available (e.g. missing API key or index not initialized), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
 
 #### 2.2 Task Type Judgment
 
@@ -119,14 +119,14 @@ Call `mcp__fast-context__fast_context_search` to retrieve related code, componen
 
 **Frontend/Full-stack tasks**: First call `ui-ux-designer` agent.
 ```
-Execute agent: /home/pc/.claude/agents/ccg/ui-ux-designer.md
+Execute agent: /home/thangtn/.claude/agents/ccg/ui-ux-designer.md
 Input: Project context + User requirements + Tech stack
 Output: UI/UX design solution
 ```
 
 **All tasks**: Call `planner` agent.
 ```
-Execute agent: /home/pc/.claude/agents/ccg/planner.md
+Execute agent: /home/thangtn/.claude/agents/ccg/planner.md
 Input: Project context + UI design (if any) + User requirements
 Output: Feature planning document
 ```

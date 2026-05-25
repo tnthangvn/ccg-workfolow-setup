@@ -1,13 +1,13 @@
-# Strategy: Deep Research — 深度研究
+# Strategy: Deep Research
 
-> 适用于技术方案研究、对比分析。多模型并行探索，结构化输出。
+> Suitable for technical solution research and comparative analysis. Parallel exploration with multiple models, structured output.
 
-## 适用条件
-- 用户提出研究/分析/对比类问题
-- 不涉及代码修改（纯研究）
-- 任何复杂度级别
+## Applicable Conditions
+- User asks research/analysis/comparison-type questions.
+- Does not involve code modifications (pure research).
+- Any complexity level.
 
-## 前置加载
+## Pre-loading
 
 ```
 Read("/home/pc/.claude/.ccg/engine/model-router.md")
@@ -15,127 +15,127 @@ Read("/home/pc/.claude/.ccg/engine/model-router.md")
 
 ---
 
-## 工作流状态机
+## Workflow State Machine
 
 [phase-state:1-clarify]
-当前阶段：明确研究问题
-📍 Next: 问题明确后启动多模型探索
+Current Phase: Clarify research question
+📍 Next: Start multi-model exploration once the question is clarified
 [/phase-state:1-clarify]
 
 [phase-state:2-explore]
-当前阶段：多模型并行探索
-Gate: 研究问题已明确 ✓
-📍 Next: 双模型结果返回后进入综合
+Current Phase: Multi-model parallel exploration
+Gate: Research question is clarified ✓
+📍 Next: Proceed to synthesis after dual-model results return
 [/phase-state:2-explore]
 
 [phase-state:3-synthesize]
-当前阶段：综合分析
-Gate: 双模型探索已返回 ✓
-📍 Next: 输出结构化报告后进入讨论
+Current Phase: Synthesis analysis
+Gate: Dual-model exploration has returned ✓
+📍 Next: Proceed to discussion after outputting structured report
 [/phase-state:3-synthesize]
 
 [phase-state:4-discuss]
-当前阶段：交互式讨论
-📍 Next: 用户满意后结束
+Current Phase: Interactive discussion
+📍 Next: End after user satisfaction
 [/phase-state:4-discuss]
 
 ---
 
-## 阶段详情
+## Phase Details
 
-### Phase 1: 明确问题 [required]
+### Phase 1: Clarify Question [required]
 
-1. 解析用户的研究意图：
-   - 要研究什么？
-   - 研究目的是什么？（做决策？了解现状？评估可行性？）
-   - 有什么约束或偏好？
+1. Parse the user's research intent:
+   - What needs to be researched?
+   - What is the purpose of the research? (Make decision? Understand current state? Assess feasibility?)
+   - Are there any constraints or preferences?
 
-2. 如果问题太宽泛，先收窄：
+2. If the question is too broad, narrow it down first:
    ```
-   📋 研究范围
-     问题: [明确的研究问题]
-     目的: [决策/了解/评估]
-     约束: [时间/技术/资源约束]
+   📋 Research Scope
+     Question: [Clarified research question]
+     Purpose: [Decision / Understanding / Assessment]
+     Constraints: [Time / Technical / Resource constraints]
    ```
 
-### Phase 2: 多模型并行探索 [required]
+### Phase 2: Multi-Model Parallel Exploration [required]
 
-**Task 更新**：`currentPhase → "2-explore"`, `nextAction → "双模型并行探索"`
+**Task Update**: `currentPhase → "2-explore"`, `nextAction → "Dual-model parallel exploration"`
 
-**并行调用**（`run_in_background: true`）：
-- **backend 模型**：analyzer 角色
+**Parallel Invocation** (`run_in_background: true`):
+- **backend model**: analyzer role
   ```
   <TASK>
-  需求：研究分析 [问题]
-  上下文：[项目上下文、技术栈、约束]
+  Requirement: Research and analyze [Question]
+  Context: [Project context, tech stack, constraints]
   </TASK>
-  OUTPUT: 技术分析报告（可行性、架构选项、风险、成本估算）
+  OUTPUT: Technical analysis report (feasibility, architectural options, risks, cost estimates)
   ```
-- **frontend 模型**：analyzer 角色
+- **frontend model**: analyzer role
   ```
   <TASK>
-  需求：研究分析 [问题]
-  上下文：[项目上下文、用户场景、约束]
+  Requirement: Research and analyze [Question]
+  Context: [Project context, user scenarios, constraints]
   </TASK>
-  OUTPUT: 用户/体验视角分析（UX 影响、用户流程、设计选项）
+  OUTPUT: User/experience perspective analysis (UX impact, user flows, design options)
   ```
 
-等待双模型返回。
+Wait for both models to return.
 
-### Phase 3: 综合分析
+### Phase 3: Synthesis Analysis
 
-**Gate check**: 双模型探索已返回
+**Gate check**: Dual-model exploration has returned
 
-交叉对比双方视角。
+Cross-compare both perspectives.
 
-**持久化研究成果**（如有任务目录）：
-- 将双模型原始分析写入 `.ccg/tasks/{task-name}/research/backend-analysis.md`
-- 将双模型原始分析写入 `.ccg/tasks/{task-name}/research/frontend-analysis.md`
+**Persist Research Deliverables** (if task directory exists):
+- Write the raw analysis from the backend model to `.ccg/tasks/{task-name}/research/backend-analysis.md`.
+- Write the raw analysis from the frontend model to `.ccg/tasks/{task-name}/research/frontend-analysis.md`.
 
-输出结构化报告：
+Output structured report:
 
 ```
-📋 研究报告: [主题]
+📋 Research Report: [Subject]
 
-## 选项对比
+## Options Comparison
 
-| 维度 | 方案 A | 方案 B | 方案 C |
+| Dimension | Option A | Option B | Option C |
 |------|--------|--------|--------|
-| 概述 | ... | ... | ... |
-| 优势 | ... | ... | ... |
-| 劣势 | ... | ... | ... |
-| 复杂度 | S/M/L | S/M/L | S/M/L |
-| 风险 | low/mid/high | ... | ... |
-| 预估工期 | ... | ... | ... |
+| Overview | ... | ... | ... |
+| Advantages | ... | ... | ... |
+| Disadvantages | ... | ... | ... |
+| Complexity | S/M/L | S/M/L | S/M/L |
+| Risks | low/mid/high | ... | ... |
+| Estimated Duration | ... | ... | ... |
 
-## 推荐
+## Recommendation
 
-**推荐方案 [X]**
-理由：[简明理由]
+**Recommended Option [X]**
+Reason: [Concise reason]
 
-## 注意事项
-- [关键风险或注意点]
+## Important Notes
+- [Key risks or notes]
 ```
 
-### Phase 4: 交互式讨论
+### Phase 4: Interactive Discussion
 
-用户可以：
-- 追问某个方案的细节
-- 要求更深入分析某个方面
-- 要求 POC / 原型验证
-- 确认结论并结束
+The user can:
+- Ask follow-up questions about the details of a option.
+- Request deeper analysis of a certain aspect.
+- Request POC / prototype validation.
+- Confirm the conclusion and end the session.
 
 ```
-📍 研究已完成。如需实施推荐方案，可以用 /ccg:go implement [方案描述]
+📍 Research completed. To implement the recommended solution, use /ccg:go implement [solution description]
 ```
 
-**Task 更新**（如有）：`status → "completed"`, `nextAction → "研究完成，可实施推荐方案"`
+**Task Update** (if any): `status → "completed"`, `nextAction → "Research completed, recommended solution can be implemented"`
 
 ---
 
-## 铁律
+## Hard Rules
 
-- **纯研究模式，不做代码修改** — 除非用户明确要求 POC
-- **结果必须结构化输出** — 表格对比，不是自由聊天
-- **必须给出推荐** — 不可只列选项不做判断
-- **双模型探索必须并行** — 独立视角更有价值
+- **Pure research mode, no code modifications** — Unless the user explicitly requests a POC.
+- **Results must be structured** — Table comparisons, not free-form chatting.
+- **Must provide a recommendation** — Do not just list options without making a judgment.
+- **Dual-model exploration must be parallel** — Independent perspectives are more valuable.

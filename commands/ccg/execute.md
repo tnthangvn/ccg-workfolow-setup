@@ -30,7 +30,7 @@ $ARGUMENTS
 ```
 # Resume session invocation (recommended) - Implementation Prototype generation
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <task description>
@@ -45,7 +45,7 @@ EOF",
 
 # New session invocation - Implementation Prototype generation
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <task description>
@@ -63,7 +63,7 @@ EOF",
 
 ```
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Scope: Audit the final code changes.
@@ -88,8 +88,8 @@ EOF",
 
 | Phase | Backend | Frontend |
 |-------|---------|----------|
-| Implementation | `/home/pc/.claude/.ccg/prompts/codex/architect.md` | `/home/pc/.claude/.ccg/prompts/antigravity/frontend.md` |
-| Review | `/home/pc/.claude/.ccg/prompts/codex/reviewer.md` | `/home/pc/.claude/.ccg/prompts/antigravity/reviewer.md` |
+| Implementation | `/home/thangtn/.claude/.ccg/prompts/codex/architect.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/frontend.md` |
+| Review | `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/reviewer.md` |
 
 **Session reuse**: If `/ccg:plan` provides a SESSION_ID, use `resume <SESSION_ID>` to reuse context.
 
@@ -144,29 +144,31 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 
 **⚠️ Must use MCP tools for rapid context retrieval; avoid manual individual file reading.**
 
-Call `mcp__fast-context__fast_context_search` based on the "key file" list in planning to retrieve related code:
+Call `mcp__gitnexus__query` based on the "key file" list in planning to retrieve related code:
 
 ```
-mcp__fast-context__fast_context_search({
-  query: "<semantic query built from planning content, including key files, modules, function names>",
-  project_root_path: "{{WORKDIR}}"
+mcp__gitnexus__query({
+  query: "<semantic query built from planning content, including key files, modules, function names>"
 })
 ```
 
+**Fallback (If GitNexus is not available or missing index/API key)**:
+Do not make assumptions. Fall back to discovering and reading the files directly using built-in search/view tools (e.g., Glob, Grep, view_file, read_file) targeting the key files specified in the plan to gather context.
+
 **Retrieval strategy**:
 - Extract target paths from the "key file" table in planning.
-- Construct semantic query covering: entry files, dependent modules, related type definitions.
+- Construct semantic query (or grep/glob search patterns) covering: entry files, dependent modules, related type definitions.
 - If retrieval results are insufficient, append 1-2 recursive retrievals.
 - **Do not** use Bash + find/ls for manual project structure exploration.
 
 **After retrieval**:
 - Organize retrieved code snippets.
 - Confirm full context needed for implementation has been acquired.
-- Enter Phase 3.
+- Enter Phase 2.
 
 ---
 
-### 🎨 Phase 3: Prototype Acquisition
+### 🎨 Phase 2: Prototype Acquisition
 
 `[Mode: Prototype]`
 
@@ -176,20 +178,20 @@ mcp__fast-context__fast_context_search({
 
 **Constraints**: Context < 32k tokens
 
-1. Call antigravity (using `/home/pc/.claude/.ccg/prompts/antigravity/frontend.md`).
+1. Call antigravity (using `/home/thangtn/.claude/.ccg/prompts/antigravity/frontend.md`).
 2. Input: Planning content + retrieved context + target files.
 3. OUTPUT: `Unified Diff Patch ONLY. Strictly prohibit any actual modifications.`
 4. **antigravity is the authority for frontend design; its CSS/React/Vue prototype is the final visual baseline.**
 5. ⚠️ **Warning**: Ignore frontend model's suggestions for backend logic.
-6. If planning contains `FRONTEND_SESSION`: prioritize `resume <FRONTEND_SESSION>`.
+6. If planning contains `ANTIGRAVITY_SESSION`: prioritize `resume <ANTIGRAVITY_SESSION>`.
 
 #### Route B: Backend/Logic/Algorithms → codex
 
-1. Call codex (using `/home/pc/.claude/.ccg/prompts/codex/architect.md`).
+1. Call codex (using `/home/thangtn/.claude/.ccg/prompts/codex/architect.md`).
 2. Input: Planning content + retrieved context + target files.
 3. OUTPUT: `Unified Diff Patch ONLY. Strictly prohibit any actual modifications.`
 4. **codex is the authority for backend logic, utilizing its logical computation and debugging capabilities.**
-5. If planning contains `BACKEND_SESSION`: prioritize `resume <BACKEND_SESSION>`.
+5. If planning contains `CODEX_SESSION`: prioritize `resume <CODEX_SESSION>`.
 
 #### Route C: Full-stack → Parallel calling
 
@@ -203,7 +205,7 @@ mcp__fast-context__fast_context_search({
 
 ---
 
-### ⚡ Phase 4: Coding Implementation
+### ⚡ Phase 3: Coding Implementation
 
 `[Mode: Implementation]`
 
@@ -233,38 +235,38 @@ mcp__fast-context__fast_context_search({
 
 6. **Self-check Verification** (strongly recommended):
    - Run existing lint / typecheck / tests (prioritize minimum relevant scope).
-   - If failure: fix regression first, then continue to Phase 5.
+   - If failure: fix regression first, then continue to Phase 4.
 
 ---
 
-### ✅ Phase 5: Audit & Delivery
+### ✅ Phase 4: Audit & Delivery
 
 `[Mode: Audit]`
 
-#### 5.1 Automated Audit
+#### 4.1 Automated Audit
 
 **After changes take effect, force immediate parallel calls** to codex and antigravity for Code Review:
 
 1. **codex review** (`run_in_background: true`):
-   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/reviewer.md`
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md`
    - Input: Diff of changes + target files.
    - Focus: Security, performance, error handling, logical correctness.
 
 2. **antigravity review** (`run_in_background: true`):
-   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/reviewer.md`
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/antigravity/reviewer.md`
    - Input: Diff of changes + target files.
    - Focus: Accessibility, design consistency, user experience.
 
-Use `TaskOutput` to wait for full review results from both models. Prioritize reusing Phase 3 sessions (`resume <SESSION_ID>`) to maintain context consistency.
+Use `TaskOutput` to wait for full review results from both models. Prioritize reusing Phase 2 sessions (`resume <SESSION_ID>`) to maintain context consistency.
 
-#### 5.2 Integrated Fixes
+#### 4.2 Integrated Fixes
 
 1. Synthesize review comments from codex + antigravity.
 2. Weight based on trust rules: Backend based on codex, frontend based on antigravity.
 3. Execute necessary fixes.
-4. Repeat Phase 5.1 as needed after fixes (until risk is acceptable).
+4. Repeat Phase 4.1 as needed after fixes (until risk is acceptable).
 
-#### 5.3 Delivery Confirmation
+#### 4.3 Delivery Confirmation
 
 After audit passes, report to the user:
 

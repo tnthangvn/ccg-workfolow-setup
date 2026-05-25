@@ -8,7 +8,7 @@ Frontend design skill fused from Impeccable + custom extensions. Covers design p
 
 ## Instruction
 
-Read the skill grimoire file `/home/pc/.claude/skills/ccg/domains/frontend-design/SKILL.md`, and follow the guidance within to complete the task.
+Read the skill grimoire file `/home/thangtn/.claude/skills/ccg/domains/frontend-design/SKILL.md`, and follow the guidance within to complete the task.
 
 ```
 $ARGUMENTS

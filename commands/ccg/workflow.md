@@ -42,7 +42,7 @@ You are the **orchestrator**, coordinating the multi-model collaboration system 
 ```
 # New session invocation
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -57,7 +57,7 @@ EOF",
 
 # Resume session invocation
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -75,9 +75,9 @@ EOF",
 
 | Phase | Backend | Frontend |
 |-------|---------|----------|
-| Analysis | `/home/pc/.claude/.ccg/prompts/codex/analyzer.md` | `/home/pc/.claude/.ccg/prompts/antigravity/analyzer.md` |
-| Planning | `/home/pc/.claude/.ccg/prompts/codex/architect.md` | `/home/pc/.claude/.ccg/prompts/antigravity/architect.md` |
-| Review | `/home/pc/.claude/.ccg/prompts/codex/reviewer.md` | `/home/pc/.claude/.ccg/prompts/antigravity/reviewer.md` |
+| Analysis | `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/analyzer.md` |
+| Planning | `/home/thangtn/.claude/.ccg/prompts/codex/architect.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/architect.md` |
+| Review | `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/reviewer.md` |
 
 **Session reuse**: Each call returns `SESSION_ID: xxx`, subsequent phases use `resume xxx` to reuse context (Note: use `resume`, not `--resume`).
 
@@ -117,7 +117,7 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 `[Mode: Research]` - Understand requirements and collect context:
 
 1. **Prompt enhancement** (follow `/ccg:enhance` execution logic): Analyze the intent, missing information, and implicit assumptions in $ARGUMENTS, expand it into a structured requirement (clear goals, technical constraints, scope boundaries, acceptance criteria). **Replace the original $ARGUMENTS with the enhanced result, and pass the enhanced requirement to backend/frontend models in later calls.**
-2. **Context Retrieval**: Call `mcp__fast-context__fast_context_search`.
+2. **Context Retrieval**: Call `mcp__gitnexus__query`. If GitNexus is not available (e.g. missing API key or index not initialized), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
 3. **Requirement Completeness Score** (0-10):
    - Goal Clarity (0-3), Expected Results (0-3), Boundary Scope (0-2), Constraints (0-2).
    - ≥7 points: Continue | <7 points: ⛔ Stop, ask follow-up questions.
@@ -130,7 +130,7 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 - codex: use analysis prompt, output technical feasibility, solutions, and risks.
 - antigravity: use analysis prompt, output UI feasibility, solutions, and experience.
 
-Wait for results with `TaskOutput`. **📌 Save SESSION_ID** (`CODEX_SESSION` and `GEMINI_SESSION`).
+Wait for results with `TaskOutput`. **📌 Save SESSION_ID** (`CODEX_SESSION` and `ANTIGRAVITY_SESSION`).
 
 **Be sure to follow the `Important` instructions in the `Multi-model invocation rules` above.**
 
@@ -142,7 +142,7 @@ Synthesize analysis from both sides, output solution comparison (at least 2 solu
 
 **Parallel calling** (reuse sessions):
 - codex: use planning prompt + `resume $CODEX_SESSION`, output backend architecture.
-- antigravity: use planning prompt + `resume $GEMINI_SESSION`, output frontend architecture.
+- antigravity: use planning prompt + `resume $ANTIGRAVITY_SESSION`, output frontend architecture.
 
 Wait for results with `TaskOutput`.
 

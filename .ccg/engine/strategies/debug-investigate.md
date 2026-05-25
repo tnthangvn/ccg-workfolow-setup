@@ -1,13 +1,13 @@
-# Strategy: Debug Investigate — 深度调试
+# Strategy: Debug Investigate
 
-> 适用于原因不明的复杂 bug，需要多模型并行诊断和交叉验证。
+> Suitable for complex bugs with unknown causes. Requires parallel diagnostics and cross-validation with multiple models.
 
-## 适用条件
-- 复杂度 M 或以上
-- 错误原因不明确
-- 需要多角度诊断
+## Applicable Conditions
+- Complexity M or above.
+- Cause of error is unclear.
+- Requires diagnostic analysis from multiple angles.
 
-## 前置加载
+## Pre-loading
 
 ```
 Read("/home/pc/.claude/.ccg/engine/model-router.md")
@@ -15,145 +15,145 @@ Read("/home/pc/.claude/.ccg/engine/model-router.md")
 
 ---
 
-## 工作流状态机
+## Workflow State Machine
 
 [phase-state:1-collect]
-当前阶段：信息收集
-📍 Next: 收集完错误信息后启动双模型诊断
+Current Phase: Information collection
+📍 Next: Start dual-model diagnostics after error information is collected
 [/phase-state:1-collect]
 
 [phase-state:2-diagnose]
-当前阶段：双模型并行诊断
-Gate: 错误信息已收集 ✓
-📍 Next: 双模型诊断返回后进入交叉验证
+Current Phase: Parallel dual-model diagnostics
+Gate: Error information collected ✓
+📍 Next: Proceed to cross-validation after dual-model diagnostics return
 [/phase-state:2-diagnose]
 
 [phase-state:3-validate]
-当前阶段：交叉验证
-Gate: 双模型诊断已返回 ✓
-📍 Next: 假设排序后请用户确认修复方向
+Current Phase: Cross-validation
+Gate: Dual-model diagnostics have returned ✓
+📍 Next: Ask the user to confirm fix direction after sorting hypotheses
 [/phase-state:3-validate]
 
 [phase-state:4-confirm]
-当前阶段：用户确认（HARD STOP）
-Gate: 假设已排序 ✓
-📍 Next: 用户确认后进入修复
+Current Phase: User confirmation (HARD STOP)
+Gate: Hypotheses sorted ✓
+📍 Next: Enter fix phase after user confirmation
 [/phase-state:4-confirm]
 
 [phase-state:5-fix]
-当前阶段：修复与验证
-Gate: 用户已确认修复方向 ✓
-📍 Next: 修复完成后报告结果
+Current Phase: Fix and verify
+Gate: User confirmed fix direction ✓
+📍 Next: Report results after fix is complete
 [/phase-state:5-fix]
 
 ---
 
-## 阶段详情
+## Phase Details
 
-### Phase 1: 信息收集 [required]
+### Phase 1: Information Collection [required]
 
-**Task 更新**：`currentPhase → "1-collect"`, `nextAction → "收集错误信息"`
+**Task Update**: `currentPhase → "1-collect"`, `nextAction → "Collect error information"`
 
-1. 收集错误上下文：
-   - 错误消息 / 堆栈跟踪
-   - 复现步骤（如果有）
-   - 最近的相关变更（`git log --oneline -10`）
-   - 环境信息（如相关）
+1. Collect error context:
+   - Error messages / Stack traces.
+   - Reproduction steps (if any).
+   - Recent relevant changes (`git log --oneline -10`).
+   - Environment information (if relevant).
 
-2. 搜索相关代码（Grep/MCP）
-3. 读取可能相关的文件
+2. Search for relevant code (Grep/MCP).
+3. Read potentially relevant files.
 
-### Phase 2: 双模型并行诊断 [required]
+### Phase 2: Parallel Dual-Model Diagnostics [required]
 
-**Gate check**: 错误信息已收集
+**Gate check**: Error information collected
 
-**并行调用**（`run_in_background: true`）：
-- **backend 模型**：debugger 角色
+**Parallel Invocation** (`run_in_background: true`):
+- **backend model**: debugger role
   ```
   <TASK>
-  需求：诊断以下问题
-  上下文：[错误信息、堆栈、相关代码]
+  Requirement: Diagnose the following issue
+  Context: [Error messages, stack traces, relevant code]
   </TASK>
-  OUTPUT: 诊断假设（按可能性排序，每个假设含：根因分析、证据、修复建议）
+  OUTPUT: Diagnostic hypotheses (sorted by probability, each containing: root cause analysis, evidence, fix recommendations)
   ```
-- **frontend 模型**：debugger 角色（相同格式）
+- **frontend model**: debugger role (same format)
 
-等待双模型返回。
+Wait for both models to return.
 
-**Task 更新**：`currentPhase → "2-diagnose"`, `nextAction → "等待双模型诊断返回"`
+**Task Update**: `currentPhase → "2-diagnose"`, `nextAction → "Waiting for dual-model diagnostics to return"`
 
-### Phase 3: 交叉验证
+### Phase 3: Cross-Validation
 
-**Gate check**: 双模型诊断已返回
+**Gate check**: Dual-model diagnostics have returned
 
-1. 对比两个模型的诊断结果
-2. 找出共识点（两个模型都指出的问题 → 高可信度）
-3. 找出分歧点（只有一个模型指出 → 需要验证）
-4. 综合排序所有假设：
+1. Compare diagnostic results from the two models.
+2. Find points of consensus (issues pointed out by both models → High confidence).
+3. Find points of divergence (issues pointed out by only one model → Needs validation).
+4. Synthesize and sort all hypotheses:
 
 ```
-🔍 诊断结果
+🔍 Diagnostic Results
 
-### 高可信度假设（双模型共识）
-1. [假设] — [证据]
-   修复方案: [具体方案]
+### High-Confidence Hypotheses (Dual-model consensus)
+1. [Hypothesis] — [Evidence]
+   Fix Scheme: [Specific scheme]
 
-### 待验证假设（单模型提出）
-2. [假设] — [来源模型] — [证据]
-   修复方案: [具体方案]
+### Hypotheses to Validate (Single-model proposal)
+2. [Hypothesis] — [Source model] — [Evidence]
+   Fix Scheme: [Specific scheme]
 
-### 已排除
-- [假设] — [排除理由]
+### Excluded
+- [Hypothesis] — [Exclusion reason]
 ```
 
-### Phase 4: 用户确认 [required · HARD STOP]
+### Phase 4: User Confirmation [required · HARD STOP]
 
-**Gate check**: 假设已排序
+**Gate check**: Hypotheses sorted
 
-展示诊断结果，请用户选择修复方向：
-- 按假设 1 修复
-- 按假设 2 修复
-- 需要更多调查
-- 其他方向
+Present diagnostic results and ask the user to select a fix direction:
+- Fix according to Hypothesis 1.
+- Fix according to Hypothesis 2.
+- Needs more investigation.
+- Other direction.
 
-**Task 更新**：
+**Task Update**:
 ```
-更新 task.json:
+Update task.json:
   currentPhase → "4-confirm"
   gate → "user_approval_required"
-  nextAction → "等待用户确认修复方向"
+  nextAction → "Waiting for user confirmation of fix direction"
 ```
 
-**必须等待用户明确确认**，不可自动选择。
+**Must wait for explicit user confirmation**; do not select automatically.
 
-用户确认后：`task.json: gate → null, currentPhase → "5-fix"`
+After user confirmation: `task.json: gate → null, currentPhase → "5-fix"`
 
-### Phase 5: 修复与验证
+### Phase 5: Fix and Verify
 
-**Gate check**: 用户已确认
+**Gate check**: User confirmed
 
-1. 按确认的方向应用修复
-2. 运行测试验证
-3. 如果修复无效 → 回退，尝试下一个假设，或返回 Phase 4 重新确认
-4. 输出结果：
+1. Apply fix in the confirmed direction.
+2. Run tests to verify.
+3. If the fix is ineffective → Roll back, try the next hypothesis, or return to Phase 4 for re-confirmation.
+4. Output results:
    ```
-   ✅ 调试完成
-     根因: [确认的根因]
-     修复: [应用的修复]
-     验证: [测试结果]
-     📍 Next: /ccg commit 提交修复
+   ✅ Debugging Complete
+     Root Cause: [Confirmed root cause]
+     Fix: [Applied fix]
+     Verification: [Test results]
+     📍 Next: /ccg:commit to submit the fix
    ```
 
-#### Spec Evolution（归档前必须执行）
+#### Spec Evolution (Must execute before archiving)
 
-参考 `phase-guide.md § 8 Spec Evolution Protocol` 执行：
-1. 分析本次调试的根因和修复方案，提炼可复用的调试经验和防御性编码约定
-2. 如有值得记录的经验（特别是非显而易见的坑）→ 草拟 Spec 条目，展示给用户确认后追加到 `.ccg/spec/{domain}/index.md`
-3. 无值得提炼的经验 → 跳过
+Refer to `phase-guide.md § 8 Spec Evolution Protocol` to execute:
+1. Analyze this debugging session's root cause and fix scheme to distill reusable debugging experiences and defensive coding conventions.
+2. If there are experiences worth recording (especially non-obvious pitfalls) → Draft Spec entries, present them to the user for confirmation, and append them to `.ccg/spec/{domain}/index.md`.
+3. If there are no experiences worth distilling → Skip.
 
-**Task 更新**：`status → "archived"`
+**Task Update**: `status → "archived"`
 
-**归档任务**：
+**Archive Task**:
 ```bash
 mkdir -p .ccg/tasks/archive/$(date +%Y-%m) && mv .ccg/tasks/{task-name} .ccg/tasks/archive/$(date +%Y-%m)/
 git add .ccg/tasks/ && git commit -m "chore: archive ccg task"
@@ -161,9 +161,9 @@ git add .ccg/tasks/ && git commit -m "chore: archive ccg task"
 
 ---
 
-## 铁律
+## Hard Rules
 
-- **Phase 4 是 HARD STOP** — 不可自动决定修复方向
-- **双模型诊断必须并行** — 独立诊断才有交叉验证价值
-- **修复前必须有诊断** — 不可跳过 Phase 2-3 直接改代码
-- **修复无效时必须回退** — 不可在错误方向上继续深入
+- **Phase 4 is a HARD STOP** — Do not determine the fix direction automatically.
+- **Dual-model diagnostics must be parallel** — Independent diagnostics are necessary for cross-validation value.
+- **Must diagnose before fixing** — Do not skip Phase 2-3 to modify code directly.
+- **Must roll back if fix is ineffective** — Do not continue in the wrong direction.

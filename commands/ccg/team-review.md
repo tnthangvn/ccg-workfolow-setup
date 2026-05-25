@@ -25,7 +25,7 @@ description: 'Agent Teams Review - Cross-review outputs of parallel implementati
    **FIRST Bash call (codex)**:
    ```
    Bash({
-     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/reviewer.md\n<TASK>\nReview the following changes:\n<git diff output or list of modified files>\n</TASK>\nOUTPUT (JSON):\n{\n  \"findings\": [\n    {\n      \"severity\": \"Critical|Warning|Info\",\n      \"dimension\": \"logic|security|performance|error_handling\",\n      \"file\": \"path/to/file\",\n      \"line\": 42,\n      \"description\": \"Issue description\",\n      \"fix_suggestion\": \"Fix suggestion\"\n    }\n  ],\n  \"passed_checks\": [\"Verified check items\"],\n  \"summary\": \"Overall assessment\"\n}\nEOF",
+     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/thangtn/.claude/.ccg/prompts/codex/reviewer.md\n<TASK>\nReview the following changes:\n<git diff output or list of modified files>\n</TASK>\nOUTPUT (JSON):\n{\n  \"findings\": [\n    {\n      \"severity\": \"Critical|Warning|Info\",\n      \"dimension\": \"logic|security|performance|error_handling\",\n      \"file\": \"path/to/file\",\n      \"line\": 42,\n      \"description\": \"Issue description\",\n      \"fix_suggestion\": \"Fix suggestion\"\n    }\n  ],\n  \"passed_checks\": [\"Verified check items\"],\n  \"summary\": \"Overall assessment\"\n}\nEOF",
      run_in_background: true,
      timeout: 3600000,
      description: "codex backend review"
@@ -35,7 +35,7 @@ description: 'Agent Teams Review - Cross-review outputs of parallel implementati
    **SECOND Bash call (antigravity) - IN THE SAME MESSAGE**:
    ```
    Bash({
-     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend antigravity - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/antigravity/reviewer.md\n<TASK>\nReview the following changes:\n<git diff output or list of modified files>\n</TASK>\nOUTPUT (JSON):\n{\n  \"findings\": [\n    {\n      \"severity\": \"Critical|Warning|Info\",\n      \"dimension\": \"patterns|maintainability|accessibility|ux|frontend_security\",\n      \"file\": \"path/to/file\",\n      \"line\": 42,\n      \"description\": \"Issue description\",\n      \"fix_suggestion\": \"Fix suggestion\"\n    }\n  ],\n  \"passed_checks\": [\"Verified check items\"],\n  \"summary\": \"Overall assessment\"\n}\nEOF",
+     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend antigravity - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/thangtn/.claude/.ccg/prompts/antigravity/reviewer.md\n<TASK>\nReview the following changes:\n<git diff output or list of modified files>\n</TASK>\nOUTPUT (JSON):\n{\n  \"findings\": [\n    {\n      \"severity\": \"Critical|Warning|Info\",\n      \"dimension\": \"patterns|maintainability|accessibility|ux|frontend_security\",\n      \"file\": \"path/to/file\",\n      \"line\": 42,\n      \"description\": \"Issue description\",\n      \"fix_suggestion\": \"Fix suggestion\"\n    }\n  ],\n  \"passed_checks\": [\"Verified check items\"],\n  \"summary\": \"Overall assessment\"\n}\nEOF",
      run_in_background: true,
      timeout: 3600000,
      description: "antigravity frontend review"

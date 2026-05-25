@@ -50,7 +50,7 @@ $ARGUMENTS
 
 ```
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EXEC_EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EXEC_EOF'
 <TASK>
 <Instruction content>
 </TASK>
@@ -65,7 +65,7 @@ EXEC_EOF",
 
 ```
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EXEC_EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EXEC_EOF'
 <TASK>
 <Instruction content>
 </TASK>
@@ -80,7 +80,7 @@ EXEC_EOF",
 
 ```
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'REVIEW_EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'REVIEW_EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Scope: Audit the code changes made by Codex.
@@ -104,7 +104,7 @@ REVIEW_EOF",
 
 | Phase | Backend | Frontend |
 |-------|---------|----------|
-| Review | `/home/pc/.claude/.ccg/prompts/codex/reviewer.md` | `/home/pc/.claude/.ccg/prompts/antigravity/reviewer.md` |
+| Review | `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/reviewer.md` |
 
 **Wait for background tasks** (max timeout 600000ms = 10 minutes):
 
@@ -138,7 +138,7 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
    - Technical solution
    - Implementation steps
    - Key file list
-   - SESSION_ID (`CODEX_SESSION` / `GEMINI_SESSION`)
+   - SESSION_ID (`CODEX_SESSION` / `ANTIGRAVITY_SESSION`)
 
 3. **Confirm before execution**:
    Present planning summary to the user, execute after confirmation:
@@ -167,7 +167,7 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 
 ```
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex resume <CODEX_SESSION> - \"{{WORKDIR}}\" <<'EXEC_EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex resume <CODEX_SESSION> - \"{{WORKDIR}}\" <<'EXEC_EOF'
 <TASK>
 You are a full-stack execution agent. Implement the following plan end to end.
 
@@ -178,7 +178,7 @@ You are a full-stack execution agent. Implement the following plan end to end.
 
 ### Step 1: Context Verification
 Before coding, verify you have sufficient context:
-- Use ace-tool MCP (search_context) to search for relevant existing code patterns
+- Use GitNexus MCP (mcp__gitnexus__query) to search for relevant existing code patterns
 - Read the key files listed in the plan to understand current implementation
 - If the plan references external libraries/APIs, use context7 MCP to query their latest documentation
 - If latest information is needed, use grok-search MCP for web search
@@ -267,7 +267,7 @@ Wait for completion using `TaskOutput`.
 
 ```
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex resume <CODEX_EXEC_SESSION> - \"{{WORKDIR}}\" <<'FIXEOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex resume <CODEX_EXEC_SESSION> - \"{{WORKDIR}}\" <<'FIXEOF'
 <TASK>
 The implementation needs corrections:
 
@@ -307,12 +307,12 @@ Return to Phase 2 after completion. **Maximum 2 rework rounds**, beyond which Cl
 2. **Parallel calls** (`run_in_background: true`):
 
    - **codex review**:
-     - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/reviewer.md`
+     - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md`
      - Input: Change Diff + Planning file content
      - Focus: Security, performance, error handling, logical correctness
 
    - **antigravity review**:
-     - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/reviewer.md`
+     - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/antigravity/reviewer.md`
      - Input: Change Diff + Planning file content
      - Focus: Code readability, design consistency, maintainability
 

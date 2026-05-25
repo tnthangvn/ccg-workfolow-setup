@@ -11,7 +11,7 @@ Code Quality Verification Checkpoint. Detects complexity, duplicate code, naming
 Execute the following command:
 
 ```bash
-node "/home/pc/.claude/skills/ccg/run_skill.js" verify-quality $ARGUMENTS
+node "/home/thangtn/.claude/skills/ccg/run_skill.js" verify-quality $ARGUMENTS
 ```
 
-For a detailed description of this skill, please read: /home/pc/.claude/skills/ccg/tools/verify-quality/SKILL.md
+For a detailed description of this skill, please read: /home/thangtn/.claude/skills/ccg/tools/verify-quality/SKILL.md

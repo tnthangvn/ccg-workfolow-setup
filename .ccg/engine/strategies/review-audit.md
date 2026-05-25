@@ -1,13 +1,13 @@
-# Strategy: Review Audit — 代码审查
+# Strategy: Review Audit
 
-> 适用于代码审查需求，双模型交叉验证，结果分级输出。
+> Suitable for code review requirements. Cross-validation with dual models, graded output of results.
 
-## 适用条件
-- 用户请求代码审查
-- 任何复杂度级别
-- 自动检测 git diff 作为审查范围
+## Applicable Conditions
+- User requests code review.
+- Any complexity level.
+- Automatically detect git diff as the review scope.
 
-## 前置加载
+## Pre-loading
 
 ```
 Read("/home/pc/.claude/.ccg/engine/model-router.md")
@@ -15,109 +15,109 @@ Read("/home/pc/.claude/.ccg/engine/model-router.md")
 
 ---
 
-## 工作流状态机
+## Workflow State Machine
 
 [phase-state:1-scope]
-当前阶段：确定审查范围
-📍 Next: 范围确定后启动双模型审查
+Current Phase: Determine review scope
+📍 Next: Start dual-model review once scope is determined
 [/phase-state:1-scope]
 
 [phase-state:2-review]
-当前阶段：双模型审查
-Gate: 审查范围已确定 ✓
-📍 Next: 双模型审查返回后综合报告
+Current Phase: Dual-model review
+Gate: Review scope is determined ✓
+📍 Next: Synthesize report after dual-model review returns
 [/phase-state:2-review]
 
 [phase-state:3-report]
-当前阶段：综合报告
-Gate: 双模型审查已返回 ✓
-📍 Next: 报告输出后等待用户决定
+Current Phase: Synthesized report
+Gate: Dual-model review has returned ✓
+📍 Next: Wait for user decision after outputting the report
 [/phase-state:3-report]
 
 ---
 
-## 阶段详情
+## Phase Details
 
-### Phase 1: 确定审查范围 [required]
+### Phase 1: Determine Review Scope [required]
 
-1. 如果用户指定了文件/范围 → 使用指定范围
-2. 如果未指定 → 自动获取：
-   - `git diff HEAD` — 未提交的变更
-   - 如果无 diff → `git diff HEAD~1` — 最近一次提交
-   - 如果仍无 diff → 询问用户要审查什么
-3. 读取变更涉及的完整文件（不只是 diff，需要上下文）
+1. If the user specifies files/scope → Use the specified scope.
+2. If unspecified → Automatically obtain:
+   - `git diff HEAD` — Uncommitted changes.
+   - If no diff → `git diff HEAD~1` — The latest commit.
+   - If still no diff → Ask the user what to review.
+3. Read the complete files involved in the changes (not just the diff; context is required).
 
-输出审查范围：
+Output review scope:
 ```
-📋 审查范围
-  变更: [N] 文件，[+M/-K] 行
-  文件: [文件列表]
+📋 Review Scope
+  Changes: [N] files, [+M/-K] lines
+  Files: [File list]
 ```
 
-### Phase 2: 双模型审查 [required]
+### Phase 2: Dual-Model Review [required]
 
-**Gate check**: 审查范围已确定
+**Gate check**: Review scope is determined
 
-**并行调用**（`run_in_background: true`）：
-- **backend 模型**：reviewer 角色
+**Parallel Invocation** (`run_in_background: true`):
+- **backend model**: reviewer role
   ```
   <TASK>
-  需求：审查以下代码变更
-  上下文：[git diff + 完整文件上下文]
+  Requirement: Review the following code changes
+  Context: [git diff + complete file context]
   </TASK>
-  OUTPUT: 审查发现（按严重度分级：Critical/Warning/Info，每条含：位置、问题、建议）
+  OUTPUT: Review findings (graded by severity: Critical/Warning/Info, each containing: location, issue, suggestion)
   ```
-- **frontend 模型**：reviewer 角色（相同格式）
+- **frontend model**: reviewer role (same format)
 
-等待双模型返回。
+Wait for both models to return.
 
-### Phase 3: 综合报告 + 质量关卡
+### Phase 3: Synthesized Report + Quality Gates
 
-**Gate check**: 双模型审查已返回
+**Gate check**: Dual-model review has returned
 
-#### 3a. 质量关卡
+#### 3a. Quality Gates
 
-**⛔ 必须逐个调用 Skill，不可跳过：**
-- 调用 Skill `verify-security` — 等待报告
-- 调用 Skill `verify-quality` — 等待报告
+**⛔ Must invoke each Skill individually; do not skip:**
+- Invoke Skill `verify-security` — Wait for report.
+- Invoke Skill `verify-quality` — Wait for report.
 
-#### 3b. 综合报告
+#### 3b. Synthesized Report
 
-合并双模型发现 + 质量关卡结果，去重，按严重度分级：
+Merge dual-model findings + quality gate results, de-duplicate, and grade by severity:
 
 ```
-📋 代码审查报告
+📋 Code Review Report
 
-## Critical（必须修复）
-1. [file:line] — [问题描述]
-   建议: [具体修复建议]
-   来源: [backend/frontend/质量关卡]
+## Critical (Must Fix)
+1. [file:line] — [Issue description]
+   Suggestion: [Specific fix suggestion]
+   Source: [backend/frontend/quality gates]
 
-## Warning（建议修复）
-1. [file:line] — [问题描述]
-   建议: [具体修复建议]
+## Warning (Recommended to Fix)
+1. [file:line] — [Issue description]
+   Suggestion: [Specific fix suggestion]
 
-## Info（供参考）
-1. [file:line] — [观察/建议]
+## Info (For Reference)
+1. [file:line] — [Observation/Suggestion]
 
 ---
-总计: [N] Critical, [M] Warning, [K] Info
+Total: [N] Critical, [M] Warning, [K] Info
 ```
 
-如果有 Critical 发现，询问用户是否立即修复（可切换到 `direct-fix` 策略）。
+If there are Critical findings, ask the user whether to fix them immediately (can switch to the `direct-fix` strategy).
 
-#### Spec Evolution（审查完成后执行）
+#### Spec Evolution (Executed after review is completed)
 
-参考 `phase-guide.md § 8 Spec Evolution Protocol` 执行：
-1. 从审查发现中提炼可复用的编码规范（特别是 Critical/Warning 级反复出现的模式）
-2. 如有值得记录的经验 → 草拟 Spec 条目，展示给用户确认后追加到 `.ccg/spec/{domain}/index.md`
-3. 无值得提炼的经验 → 跳过
+Refer to `phase-guide.md § 8 Spec Evolution Protocol` to execute:
+1. Distill reusable coding specifications from review findings (especially patterns that recur at the Critical/Warning levels).
+2. If there are experiences worth recording → Draft Spec entries, present them to the user for confirmation, and append them to `.ccg/spec/{domain}/index.md`.
+3. If there are no experiences worth distilling → Skip.
 
 ---
 
-## 铁律
+## Hard Rules
 
-- **审查结果必须分级** — 不可笼统说"代码看起来没问题"
-- **双模型必须独立审查** — 交叉验证的价值在于独立性
-- **Critical 必须明确标出** — 不可淡化严重问题
-- **如无发现，明确说明** — "经双模型审查，未发现问题" 优于沉默
+- **Review results must be graded** — Do not just say vaguely "the code looks fine".
+- **Dual models must review independently** — The value of cross-validation lies in independence.
+- **Critical issues must be clearly marked** — Do not downplay serious issues.
+- **If nothing is found, state it clearly** — "No issues found after dual-model review" is better than silence.

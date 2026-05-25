@@ -13,7 +13,7 @@ $ARGUMENTS
 ## Core Protocols
 
 - **Language Protocol**: Use **English** when interacting with tools/models, communicate with user in their language
-- **Mandatory Parallel**: Codex/Gemini calls MUST use `run_in_background: true` (including single model calls, to avoid blocking main thread)
+- **Mandatory Parallel**: Codex/Antigravity calls MUST use `run_in_background: true` (including single model calls, to avoid blocking main thread)
 - **Code Sovereignty**: External models have **zero filesystem write access**, all modifications by Claude
 - **Stop-Loss Mechanism**: Do not proceed to next phase until current phase output is validated
 - **Planning Only**: This command allows reading context and writing to `.claude/plan/*` plan files, but **NEVER modify production code**
@@ -26,7 +26,7 @@ $ARGUMENTS
 
 ```
 Bash({
-  command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--backend <codex|gemini> {{GEMINI_MODEL_FLAG}}- \"$PWD\" <<'EOF'
+  command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--backend <codex|antigravity> {{ANTIGRAVITY_MODEL_FLAG}}- \"$PWD\" <<'EOF'
 ROLE_FILE: <role prompt path>
 <TASK>
 Requirement: <enhanced requirement>
@@ -41,14 +41,14 @@ EOF",
 ```
 
 **Model Parameter Notes**:
-- `{{GEMINI_MODEL_FLAG}}`: When using `--backend gemini`, replace with `--gemini-model gemini-3-pro-preview` (note trailing space); use empty string for codex
+- `{{ANTIGRAVITY_MODEL_FLAG}}`: When using `--backend antigravity`, replace with `--gemini-model "Gemini 3.5 Flash (Medium)"` (or `"Gemini 3.5 Flash (High)"` / `"Gemini 3.5 Flash (Low)"`, note trailing space); use empty string for codex
 
 **Role Prompts**:
 
-| Phase | Codex | Gemini |
+| Phase | Codex | Antigravity |
 |-------|-------|--------|
-| Analysis | `~/.claude/.ccg/prompts/codex/analyzer.md` | `~/.claude/.ccg/prompts/gemini/analyzer.md` |
-| Planning | `~/.claude/.ccg/prompts/codex/architect.md` | `~/.claude/.ccg/prompts/gemini/architect.md` |
+| Analysis | `~/.claude/.ccg/prompts/codex/analyzer.md` | `~/.claude/.ccg/prompts/antigravity/analyzer.md` |
+| Planning | `~/.claude/.ccg/prompts/codex/architect.md` | `~/.claude/.ccg/prompts/antigravity/architect.md` |
 
 **Session Reuse**: Each call returns `SESSION_ID: xxx` (typically output by wrapper), **MUST save** for subsequent `/ccg:execute` use.
 
@@ -73,41 +73,30 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 
 `[Mode: Research]`
 
-#### 1.1 Prompt Enhancement (MUST execute first)
+#### 1.1 Context Retrieval (MUST execute first)
 
-**If ace-tool MCP is available**, call `mcp__ace-tool__enhance_prompt` tool:
-
-```
-mcp__ace-tool__enhance_prompt({
-  prompt: "$ARGUMENTS",
-  conversation_history: "<last 5-10 conversation turns>",
-  project_root_path: "$PWD"
-})
-```
-
-Wait for enhanced prompt, **replace original $ARGUMENTS with enhanced result** for all subsequent phases.
-
-**If ace-tool MCP is NOT available**: Skip this step and use the original `$ARGUMENTS` as-is for all subsequent phases.
-
-#### 1.2 Context Retrieval
-
-**If ace-tool MCP is available**, call `mcp__ace-tool__search_context` tool:
+**If GitNexus MCP is available**, call `mcp__gitnexus__query` tool:
 
 ```
-mcp__ace-tool__search_context({
-  query: "<semantic query based on enhanced requirement>",
-  project_root_path: "$PWD"
+mcp__gitnexus__query({
+  query: "<semantic query based on original $ARGUMENTS>"
 })
 ```
 
 - Build semantic query using natural language (Where/What/How)
 - **NEVER answer based on assumptions**
+- **To list the directory structure**, use standard system calls (ls / find) or built-in tools like Glob / Grep.
 
-**If ace-tool MCP is NOT available**, use Claude Code built-in tools as fallback:
+**If GitNexus MCP is NOT available**, use Claude Code built-in tools as fallback:
 1. **Glob**: Find relevant files by pattern (e.g., `Glob("**/*.ts")`, `Glob("src/**/*.py")`)
 2. **Grep**: Search for key symbols, function names, class definitions (e.g., `Grep("className|functionName")`)
 3. **Read**: Read the discovered files to gather complete context
 4. **Task (Explore agent)**: For deeper exploration, use `Task` with `subagent_type: "Explore"` to search across the codebase
+
+#### 1.2 Prompt Enhancement (Inference)
+
+Perform prompt enhancement (follow `/ccg:enhance` logic): Claude (self) self-infers and enhances the prompt from the results of `mcp__gitnexus__query` (or fallback tools) and `$ARGUMENTS`, expanding it into a structured requirement (clear goals, technical constraints, scope boundaries, acceptance criteria).
+**Replace the original $ARGUMENTS with the enhanced result** for all subsequent phases.
 
 #### 1.3 Completeness Check
 
@@ -126,7 +115,7 @@ mcp__ace-tool__search_context({
 
 #### 2.1 Distribute Inputs
 
-**Parallel call** Codex and Gemini (`run_in_background: true`):
+**Parallel call** Codex and Antigravity (`run_in_background: true`):
 
 Distribute **original requirement** (without preset opinions) to both models:
 
@@ -135,12 +124,12 @@ Distribute **original requirement** (without preset opinions) to both models:
    - Focus: Technical feasibility, architecture impact, performance considerations, potential risks
    - OUTPUT: Multi-perspective solutions + pros/cons analysis
 
-2. **Gemini Frontend Analysis**:
-   - ROLE_FILE: `~/.claude/.ccg/prompts/gemini/analyzer.md`
+2. **Antigravity Frontend Analysis**:
+   - ROLE_FILE: `~/.claude/.ccg/prompts/antigravity/analyzer.md`
    - Focus: UI/UX impact, user experience, visual design
    - OUTPUT: Multi-perspective solutions + pros/cons analysis
 
-Wait for both models' complete results with `TaskOutput`. **Save SESSION_ID** (`CODEX_SESSION` and `GEMINI_SESSION`).
+Wait for both models' complete results with `TaskOutput`. **Save SESSION_ID** (`CODEX_SESSION` and `ANTIGRAVITY_SESSION`).
 
 #### 2.2 Cross-Validation
 
@@ -148,7 +137,7 @@ Integrate perspectives and iterate for optimization:
 
 1. **Identify consensus** (strong signal)
 2. **Identify divergence** (needs weighing)
-3. **Complementary strengths**: Backend logic follows Codex, Frontend design follows Gemini
+3. **Complementary strengths**: Backend logic follows Codex, Frontend design follows Antigravity
 4. **Logical reasoning**: Eliminate logical gaps in solutions
 
 #### 2.3 (Optional but Recommended) Dual-Model Plan Draft
@@ -159,8 +148,8 @@ To reduce risk of omissions in Claude's synthesized plan, can parallel have both
    - ROLE_FILE: `~/.claude/.ccg/prompts/codex/architect.md`
    - OUTPUT: Step-by-step plan + pseudo-code (focus: data flow/edge cases/error handling/test strategy)
 
-2. **Gemini Plan Draft** (Frontend authority):
-   - ROLE_FILE: `~/.claude/.ccg/prompts/gemini/architect.md`
+2. **Antigravity Plan Draft** (Frontend authority):
+   - ROLE_FILE: `~/.claude/.ccg/prompts/antigravity/architect.md`
    - OUTPUT: Step-by-step plan + pseudo-code (focus: information architecture/interaction/accessibility/visual consistency)
 
 Wait for both models' complete results with `TaskOutput`, record key differences in their suggestions.
@@ -173,12 +162,12 @@ Synthesize both analyses, generate **Step-by-step Implementation Plan**:
 ## Implementation Plan: <Task Name>
 
 ### Task Type
-- [ ] Frontend (→ Gemini)
+- [ ] Frontend (→ Antigravity)
 - [ ] Backend (→ Codex)
 - [ ] Fullstack (→ Parallel)
 
 ### Technical Solution
-<Optimal solution synthesized from Codex + Gemini analysis>
+<Optimal solution synthesized from Codex + Antigravity analysis>
 
 ### Implementation Steps
 1. <Step 1> - Expected deliverable
@@ -196,7 +185,7 @@ Synthesize both analyses, generate **Step-by-step Implementation Plan**:
 
 ### SESSION_ID (for /ccg:execute use)
 - CODEX_SESSION: <session_id>
-- GEMINI_SESSION: <session_id>
+- ANTIGRAVITY_SESSION: <session_id>
 ```
 
 ### Phase 2 End: Plan Delivery (Not Execution)
@@ -267,6 +256,6 @@ After user approves, **manually** execute:
 
 1. **Plan only, no implementation** – This command does not execute any code changes
 2. **No Y/N prompts** – Only present plan, let user decide next steps
-3. **Trust Rules** – Backend follows Codex, Frontend follows Gemini
+3. **Trust Rules** – Backend follows Codex, Frontend follows Antigravity
 4. External models have **zero filesystem write access**
-5. **SESSION_ID Handoff** – Plan must include `CODEX_SESSION` / `GEMINI_SESSION` at end (for `/ccg:execute resume <SESSION_ID>` use)
+5. **SESSION_ID Handoff** – Plan must include `CODEX_SESSION` / `ANTIGRAVITY_SESSION` at end (for `/ccg:execute resume <SESSION_ID>` use)

@@ -1,264 +1,264 @@
-# Strategy: Guided Develop — 引导式开发
+# Strategy: Guided Develop
 
-> 适用于中等复杂度的功能开发。可选调用外部模型进行领域分析。
+> Suitable for medium complexity feature development. Optional invocation of external models for domain analysis.
 
-## 适用条件
-- 复杂度 M（2-5 文件，单模块）
-- 需要一定规划但不需要完整的多模型协作
-- 风险 low 或 medium
+## Applicable Conditions
+- Complexity M (2-5 files, single module).
+- Requires some planning but does not need full multi-model collaboration.
+- Low or medium risk.
 
 ---
 
-## 工作流状态机
+## Workflow State Machine
 
 [phase-state:1-requirements]
-当前阶段：需求增强
-📍 Next: 需求结构化后进入上下文检索
+Current Phase: Requirements enhancement
+📍 Next: Enter context retrieval after requirements are structured
 [/phase-state:1-requirements]
 
 [phase-state:2-context]
-当前阶段：上下文检索
-Gate: 需求已增强 ✓
-📍 Next: 上下文收集完毕后判断是否需要外部模型分析
+Current Phase: Context retrieval
+Gate: Requirements enhanced ✓
+📍 Next: Determine if external model analysis is needed after context collection is complete
 [/phase-state:2-context]
 
 [phase-state:3-analysis]
-当前阶段：领域分析（可选外部模型）
-Gate: 上下文已收集 ✓
-📍 Next: 分析完成后进入规划阶段
+Current Phase: Domain analysis (optional external models)
+Gate: Context collected ✓
+📍 Next: Enter planning phase after analysis is complete
 [/phase-state:3-analysis]
 
 [phase-state:4-plan]
-当前阶段：规划
-Gate: 分析已完成 ✓
-📍 Next: 用户确认计划后进入实施
+Current Phase: Planning
+Gate: Analysis complete ✓
+📍 Next: Enter implementation after user confirms the plan
 [/phase-state:4-plan]
 
 [phase-state:5-implement]
-当前阶段：实施
-Gate: 用户已确认计划 ✓（HARD STOP）
-📍 Next: 实施完成后进入验证
+Current Phase: Implementation
+Gate: User confirmed plan ✓ (HARD STOP)
+📍 Next: Enter verification after implementation is complete
 [/phase-state:5-implement]
 
 [phase-state:6-verify]
-当前阶段：验证
-Gate: 实施已完成 ✓
-📍 Next: 验证通过后报告结果
+Current Phase: Verification
+Gate: Implementation complete ✓
+📍 Next: Report results after verification passes
 [/phase-state:6-verify]
 
 ---
 
-## 阶段详情
+## Phase Details
 
-### Phase 1: 需求增强 [required]
+### Phase 1: Requirements Enhancement [required]
 
-分析用户的 $ARGUMENTS，补全为结构化需求：
-- **目标**：要实现什么
-- **约束**：不能改什么、需要兼容什么
-- **范围**：哪些文件/模块会受影响
-- **验收标准**：怎样算完成
+Analyze the user's $ARGUMENTS and flesh them out into structured requirements:
+- **Goal**: What needs to be implemented.
+- **Constraints**: What cannot be changed, what needs to be compatible.
+- **Scope**: Which files/modules will be affected.
+- **Acceptance Criteria**: What defines completion.
 
-展示增强后的需求，用户确认或调整。
+Present the enhanced requirements and have the user confirm or adjust them.
 
-### Phase 2: 上下文检索 [required]
+### Phase 2: Context Retrieval [required]
 
-1. 用 MCP 搜索工具搜索相关代码
-2. 读取目标模块的核心文件
-3. 识别依赖关系和可能的影响范围
-4. 了解现有的测试覆盖情况
+1. Search for relevant code using the MCP search tools.
+2. Read the core files of the target module.
+3. Identify dependency relationships and potential impact scopes.
+4. Understand existing test coverage.
 
-### Phase 3: 多模型分析 [required]
+### Phase 3: Multi-Model Analysis [required]
 
-**Gate check**: 需求已增强 ✓ 上下文已收集 ✓
+**Gate check**: Requirements enhanced ✓, Context collected ✓
 
-**⛔ M 复杂度必须调用双模型（Gemini + Codex）并行分析。不可只调一个，不可跳过。**
+**⛔ For M complexity, dual models (Antigravity + Codex) must be invoked for parallel analysis. Cannot call only one, and cannot skip.**
 
-这是多模型协作的核心价值——两个模型从不同角度分析同一个问题，交叉验证，弥补单模型盲区。
+This is the core value of multi-model collaboration—two models analyze the same problem from different angles, cross-validating and covering each other's blind spots.
 
-执行步骤：
+Execution steps:
 
-1. 确定工作目录：`WORKDIR=$(pwd)`
+1. Determine the working directory: `WORKDIR=$(pwd)`
 
-2. **并行调用双模型**（`run_in_background: true`，两个同时启动）：
+2. **Parallel invoke dual models** (`run_in_background: true`, both started simultaneously):
 
-Backend 模型：
+Backend Model:
 ```
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex - \"$WORKDIR\" <<'CODEAGENT_EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/analyzer.md\n<TASK>\n需求：{增强后的需求}\n上下文：{Phase 2 收集的项目上下文、相关代码摘要}\n</TASK>\nOUTPUT: 技术分析报告（可行性、架构建议、风险评估、实施方案对比）\nCODEAGENT_EOF",
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex - \"$WORKDIR\" <<'CODEAGENT_EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/analyzer.md\n<TASK>\nRequirement: {Enhanced requirements}\nContext: {Project context collected in Phase 2, relevant code summaries}\n</TASK>\nOUTPUT: Technical analysis report (feasibility, architectural recommendations, risk assessment, comparison of implementation options)\nCODEAGENT_EOF",
   run_in_background: true,
   timeout: 3600000,
-  description: "Backend 模型分析"
+  description: "Backend model analysis"
 })
 ```
 
-Frontend 模型（**必须同时启动，不是"如果是全栈才调"**）：
+Frontend Model (**Must start simultaneously, not "only if it is full-stack"**):
 ```
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend gemini --gemini-model gemini-3.1-pro-preview - \"$WORKDIR\" <<'CODEAGENT_EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/gemini/analyzer.md\n<TASK>\n需求：{增强后的需求}\n上下文：{Phase 2 收集的项目上下文}\n</TASK>\nOUTPUT: 从不同视角的分析报告（可行性、设计建议、风险评估）\nCODEAGENT_EOF",
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend antigravity --gemini-model \"Gemini 3.5 Flash (Medium)\" - \"$WORKDIR\" <<'CODEAGENT_EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/antigravity/analyzer.md\n<TASK>\nRequirement: {Enhanced requirements}\nContext: {Project context collected in Phase 2}\n</TASK>\nOUTPUT: Analysis reports from different perspectives (feasibility, design recommendations, risk assessment)\nCODEAGENT_EOF",
   run_in_background: true,
   timeout: 3600000,
-  description: "Frontend 模型分析"
+  description: "Frontend model analysis"
 })
 ```
 
-4. **等待结果**（必须等，不可跳过）：
+4. **Wait for results** (Must wait, cannot skip):
 ```
 TaskOutput({ task_id: "<id>", block: true, timeout: 600000 })
 ```
 
-5. 综合模型分析结果，提取关键建议用于 Phase 4 规划
+5. Synthesize model analysis results and extract key recommendations for Phase 4 planning.
 
-**Task 更新**：`currentPhase → "3-analysis"`, `nextAction → "等待模型分析返回"`
+**Task Update**: `currentPhase → "3-analysis"`, `nextAction → "Waiting for model analysis to return"`
 
-### Phase 4: 规划 [required]
+### Phase 4: Planning [required]
 
-撰写实施计划，输出格式：
+Draft the implementation plan in the following output format:
 
 ```
-📋 实施计划
+📋 Implementation Plan
 
-## 需求
-[增强后的需求摘要]
+## Requirements
+[Summary of enhanced requirements]
 
-## 方案
-[选定方案及理由]
+## Solution
+[Selected solution and reasoning]
 
-## 步骤
-1. [文件路径] — [具体变更]
-2. [文件路径] — [具体变更]
+## Steps
+1. [File path] — [Specific change]
+2. [File path] — [Specific change]
 ...
 
-## 影响范围
-- 修改: [文件列表]
-- 新增: [文件列表]（如有）
-- 测试: [需要更新/新增的测试]
+## Impact Scope
+- Modify: [File list]
+- Add: [File list] (if any)
+- Test: [Tests that need to be updated/added]
 ```
 
-将计划持久化到 `.ccg/tasks/{task-name}/plan.md`。
+Persist the plan to `.ccg/tasks/{task-name}/plan.md`.
 
-**Task 更新**：
+**Task Update**:
 ```
-更新 .ccg/tasks/{task-name}/task.json:
+Update .ccg/tasks/{task-name}/task.json:
   currentPhase → "4-plan"
   gate → "user_approval_required"
-  nextAction → "等待用户审批计划"
+  nextAction → "Waiting for user approval of the plan"
 ```
 
-**⛔⛔⛔ HARD STOP — 你必须在这里停下来，向用户展示以下选项并等待回复。不可跳过，不可默认选择。⛔⛔⛔**
+**⛔⛔⛔ HARD STOP — You must stop here, present the following options to the user, and wait for a response. Do not skip, do not select by default. ⛔⛔⛔**
 
-你现在必须输出以下内容（原样输出，不是代码块示例）：
+You must output the following text exactly (raw output, not code block examples):
 
 ---
-⛔ **计划审批 + 执行模式选择**
+⛔ **Plan Approval + Execution Mode Selection**
 
-请审批以上计划，并选择谁来写代码：
-1. **Claude 自己写** — 精细控制，逐步实施
-2. **Codex / Antigravity** — 外部模型写代码，更快，Claude 监控审查
+Please approve the plan above and select who will write the code:
+1. **Claude writes code** — Fine control, step-by-step implementation.
+2. **Codex / Antigravity** — External models write code, faster, Claude monitors and reviews.
 
-请回复 1 或 2（或直接说"你来写"/"用codex"等）。
+Please reply with 1 or 2 (or state directly "you write it", "use codex", etc.).
 ---
 
-**在用户回复之前，你不可以执行任何文件写入操作。** 违反 = 流程失控。
+**Before the user replies, you must not perform any file writing operations.** Violations = process out of control.
 
-用户确认后：
+After user confirmation:
 ```
-更新 task.json: gate → null, currentPhase → "5-implement"
+Update task.json: gate → null, currentPhase → "5-implement"
 ```
 
-### Phase 5: 实施
+### Phase 5: Implementation
 
-根据用户选择的执行模式：
+According to the execution mode selected by the user:
 
-#### 模式 A: Claude 自己写（用户选 [1]）
+#### Mode A: Claude writes code (User selects [1])
 
-1. 严格按计划执行
-2. 遵循项目现有代码规范
-3. 每完成一个主要步骤，简要报告进度
-4. 遇到计划外的问题时告知用户，不自行扩大范围
+1. Strictly execute according to the plan.
+2. Adhere to existing project coding standards.
+3. Briefly report progress after completing each major step.
+4. Inform the user when encountering out-of-plan issues, do not expand the scope on your own.
 
-#### 模式 B: 外部模型实施（用户选 [2]）
+#### Mode B: External model implementation (User selects [2])
 
-Claude 作为编排者，调用外部模型（Codex / Antigravity）写代码。
+Claude acts as the orchestrator, invoking external models (Codex / Antigravity) to write code.
 
-**Step 1**: 从 plan.md 按文件归属拆分子任务：
-- **Layer 1** — 无依赖的任务（底层模块：model/util/store）
-- **Layer 2** — 依赖 Layer 1 的任务（上层：route/middleware/component）
-- 每个子任务标注：文件范围、实施步骤、验证命令
+**Step 1**: Split subtasks from plan.md by file ownership:
+- **Layer 1** — Dependency-free tasks (low-level modules: model/util/store).
+- **Layer 2** — Tasks dependent on Layer 1 (higher level: route/middleware/component).
+- Annotate each subtask with: file scope, implementation steps, verification commands.
 
-**Step 2**: 生成并行任务配置，调用 codeagent-wrapper `--parallel` 模式：
+**Step 2**: Generate parallel task configuration, invoke codeagent-wrapper in `--parallel` mode:
 
 ```
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --parallel --backend codex - \"$WORKDIR\" <<'PARALLEL_EOF'\n---TASK---\nid: layer1-{name1}\nworkdir: $WORKDIR\n---CONTENT---\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/builder.md\n<TASK>\n## 文件范围（⛔ 只改这些文件）\n{file1, file2}\n\n## 实施步骤\n{steps from plan.md}\n</TASK>\n---TASK---\nid: layer1-{name2}\nworkdir: $WORKDIR\n---CONTENT---\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/builder.md\n<TASK>\n## 文件范围\n{file3, file4}\n\n## 实施步骤\n{steps}\n</TASK>\n---TASK---\nid: layer2-{name3}\nworkdir: $WORKDIR\ndependencies: layer1-{name1},layer1-{name2}\n---CONTENT---\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/builder.md\n<TASK>\n## 文件范围\n{file5}\n\n## 实施步骤\n{steps}\n</TASK>\nPARALLEL_EOF",
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --parallel --backend codex - \"$WORKDIR\" <<'PARALLEL_EOF'\n---TASK---\nid: layer1-{name1}\nworkdir: $WORKDIR\n---CONTENT---\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/builder.md\n<TASK>\n## File Scope (⛔ Modify ONLY these files)\n{file1, file2}\n\n## Implementation Steps\n{steps from plan.md}\n</TASK>\n---TASK---\nid: layer1-{name2}\nworkdir: $WORKDIR\n---CONTENT---\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/builder.md\n<TASK>\n## File Scope\n{file3, file4}\n\n## Implementation Steps\n{steps}\n</TASK>\n---TASK---\nid: layer2-{name3}\nworkdir: $WORKDIR\ndependencies: layer1-{name1},layer1-{name2}\n---CONTENT---\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/builder.md\n<TASK>\n## File Scope\n{file5}\n\n## Implementation Steps\n{steps}\n</TASK>\nPARALLEL_EOF",
   run_in_background: true,
   timeout: 3600000,
-  description: "Parallel Builder: {task count} 个子任务"
+  description: "Parallel Builder: {task count} subtasks"
 })
 ```
 
-**也可以用 Codex 原生 spawn 模式**（如果项目 `.codex/` 已配置 multi_agent_v2）：
-- 发送编排指令让 Codex 读 AGENTS.md 的 §5 "Parallel Spawn" 模式
-- Codex 自行 spawn ccg-implement 子代理并行写
+**Can also use Codex native spawn mode** (if the project has configured multi_agent_v2 in `.codex/`):
+- Send orchestration instructions to Codex to read the "Parallel Spawn" mode in AGENTS.md §5.
+- Codex spawns ccg-implement sub-agents on its own to write in parallel.
 
-**Step 3**: 等待完成，读取汇总报告
+**Step 3**: Wait for completion and read the summary report.
 
-**Step 4**: Claude 审查 `git diff`，确认变更在 plan 范围内
-- 小问题 Claude 直接修复
-- 大问题再调外部模型或切换模式 A
+**Step 4**: Claude reviews the `git diff` to confirm changes are within the plan scope:
+- Small issues → Claude fixes directly.
+- Major issues → Invoke external models again or switch to Mode A.
 
-**降级**：外部模型失败/超时 → 切换到模式 A
+**Fallback**: External model fails/times out → Switch to Mode A.
 
-**Task 更新**：`currentPhase → "5-implement"`, `nextAction → "按计划执行实施"`
+**Task Update**: `currentPhase → "5-implement"`, `nextAction → "Execute implementation according to plan"`
 
-### Phase 6: 迭代审查 [Ralph Loop]
+### Phase 6: Iterative Review [Ralph Loop]
 
-1. `git diff` 展示所有变更
-2. 运行测试（如果有）
+1. Display all changes via `git diff`.
+2. Run tests (if any).
 
-参考 `phase-guide.md § 10 Ralph Loop` 执行迭代审查（变更 >30 行时，最多 3 轮）。
+Refer to `phase-guide.md § 10 Ralph Loop` to execute iterative reviews (max 3 rounds when changes >30 lines).
 
-#### Round N 流程
+#### Round N Workflow
 
-**⛔ 双模型交叉审查（每轮 spawn 新调用，干净上下文）：**
-3. 并行调用双模型（`run_in_background: true`，使用 model-router.md 模板）：
-   - backend 模型 + reviewer 角色 — 安全、性能、错误处理
-   - frontend 模型 + reviewer 角色 — 设计一致性（如涉及前端）
-4. 综合审查意见
+**⛔ Dual-model cross-review (each round spawns a new call, clean context):**
+3. Invoke dual models in parallel (`run_in_background: true`, using model-router.md templates):
+   - backend model + reviewer role — security, performance, error handling.
+   - frontend model + reviewer role — design consistency (if frontend is involved).
+4. Synthesize review feedback.
 
-**⛔ 质量关卡（必须逐个调用 Skill，不可跳过）：**
-5. 调用 Skill `verify-quality` — 等待报告
-6. 调用 Skill `verify-security` — 等待报告（涉及 auth/input/crypto 时）
-7. 调用 Skill `verify-change` — 等待报告
+**⛔ Quality Gates (must invoke each Skill individually; do not skip):**
+5. Invoke Skill `verify-quality` — Wait for report.
+6. Invoke Skill `verify-security` — Wait for report (when auth/input/crypto is involved).
+7. Invoke Skill `verify-change` — Wait for report.
 
-**用户决定（⛔ 必须等待）：**
-- 有 Critical → `发现 N 个 Critical 问题。修复后再审一轮？[Y/n]`
-- 无 Critical → `审查通过。需要再审一轮？[y/N]`
-- 用户选择继续 → 修复 Critical 后回到 Round N+1
-- 用户选择停止 → 退出审查循环
+**User Decision (⛔ Must wait):**
+- Critical exists → `Found N Critical issues. Fix and review again? [Y/n]`
+- No Critical exists → `Review passed. Review another round? [y/N]`
+- User chooses to continue → Return to Round N+1 after fixing Critical issues.
+- User chooses to stop → Exit review loop.
 
-追加进度到 `.ccg/tasks/{task-name}/fix-log.jsonl`。
+Append progress to `.ccg/tasks/{task-name}/fix-log.jsonl`.
 
-8. 检查是否满足验收标准
-9. 输出结果：
+8. Check if acceptance criteria are met.
+9. Output results:
    ```
-   ✅ 开发完成
-     变更: [N] 文件，[M] 行
-     实现: [摘要]
-     测试: [通过/跳过/失败情况]
-     审查: [N] 轮，[Critical: N, Warning: N, Info: N]
-     📍 Next: 可以用 /ccg:commit 提交
+   ✅ Development Complete
+     Changes: [N] files, [M] lines
+     Implementation: [Summary]
+     Tests: [pass/skip/fail status]
+     Review: [N] rounds, [Critical: N, Warning: N, Info: N]
+     📍 Next: Can submit using /ccg:commit
    ```
 
-#### Spec Evolution（归档前必须执行）
+#### Spec Evolution (Must execute before archiving)
 
-参考 `phase-guide.md § 8 Spec Evolution Protocol` 执行：
-1. 分析本次 `git diff` + 审查结果，提炼可复用的编码约定
-2. 如有值得记录的经验 → 草拟 Spec 条目，展示给用户确认后追加到 `.ccg/spec/{domain}/index.md`
-3. 无值得提炼的经验 → 跳过
+Refer to `phase-guide.md § 8 Spec Evolution Protocol` to execute:
+1. Analyze this `git diff` + review results to distill reusable coding conventions.
+2. If there are experiences worth recording → Draft Spec entries, present them to the user for confirmation, and append them to `.ccg/spec/{domain}/index.md`.
+3. If there are no experiences worth distilling → Skip.
 
-**Task 更新**：`status → "archived"`
+**Task Update**: `status → "archived"`
 
-**归档任务**：
+**Archive Task**:
 ```bash
 mkdir -p .ccg/tasks/archive/$(date +%Y-%m) && mv .ccg/tasks/{task-name} .ccg/tasks/archive/$(date +%Y-%m)/
 git add .ccg/tasks/ && git commit -m "chore: archive ccg task"
@@ -266,17 +266,17 @@ git add .ccg/tasks/ && git commit -m "chore: archive ccg task"
 
 ---
 
-## 升级规则
+## Upgrade Rules
 
-- 发现涉及 5+ 文件或需要跨模块协调 → 升级到 `full-collaborate`
-- 发现涉及架构级变更 → 升级到 `full-collaborate`
-- 外部模型分析发现重大风险 → 升级到 `full-collaborate`
+- If it is found to involve 5+ files or require cross-module coordination → Upgrade to `full-collaborate`.
+- If architectural changes are found → Upgrade to `full-collaborate`.
+- If external model analysis finds significant risks → Upgrade to `full-collaborate`.
 
 ---
 
-## 铁律
+## Hard Rules
 
-- **Phase 4 计划必须用户确认** — HARD STOP，不可自动跳过
-- **外部模型仅提供建议** — Claude 执行所有文件修改
-- **不扩大范围** — 只做计划内的变更，计划外的报告但不自行处理
-- **增量实施** — 多文件变更时逐文件执行，便于追踪
+- **Phase 4 plan must be confirmed by user** — HARD STOP, do not skip automatically.
+- **External models only provide recommendations** — Claude performs all file modifications.
+- **Do not expand scope** — Only make changes within the plan; report out-of-plan issues but do not handle them unilaterally.
+- **Incremental implementation** — For multi-file changes, execute file-by-file for easy tracking.

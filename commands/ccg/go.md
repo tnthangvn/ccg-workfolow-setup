@@ -159,7 +159,7 @@ mkdir -p .ccg/tasks/{task-name}
 ### Load Strategy
 
 ```
-Read("/home/pc/.claude/.ccg/engine/strategies/{selected-strategy}.md")
+Read("/home/thangtn/.claude/.ccg/engine/strategies/{selected-strategy}.md")
 ```
 
 If the user disagrees with the analysis result (e.g. "use full collaboration mode"), **accept user override** and load the specified strategy.
@@ -173,7 +173,7 @@ Strictly execute according to the loaded strategy file. Adhere to the following 
 1. Phases marked as `[required]` **cannot be skipped**
 2. Gates marked as `HARD STOP` **must wait for user confirmation**
 3. The `## Iron Rules` section at the bottom of the strategy file must be obeyed
-4. If external models need to be called, first `Read("/home/pc/.claude/.ccg/engine/model-router.md")` to get the invocation template
+4. If external models need to be called, first `Read("/home/thangtn/.claude/.ccg/engine/model-router.md")` to get the invocation template
 
 ---
 

@@ -1,207 +1,207 @@
-# CCG 通用阶段指导
+# CCG General Phase Guidelines
 
-> 本文件定义所有策略共享的阶段执行规范。策略文件可通过 Read 引用。
+> This file defines the phase execution specifications shared by all strategies. Strategy files can reference this via Read.
 
-## 1. 阶段状态自检
+## 1. Phase State Self-Check
 
-每完成一个阶段，回顾对应的 `[phase-state:N]` 块：
-1. 确认该阶段的 Gate 条件已满足
-2. 输出 `📍 Next: [具体动作]` 告知用户下一步
-3. 如有 `[required]` 标记的阶段未完成，不可跳过
+Every time a phase is completed, review the corresponding `[phase-state:N]` block:
+1. Confirm that the Gate conditions for the phase have been met.
+2. Output `📍 Next: [Specific Action]` to notify the user of the next step.
+3. If a phase marked `[required]` is not completed, it cannot be skipped.
 
-## 2. Gate Check 执行规范
+## 2. Gate Check Execution Specifications
 
-Gate 是阶段间的硬性检查点。执行方式：
+Gates are hard checkpoints between phases. Execution methods:
 
-- **数据 Gate**：检查前序阶段是否产出了必要数据（分析结果？计划文件？）
-- **确认 Gate（HARD STOP）**：必须等待用户明确确认才能继续
-- **质量 Gate**：检查产出物是否达到最低质量标准
+- **Data Gate**: Check if preceding phases have produced necessary data (analysis results? plan files?).
+- **Confirmation Gate (HARD STOP)**: Must wait for explicit user confirmation before proceeding.
+- **Quality Gate**: Check if deliverables meet the minimum quality standards.
 
-Gate 失败时：说明缺失什么，给出补救建议，不可绕过。
+When a Gate fails: explain what is missing, provide mitigation/remedy suggestions, and do not bypass it.
 
-## 3. Next-Action 格式
+## 3. Next-Action Format
 
-每个阶段完成后输出：
+Output after each phase is completed:
 
 ```
-📍 Next: [一句话描述下一步具体动作]
+📍 Next: [One-sentence description of the next specific action]
 ```
 
-示例：
-- `📍 Next: 加载模型路由器，启动双模型并行分析`
-- `📍 Next: 请确认以上修复方案是否正确`
-- `📍 Next: 运行测试验证修复效果`
+Examples:
+- `📍 Next: Load model router and start dual-model parallel analysis`
+- `📍 Next: Please confirm if the above fix plan is correct`
+- `📍 Next: Run tests to verify the fix`
 
-## 4. 策略升级规则
+## 4. Strategy Upgrade Rules
 
-执行中发现复杂度超出当前策略能力时：
+When it is found during execution that the complexity exceeds the capabilities of the current strategy:
 
-1. 明确告知用户：`当前策略为 [名称]，但发现 [原因]，建议升级到 [目标策略]`
-2. 等待用户确认
-3. 确认后：`Read /home/pc/.claude/.ccg/engine/strategies/[target].md`
-4. 从新策略的 Phase 1 开始（已完成的分析工作可复用）
+1. Explicitly inform the user: `Current strategy is [Name], but [Reason] was found. Recommended to upgrade to [Target Strategy].`
+2. Wait for user confirmation.
+3. After confirmation: `Read /home/pc/.claude/.ccg/engine/strategies/[target].md`
+4. Start from Phase 1 of the new strategy (already completed analysis work can be reused).
 
-**只能升级，不能降级**（除非用户明确要求）。
+**Upgrades only, no downgrades** (unless explicitly requested by the user).
 
-## 5. 错误恢复
+## 5. Error Recovery
 
-| 场景 | 处理方式 |
+| Scenario | Handling Method |
 |------|---------|
-| 外部模型调用失败 | 按模型路由器重试规则处理 |
-| 测试失败 | 分析失败原因，修复后重新运行 |
-| 用户要求中止 | 立即停止，报告已完成的工作 |
-| 意外文件冲突 | 报告冲突，等待用户决策 |
+| External model call fails | Handle according to the Model Router retry rules |
+| Test fails | Analyze failure reasons, fix and rerun |
+| User requests abort | Stop immediately and report completed work |
+| Unexpected file conflict | Report conflict and wait for user decision |
 
-## 6. Team Dispatch 协议
+## 6. Team Dispatch Protocol
 
-当策略需要并行实施时，使用 Agent Teams：
+When a strategy requires parallel implementation, use Agent Teams:
 
-### 前置条件
-- 任务已拆分为文件级子任务（互不重叠）
-- plan.md 已审批
+### Prerequisites
+- Tasks have been split into file-level subtasks (non-overlapping).
+- plan.md has been approved.
 
-### 标准流程
+### Standard Workflow
 ```
 1. TeamCreate({ team_name: "{task-id}-team" })
-2. 同一消息内并行 spawn 所有 Layer 1 Builder
-3. 等待完成 → spawn Layer 2（如有）
-4. spawn Reviewer 快检
-5. Critical → spawn fix-dev（最多 2 轮）
-6. shutdown 所有 teammates
+2. Parallel spawn all Layer 1 Builders in the same message
+3. Wait for completion → spawn Layer 2 (if any)
+4. spawn Reviewer for quick check
+5. Critical → spawn fix-dev (max 2 rounds)
+6. shutdown all teammates
 ```
 
-### Builder Prompt 必含项
-- `## 工作目录` — 绝对路径
-- `## 文件范围约束（⛔ 硬性规则）` — 只能改的文件列表
-- `## 实施步骤` — 具体操作
-- `## 验收标准` — 怎样算完成
+### Builder Prompt Required Items
+- `## Working Directory` — Absolute path.
+- `## File Scope Constraints (⛔ Hard Rule)` — List of files that can be modified.
+- `## Implementation Steps` — Specific operations.
+- `## Acceptance Criteria` — What defines completion.
 
-### Spec 注入
-PreToolUse Hook 自动为 Team member 注入：
-- context.jsonl 中列出的 spec 文件
-- requirements.md 和 plan.md 摘要
-- research/ 目录下的研究成果
+### Spec Injection
+PreToolUse Hook automatically injects for Team members:
+- spec files listed in context.jsonl
+- summaries of requirements.md and plan.md
+- research results under the research/ directory
 
-Builder 不需要在 prompt 中手动粘贴 spec — Hook 自动处理。
+Builders do not need to manually paste specs in prompt — Hook handles it automatically.
 
-### 降级方案
-TeamCreate 失败（Agent Teams 未启用）→ Claude 自己按计划顺序实施。
+### Fallback Plan
+TeamCreate fails (Agent Teams not enabled) → Claude implements sequentially according to the plan.
 
-## 7. 输出规范
+## 7. Output Specifications
 
-- 中文交流，技术术语保留英文
-- 代码块标明语言
-- 变更摘要用 git diff 格式
-- 研究结果用表格对比
+- Communicate in English, technical terms remain in English.
+- Specify the language for code blocks.
+- Change summaries use git diff format.
+- Research results use table comparison.
 
-## 8. Spec Evolution Protocol — Spec 反馈环
+## 8. Spec Evolution Protocol — Spec Feedback Loop
 
-> 让 `.ccg/spec/` 从静态文档变为随项目开发自动进化的活知识库。
+> Let `.ccg/spec/` evolve from static documents into a living knowledge base that automatically updates along with project development.
 
-### 触发条件
+### Trigger Conditions
 
-任务归档前（status → "archived"），如果以下任一条件成立，**必须执行 Spec Evolution**：
-- 本次开发中发现了可复用的编码模式或约定
-- 外部模型审查提出了有价值的规范建议
-- 修复了一个非显而易见的坑（未来可能再踩）
-- 引入了新的第三方库/API/架构模式
+Before task archiving (status → "archived"), if any of the following conditions are met, **Spec Evolution must be executed**:
+- Reusable coding patterns or conventions were discovered during this development.
+- External model reviews proposed valuable specification suggestions.
+- Fixed a non-obvious pitfall (that might be encountered again in the future).
+- Introduced new third-party libraries/APIs/architectural patterns.
 
-### 执行步骤
+### Execution Steps
 
-1. **提炼经验**：分析 `git diff` + review.md（如有），提取可复用的经验教训
-2. **分类归属**：判断经验属于哪个 Spec 域：
-   - 后端相关 → `.ccg/spec/backend/index.md`
-   - 前端相关 → `.ccg/spec/frontend/index.md`
-   - 跨模块/通用 → `.ccg/spec/guides/index.md`
-3. **草拟更新**：以追加方式写出建议新增的 Spec 条目（不覆盖现有内容）
-4. **展示给用户**：
+1. **Distill Experience**: Analyze `git diff` + review.md (if any), and extract reusable lessons learned.
+2. **Classification & Assignment**: Determine which Spec domain the experience belongs to:
+   - Backend related → `.ccg/spec/backend/index.md`
+   - Frontend related → `.ccg/spec/frontend/index.md`
+   - Cross-module/General → `.ccg/spec/guides/index.md`
+3. **Draft Updates**: Write proposed new Spec entries in an append-only manner (do not overwrite existing content).
+4. **Present to User**:
    ```
-   📝 Spec Evolution — 本次开发经验提炼
+   📝 Spec Evolution — Development Experience Distilled
    
-   建议新增到 .ccg/spec/backend/index.md:
-     - [规范条目]（来源：{task-name}，{日期}）
+   Proposed additions to .ccg/spec/backend/index.md:
+     - [Spec entry] (Source: {task-name}, {date})
    
-   确认写入？[Y/n]
+   Confirm write? [Y/n]
    ```
-5. **用户确认后写入**（⛔ 不可静默写入 Spec）
-6. **无值得提炼的经验 → 跳过**（不要强行凑条目）
+5. **Write after user confirmation** (⛔ No silent writing to Spec).
+6. **No valuable experience to distill → Skip** (do not force entries).
 
-### 条目质量标准
+### Entry Quality Standards
 
-好的 Spec 条目：
-- ✅ 具体：引用真实文件路径和 API 签名
-- ✅ 说明 Why：不只说"要这样做"，还说"因为…"
-- ✅ 可验证：子 Agent 能根据条目判断对错
+Good Spec entries:
+- ✅ Specific: Reference real file paths and API signatures.
+- ✅ Explain Why: Do not just say "do this", but explain "because...".
+- ✅ Verifiable: Sub-agents can judge correctness based on the entry.
 
-坏的 Spec 条目：
-- ❌ 空泛："写好的代码" / "注意安全"
-- ❌ 一次性：只对本次任务有价值，对未来无意义
+Bad Spec entries:
+- ❌ Vague: "write good code" / "pay attention to security".
+- ❌ One-off: Only valuable for the current task, meaningless for the future.
 
-## 9. Loop Detection & Recovery — 死循环检测
+## 9. Loop Detection & Recovery — Infinite Loop Detection
 
-> workflow-state Hook 自动追踪每轮的 phase + nextAction。连续 3 轮无变化触发 Break-Loop Protocol。
+> workflow-state Hook automatically tracks the phase + nextAction for each round. 3 consecutive rounds with no change trigger the Break-Loop Protocol.
 
-### 机制
+### Mechanism
 
-- Hook 在每轮用户消息时写入 `.ccg/tasks/{name}/.turns.json`（最近 10 轮滚动缓冲）
-- 检测规则：连续 3 轮 `phase` + `nextAction` 完全相同 → 判定为死循环
-- 触发后在 `<ccg-state>` 面包屑中注入 `⚠️ LOOP DETECTED` 警告
+- Hook writes to `.ccg/tasks/{name}/.turns.json` on each round of user messages (recent 10-round rolling buffer).
+- Detection rule: 3 consecutive rounds with identical `phase` + `nextAction` → judged as an infinite loop.
+- Upon triggering, inject a `⚠️ LOOP DETECTED` warning into the `<ccg-state>` breadcrumb.
 
-### Break-Loop Protocol（Claude 收到警告后必须执行）
+### Break-Loop Protocol (Claude must execute upon receiving warning)
 
-1. **立即停止**当前重复动作
-2. **根因分析**（5 Why）：
-   - 是外部依赖阻塞？（网络/API/权限）→ 告知用户
-   - 是策略不适配？→ 建议升级策略
-   - 是信息不足？→ 向用户提问
-   - 是实现路径走死？→ 换方案
-3. **更新 task.json**：`nextAction` 必须变更为新的动作描述（打破循环）
-4. **如果连续 2 次触发 Break-Loop**（即 6 轮无进展）→ 强制暂停，输出完整状态摘要请用户介入
+1. **Stop immediately** the current repetitive action.
+2. **Root Cause Analysis** (5 Whys):
+   - Blocked by external dependencies? (network/API/permissions) → Inform the user.
+   - Strategy mismatch? → Suggest upgrading strategy.
+   - Insufficient information? → Ask the user questions.
+   - Dead-end implementation path? → Change approach.
+3. **Update task.json**: `nextAction` must change to a new action description (breaking the loop).
+4. **If Break-Loop triggers 2 consecutive times** (i.e., 6 rounds without progress) → Force pause, output a complete status summary, and ask for user intervention.
 
-## 10. Ralph Loop — 迭代审查协议
+## 10. Ralph Loop — Iterative Review Protocol
 
-> 审查不是一次性动作。每轮 spawn 新 Agent（干净上下文），读取磁盘最新状态重新验证，循环自修复。
+> Review is not a one-off action. Each round spawns a new Agent (clean context), reads the latest disk state to revalidate, and loops self-fixing.
 
-### 适用场景
+### Applicable Scenarios
 
-策略中标注为 `[Ralph Loop]` 的审查阶段，使用迭代审查代替一次性审查。
+Review phases marked as `[Ralph Loop]` in strategies use iterative review instead of one-off review.
 
-### 标准流程
+### Standard Workflow
 
 ```
 Round N (N=1,2,...,MAX_ROUNDS):
-  1. 双模型并行审查（每次 spawn 新 Agent，干净上下文）
-  2. 质量关卡（verify-security / verify-quality / verify-change）
-  3. 综合审查报告，按 Critical / Warning / Info 分级
-  4. 展示给用户，询问：
-     - 有 Critical → "发现 N 个 Critical 问题，是否修复后再审？[Y/n]"
-     - 无 Critical → "审查通过，是否需要再审一轮？[y/N]"
-  5. 用户选择继续 →
-     a. spawn fix-dev（新 Agent，干净上下文）修复 Critical 问题
-     b. 进度追加到 .ccg/tasks/{name}/fix-log.jsonl
-     c. 回到 Round N+1
-  6. 用户选择停止 → 退出循环，进入下一阶段
+  1. Dual-model parallel review (each spawn is a new Agent, clean context)
+  2. Quality gates (verify-security / verify-quality / verify-change)
+  3. Synthesize review report, graded by Critical / Warning / Info
+  4. Present to user, asking:
+     - Critical exists → "Found N Critical issues, fix and review again? [Y/n]"
+     - No Critical exists → "Review passed, review another round? [y/N]"
+  5. User chooses to continue →
+     a. spawn fix-dev (new Agent, clean context) to fix Critical issues
+     b. append progress to .ccg/tasks/{name}/fix-log.jsonl
+     c. return to Round N+1
+  6. User chooses to stop → Exit loop and enter the next phase
 ```
 
-### 关键规则
+### Critical Rules
 
-- **每轮审查必须是新 Agent** — 不复用上一轮的 Agent 上下文，避免"上下文污染越修越烂"
-- **fix-dev 也是新 Agent** — 从磁盘读取最新代码状态，只修分配的问题
-- **最多 3 轮**（MAX_ROUNDS=3）— 超过 3 轮说明问题根深，应该回退到规划阶段
-- **用户始终有决定权** — 每轮结束后由用户决定是否继续，不自动循环
-- **fix-log.jsonl 追踪进度** — 每轮结果追加一行 JSON，格式：
+- **Each round of review must be a new Agent** — Do not reuse the previous round's Agent context, avoiding "context pollution that leads to worse fixes".
+- **fix-dev is also a new Agent** — Reads the latest code state from disk and only fixes the assigned issues.
+- **Max 3 rounds** (MAX_ROUNDS=3) — Exceeding 3 rounds indicates deep-seated problems; should roll back to the planning phase.
+- **User always has the final say** — The user decides whether to continue after each round; do not loop automatically.
+- **fix-log.jsonl tracks progress** — Append a JSON line for each round, format:
   ```jsonl
   {"round": 1, "critical": 2, "warning": 5, "fixed": ["file1:issue", "file2:issue"], "ts": "ISO"}
   {"round": 2, "critical": 0, "warning": 3, "fixed": ["file3:issue"], "ts": "ISO"}
   ```
 
-### context.jsonl 角色标注
+### context.jsonl Role Tagging
 
-策展 context.jsonl 时，按角色标注 `roles` 字段：
+When curating context.jsonl, tag the `roles` field by role:
 ```jsonl
-{"file": ".ccg/spec/backend/index.md", "reason": "后端规范", "roles": ["implement", "review"]}
-{"file": ".ccg/tasks/{name}/plan.md", "reason": "实施计划", "roles": ["implement"]}
-{"file": ".ccg/tasks/{name}/research/lib-comparison.md", "reason": "库选型", "roles": ["research", "implement"]}
+{"file": ".ccg/spec/backend/index.md", "reason": "Backend specifications", "roles": ["implement", "review"]}
+{"file": ".ccg/tasks/{name}/plan.md", "reason": "Implementation plan", "roles": ["implement"]}
+{"file": ".ccg/tasks/{name}/research/lib-comparison.md", "reason": "Library selection", "roles": ["research", "implement"]}
 ```
 
-SubAgent-context Hook 自动按角色过滤：无 `roles` 字段 = 注入所有角色。
+SubAgent-context Hook automatically filters by role: no `roles` field = inject for all roles.

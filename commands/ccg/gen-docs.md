@@ -11,7 +11,7 @@ Documentation generator. Automatically analyzes module structure to generate REA
 Execute the following command:
 
 ```bash
-node "/home/pc/.claude/skills/ccg/run_skill.js" gen-docs $ARGUMENTS
+node "/home/thangtn/.claude/skills/ccg/run_skill.js" gen-docs $ARGUMENTS
 ```
 
-For a detailed description of this skill, please read: /home/pc/.claude/skills/ccg/tools/gen-docs/SKILL.md
+For a detailed description of this skill, please read: /home/thangtn/.claude/skills/ccg/tools/gen-docs/SKILL.md

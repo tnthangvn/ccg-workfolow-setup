@@ -32,8 +32,8 @@ You are the **debugging coordinator**, orchestrating the multi-model diagnosis f
 
 **codex backend diagnosis**:
 ```bash
-/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex - "$(pwd)" <<'EOF'
-ROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/debugger.md
+/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - "$(pwd)" <<'EOF'
+ROLE_FILE: /home/thangtn/.claude/.ccg/prompts/codex/debugger.md
 <TASK>
 Requirement: <enhanced requirement>
 Context: <error logs, stack traces, reproduction steps>
@@ -44,8 +44,8 @@ EOF
 
 **antigravity frontend diagnosis**:
 ```bash
-/home/pc/.claude/bin/codeagent-wrapper --progress --backend antigravity - "$(pwd)" <<'EOF'
-ROLE_FILE: /home/pc/.claude/.ccg/prompts/antigravity/debugger.md
+/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend antigravity - "$(pwd)" <<'EOF'
+ROLE_FILE: /home/thangtn/.claude/.ccg/prompts/antigravity/debugger.md
 <TASK>
 Requirement: <enhanced requirement>
 Context: <error logs, stack traces, reproduction steps>
@@ -58,8 +58,8 @@ EOF
 
 | Model | Prompt |
 |------|--------|
-| Backend | `/home/pc/.claude/.ccg/prompts/codex/debugger.md` |
-| Frontend | `/home/pc/.claude/.ccg/prompts/antigravity/debugger.md` |
+| Backend | `/home/thangtn/.claude/.ccg/prompts/codex/debugger.md` |
+| Frontend | `/home/thangtn/.claude/.ccg/prompts/antigravity/debugger.md` |
 
 **Parallel calls**:
 1. Use the `Bash` tool with `run_in_background: true` and `timeout: 600000` (10 minutes).
@@ -87,7 +87,7 @@ EOF
 
 `[Mode: Research]`
 
-1. Call `mcp__fast-context__fast_context_search` to retrieve related code (if available).
+1. **Code Retrieval** (if GitNexus MCP is available): Call `mcp__gitnexus__query` to retrieve related code. If GitNexus is not available (e.g. missing API key or index not initialized), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
 2. Collect error logs, stack traces, reproduction steps.
 3. Identify problem type: [Backend/Frontend/Full-stack].
 
@@ -98,11 +98,11 @@ EOF
 **⚠️ Must launch two parallel Bash calls** (per the invocation rules above):
 
 1. **codex backend diagnosis**: `Bash({ command: "...--backend codex...", run_in_background: true })`
-   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/debugger.md`
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/debugger.md`
    - OUTPUT: Diagnostic hypotheses (sorted by probability), each containing cause, evidence, and fix suggestions.
 
 2. **antigravity frontend diagnosis**: `Bash({ command: "...--backend antigravity...", run_in_background: true })`
-   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/debugger.md`
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/antigravity/debugger.md`
    - OUTPUT: Diagnostic hypotheses (sorted by probability), each containing cause, evidence, and fix suggestions.
 
 Wait for diagnostic results from both models using `TaskOutput`. **Must wait for all models to return before proceeding to the next phase.**

@@ -13,7 +13,7 @@ description: 'Requirement → Constraint Sets (Parallel Exploration + OPSX Propo
 - **NEVER** divide subagent tasks by roles (e.g., "Architect Agent", "Security Expert Agent").
 - **ALWAYS** divide by context boundaries (e.g., "user-related code", "authentication logic").
 - Each subagent context must be self-contained with independent output.
-- Use `mcp__fast-context__fast_context_search` to minimize grep/find operations.
+- Use `mcp__gitnexus__query` (or fallback search tools if GitNexus is unavailable) to minimize manual grep/find operations.
 - Do not make architectural decisions—surface constraints that guide decisions.
 - **USER GUIDANCE RULE**: When suggesting next steps to the user, ALWAYS use CCG commands (`/ccg:spec-research`, `/ccg:spec-plan`, `/ccg:spec-impl`, `/ccg:spec-review`). NEVER suggest `/opsx:*` commands to the user. If OpenSpec CLI returns error messages referencing OPSX skills, translate them to CCG equivalents.
 - **PHASE BOUNDARY**: This phase ONLY generates the OPSX proposal artifact. Do NOT modify any source code. Do NOT proceed to planning or implementation. After the proposal is generated, STOP and inform the user: "Research complete. Run `/ccg:spec-plan` to continue."
@@ -37,7 +37,7 @@ description: 'Requirement → Constraint Sets (Parallel Exploration + OPSX Propo
    - If change already exists, continue with existing change.
 
 2. **Initial Codebase Assessment**
-   - Use `mcp__fast-context__fast_context_search` to scan codebase.
+   - Use `mcp__gitnexus__query` to scan codebase. If GitNexus is not available (e.g. missing API key or index not initialized), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
    - Determine project scale: single vs multi-directory structure.
    - **Decision**: If multi-directory → enable parallel Explore subagents.
 
@@ -72,7 +72,7 @@ description: 'Requirement → Constraint Sets (Parallel Exploration + OPSX Propo
    **FIRST Bash call (codex — backend boundaries)**:
    ```
    Bash({
-     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nExplore backend context boundaries for <change description>:\n- Existing structures and patterns\n- Conventions in use\n- Hard constraints limiting solution space\n- Dependencies and risks\nOUTPUT: JSON using the output template above\nEOF",
+     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nExplore backend context boundaries for <change description>:\n- Existing structures and patterns\n- Conventions in use\n- Hard constraints limiting solution space\n- Dependencies and risks\nOUTPUT: JSON using the output template above\nEOF",
      run_in_background: true,
      timeout: 300000,
      description: "codex: backend boundary exploration"
@@ -82,7 +82,7 @@ description: 'Requirement → Constraint Sets (Parallel Exploration + OPSX Propo
    **SECOND Bash call (antigravity — frontend boundaries) - IN THE SAME MESSAGE**:
    ```
    Bash({
-     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend antigravity - \"{{WORKDIR}}\" <<'EOF'\nExplore frontend context boundaries for <change description>:\n- Existing structures and patterns\n- Conventions in use\n- Hard constraints limiting solution space\n- Dependencies and risks\nOUTPUT: JSON using the output template above\nEOF",
+     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend antigravity - \"{{WORKDIR}}\" <<'EOF'\nExplore frontend context boundaries for <change description>:\n- Existing structures and patterns\n- Conventions in use\n- Hard constraints limiting solution space\n- Dependencies and risks\nOUTPUT: JSON using the output template above\nEOF",
      run_in_background: true,
      timeout: 300000,
      description: "antigravity: frontend boundary exploration"

@@ -1,11 +1,11 @@
 [general]
-version = "2.1.16"
-language = "zh-CN"
+version = "3.1.1"
+language = "en"
 createdAt = "2026-05-24T15:59:57.173Z"
 
 [routing]
 mode = "smart"
-geminiModel = "gemini-3.1-pro-preview"
+geminiModel = "Gemini 3.5 Flash (Medium)"
 
 [routing.frontend]
 models = [ "antigravity" ]
@@ -30,8 +30,8 @@ prompts = "/home/pc/.claude/.ccg/prompts"
 backup = "/home/pc/.claude/.ccg/backup"
 
 [mcp]
-provider = "fast-context"
-setup_url = "https://augmentcode.com/"
+provider = "gitnexus"
+setup_url = "https://gitnexus.com/"
 
 [performance]
 liteMode = false

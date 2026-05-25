@@ -1,13 +1,13 @@
-# Strategy: Optimize Measure — 度量驱动优化
+# Strategy: Optimize Measure
 
-> 适用于性能优化，强调先度量后优化。
+> Suitable for performance optimization. Emphasizes measurement before optimization.
 
-## 适用条件
-- 用户报告性能问题或要求优化
-- 任何复杂度级别
-- 需要数据驱动的优化决策
+## Applicable Conditions
+- User reports performance issues or requests optimization.
+- Any complexity level.
+- Requires data-driven optimization decisions.
 
-## 前置加载（M+ 复杂度时）
+## Pre-loading (For M+ Complexity)
 
 ```
 Read("/home/pc/.claude/.ccg/engine/model-router.md")
@@ -15,89 +15,89 @@ Read("/home/pc/.claude/.ccg/engine/model-router.md")
 
 ---
 
-## 工作流状态机
+## Workflow State Machine
 
 [phase-state:1-baseline]
-当前阶段：性能基线度量
-📍 Next: 基线建立后进入分析
+Current Phase: Performance baseline measurement
+📍 Next: Enter analysis phase after baseline is established
 [/phase-state:1-baseline]
 
 [phase-state:2-analyze]
-当前阶段：瓶颈分析
-Gate: 基线已建立 ✓
-📍 Next: 瓶颈识别后进入优化
+Current Phase: Bottleneck analysis
+Gate: Baseline established ✓
+📍 Next: Enter optimization phase after bottleneck identification
 [/phase-state:2-analyze]
 
 [phase-state:3-optimize]
-当前阶段：针对性优化
-Gate: 瓶颈已识别 ✓
-📍 Next: 优化完成后重新度量
+Current Phase: Targeted optimization
+Gate: Bottleneck identified ✓
+📍 Next: Remeasure after optimization is complete
 [/phase-state:3-optimize]
 
 [phase-state:4-measure]
-当前阶段：优化后度量
-Gate: 优化已应用 ✓
-📍 Next: 对比基线验证效果
+Current Phase: Post-optimization measurement
+Gate: Optimization applied ✓
+📍 Next: Compare against baseline to verify effects
 [/phase-state:4-measure]
 
 ---
 
-## 阶段详情
+## Phase Details
 
-### Phase 1: 性能基线 [required]
+### Phase 1: Performance Baseline [required]
 
-1. 确定度量指标：
-   - 响应时间？吞吐量？内存使用？包大小？加载时间？
-2. 运行基线测试：
-   - `time` 命令 / benchmark / profiler
-   - 记录具体数值
-3. 输出基线：
+1. Determine measurement metrics:
+   - Response time? Throughput? Memory usage? Bundle size? Load time?
+2. Run baseline tests:
+   - `time` command / benchmark / profiler.
+   - Record specific values.
+3. Output baseline:
    ```
-   📊 性能基线
-     指标: [指标名] = [当前值]
-     测试方式: [如何测量的]
-     目标: [用户期望值，如有]
-   ```
-
-### Phase 2: 瓶颈分析
-
-1. 分析代码找出瓶颈
-2. 对于 M+ 复杂度，可选调用外部模型：
-   - backend 模型: optimizer 角色 — 服务端/算法优化建议
-   - frontend 模型: optimizer 角色 — 前端/加载优化建议
-3. 按影响大小排序瓶颈：
-   ```
-   🔍 瓶颈分析
-     1. [位置] — 预估影响: [高/中/低] — [原因]
-     2. [位置] — 预估影响: [高/中/低] — [原因]
+   📊 Performance Baseline
+     Metric: [Metric name] = [Current value]
+     Measurement Method: [How it was measured]
+     Target: [User expected value, if any]
    ```
 
-### Phase 3: 针对性优化
+### Phase 2: Bottleneck Analysis
 
-**一次优化一个瓶颈**（便于验证每个优化的效果）：
-1. 应用优化
-2. 简要说明做了什么
-3. 如果涉及算法变更，确保正确性
-
-### Phase 4: 优化后度量 [required]
-
-1. 使用与 Phase 1 **完全相同的方式**重新度量
-2. 对比基线：
+1. Analyze code to find bottlenecks.
+2. For M+ complexity, optionally invoke external models:
+   - backend model: optimizer role — server-side/algorithmic optimization suggestions.
+   - frontend model: optimizer role — frontend/load optimization suggestions.
+3. Sort bottlenecks by impact:
    ```
-   📊 优化效果
-     指标: [指标名]
-     基线: [优化前值]
-     优化后: [优化后值]
-     提升: [百分比或绝对值]
-     📍 Next: 如需继续优化下一个瓶颈，继续 Phase 2-4 循环
+   🔍 Bottleneck Analysis
+     1. [Location] — Estimated Impact: [High/Medium/Low] — [Reason]
+     2. [Location] — Estimated Impact: [High/Medium/Low] — [Reason]
    ```
-3. 如果效果不明显 → 回退优化，尝试下一个瓶颈
+
+### Phase 3: Targeted Optimization
+
+**Optimize one bottleneck at a time** (for easy validation of each optimization's effect):
+1. Apply optimization.
+2. Briefly explain what was done.
+3. If algorithm changes are involved, ensure correctness.
+
+### Phase 4: Post-Optimization Measurement [required]
+
+1. Remeasure in **exactly the same way** as Phase 1.
+2. Compare against baseline:
+   ```
+   📊 Optimization Effect
+     Metric: [Metric name]
+     Baseline: [Pre-optimization value]
+     Post-Optimization: [Post-optimization value]
+     Improvement: [Percentage or absolute value]
+     📍 Next: To continue optimizing the next bottleneck, continue Phase 2-4 loop
+   ```
+3. If the effect is not significant → Roll back optimization, and try the next bottleneck.
 
 ---
 
-## 铁律
+## Hard Rules
 
-- **不可在没有基线的情况下优化** — Phase 1 不可跳过
-- **优化前后必须有数据对比** — Phase 4 不可跳过
-- **一次只优化一个瓶颈** — 便于归因效果
-- **效果不明显必须回退** — 不可保留无效的"优化"
+- **Do not optimize without a baseline** — Phase 1 cannot be skipped.
+- **Must have data comparison before and after optimization** — Phase 4 cannot be skipped.
+- **Optimize only one bottleneck at a time** — For easy attribution of effects.
+- **Must roll back if the effect is not significant** — Do not retain ineffective "optimizations".

@@ -59,14 +59,14 @@ Refactoring:    refactor → /verify-change → /verify-quality → /verify-secu
 
 ```bash
 # Unified runner
-node /home/pc/.claude/skills/ccg/run_skill.js <skill-name> [args...]
+node /home/thangtn/.claude/skills/ccg/run_skill.js <skill-name> [args...]
 
 # Examples
-node /home/pc/.claude/skills/ccg/run_skill.js verify-security ./src
-node /home/pc/.claude/skills/ccg/run_skill.js verify-quality ./src -v
-node /home/pc/.claude/skills/ccg/run_skill.js verify-change --mode staged
-node /home/pc/.claude/skills/ccg/run_skill.js verify-module ./my-module
-node /home/pc/.claude/skills/ccg/run_skill.js gen-docs ./new-module --force
+node /home/thangtn/.claude/skills/ccg/run_skill.js verify-security ./src
+node /home/thangtn/.claude/skills/ccg/run_skill.js verify-quality ./src -v
+node /home/thangtn/.claude/skills/ccg/run_skill.js verify-change --mode staged
+node /home/thangtn/.claude/skills/ccg/run_skill.js verify-module ./my-module
+node /home/thangtn/.claude/skills/ccg/run_skill.js gen-docs ./new-module --force
 ```
 
 ---

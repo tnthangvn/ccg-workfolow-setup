@@ -33,7 +33,7 @@ You are the **analysis coordinator**, orchestrating the multi-model analysis flo
 
 ```
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -51,8 +51,8 @@ EOF",
 
 | Model | Prompt |
 |------|--------|
-| Backend | `/home/pc/.claude/.ccg/prompts/codex/analyzer.md` |
-| Frontend | `/home/pc/.claude/.ccg/prompts/antigravity/analyzer.md` |
+| Backend | `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md` |
+| Frontend | `/home/thangtn/.claude/.ccg/prompts/antigravity/analyzer.md` |
 
 **Parallel calls**: start with `run_in_background: true` and wait with `TaskOutput`. **Must wait for all models before moving to the next phase**.
 
@@ -83,7 +83,7 @@ If still unfinished after 10 minutes, continue polling with `TaskOutput`; **neve
 
 `[Mode: Research]`
 
-1. Call `mcp__fast-context__fast_context_search` to retrieve related code
+1. **Code Retrieval** (if GitNexus MCP is available): Call `mcp__gitnexus__query` to retrieve related code. If GitNexus is not available (e.g. missing API key or index not initialized), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
 2. Identify the analysis scope and key components
 3. List known constraints and assumptions
 
@@ -94,11 +94,11 @@ If still unfinished after 10 minutes, continue polling with `TaskOutput`; **neve
 **⚠️ Must launch two Bash calls in parallel** (per the invocation rules above):
 
 1. **codex backend analysis**: `Bash({ command: "...--backend codex...", run_in_background: true })`
-   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/analyzer.md`
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md`
    - OUTPUT: technical feasibility, architecture impact, performance considerations
 
 2. **antigravity frontend analysis**: `Bash({ command: "...--backend antigravity...", run_in_background: true })`
-   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/analyzer.md`
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/antigravity/analyzer.md`
    - OUTPUT: UI/UX impact, user experience, visual design considerations
 
 Use `TaskOutput` to wait for the full results from both models. **Must wait for all models before moving to the next phase**.

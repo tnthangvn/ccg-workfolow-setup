@@ -16,7 +16,7 @@ description: 'Agent Teams Planning - Lead calls Backend/Frontend models for para
 **Steps**
 1. **Context Collection**
    - Use Glob/Grep/Read to analyze project structure, tech stack, and existing code patterns.
-   - Prioritize semantic retrieval if `mcp__fast-context__fast_context_search` is available.
+   - Prioritize semantic retrieval if GitNexus MCP (`mcp__gitnexus__query`) is available. If GitNexus is not available (e.g. missing API key or index not initialized), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
    - Organize: tech stack, directory structure, key files, and existing patterns.
 
 2. **Multi-Model Parallel Analysis (PARALLEL)**
@@ -26,7 +26,7 @@ description: 'Agent Teams Planning - Lead calls Backend/Frontend models for para
    **FIRST Bash call (codex)**:
    ```
    Bash({
-     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/analyzer.md\n<TASK>\nRequirement: $ARGUMENTS\nContext: <Project structure and key code collected in Step 1>\n</TASK>\nOUTPUT:\n1) Technical feasibility assessment\n2) Recommended architectural solution (precise to files and functions)\n3) Detailed implementation steps\n4) Risk assessment\nEOF",
+     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/thangtn/.claude/.ccg/prompts/codex/analyzer.md\n<TASK>\nRequirement: $ARGUMENTS\nContext: <Project structure and key code collected in Step 1>\n</TASK>\nOUTPUT:\n1) Technical feasibility assessment\n2) Recommended architectural solution (precise to files and functions)\n3) Detailed implementation steps\n4) Risk assessment\nEOF",
      run_in_background: true,
      timeout: 3600000,
      description: "codex backend analysis"
@@ -36,7 +36,7 @@ description: 'Agent Teams Planning - Lead calls Backend/Frontend models for para
    **SECOND Bash call (antigravity) - IN THE SAME MESSAGE**:
    ```
    Bash({
-     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend antigravity - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/antigravity/analyzer.md\n<TASK>\nRequirement: $ARGUMENTS\nContext: <Project structure and key code collected in Step 1>\n</TASK>\nOUTPUT:\n1) UI/UX solution\n2) Component breakdown suggestions (precise to files and functions)\n3) Detailed implementation steps\n4) Interactive design key points\nEOF",
+     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend antigravity - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/thangtn/.claude/.ccg/prompts/antigravity/analyzer.md\n<TASK>\nRequirement: $ARGUMENTS\nContext: <Project structure and key code collected in Step 1>\n</TASK>\nOUTPUT:\n1) UI/UX solution\n2) Component breakdown suggestions (precise to files and functions)\n3) Detailed implementation steps\n4) Interactive design key points\nEOF",
      run_in_background: true,
      timeout: 3600000,
      description: "antigravity frontend analysis"

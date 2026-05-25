@@ -38,7 +38,7 @@ You are the **test engineer**, orchestrating the test generation flow:
 
 ```
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: Generate tests for the following code:
@@ -60,8 +60,8 @@ EOF",
 
 | Model | Prompt |
 |------|--------|
-| Backend | `/home/pc/.claude/.ccg/prompts/codex/tester.md` |
-| Frontend | `/home/pc/.claude/.ccg/prompts/antigravity/tester.md` |
+| Backend | `/home/thangtn/.claude/.ccg/prompts/codex/tester.md` |
+| Frontend | `/home/thangtn/.claude/.ccg/prompts/antigravity/tester.md` |
 
 **Intelligent Routing**:
 
@@ -112,14 +112,14 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 **⚠️ Must call the corresponding model based on code type** (refer to invocation rules above):
 
 - **Backend code** → `Bash({ command: "...--backend codex...", run_in_background: false })`
-  - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/tester.md`
+  - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/tester.md`
 - **Frontend code** → `Bash({ command: "...--backend antigravity...", run_in_background: false })`
-  - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/tester.md`
+  - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/antigravity/tester.md`
 - **Full-stack code** → Call both in parallel:
   1. `Bash({ command: "...--backend codex...", run_in_background: true })`
-     - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/tester.md`
+     - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/tester.md`
   2. `Bash({ command: "...--backend antigravity...", run_in_background: true })`
-     - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/tester.md`
+     - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/antigravity/tester.md`
   Wait for results with `TaskOutput`.
 
 OUTPUT: Complete test code (using existing project test framework, covering happy paths, boundary conditions, and exception handling).

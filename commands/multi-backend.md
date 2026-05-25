@@ -15,7 +15,7 @@ Backend-focused workflow (Research → Ideation → Plan → Execute → Optimiz
 ## Context
 
 - Backend task: $ARGUMENTS
-- Codex-led, Gemini for auxiliary reference
+- Codex-led, Antigravity for auxiliary reference
 - Applicable: API design, algorithm implementation, database optimization, business logic
 
 ## Your Role
@@ -24,7 +24,7 @@ You are the **Backend Orchestrator**, coordinating multi-model collaboration for
 
 **Collaborative Models**:
 - **Codex** – Backend logic, algorithms (**Backend authority, trustworthy**)
-- **Gemini** – Frontend perspective (**Backend opinions for reference only**)
+- **Antigravity** – Frontend perspective (Backend opinions for reference only)
 - **Claude (self)** – Orchestration, planning, execution, delivery
 
 ---
@@ -73,7 +73,7 @@ EOF",
 | Planning | `~/.claude/.ccg/prompts/codex/architect.md` |
 | Review | `~/.claude/.ccg/prompts/codex/reviewer.md` |
 
-**Session Reuse**: Each call returns `SESSION_ID: xxx`, use `resume xxx` for subsequent phases. Save `CODEX_SESSION` in Phase 2, use `resume` in Phases 3 and 5.
+**Session Reuse**: Each call returns `SESSION_ID: xxx`, use `resume xxx` for subsequent phases. Save `CODEX_SESSION` in Phase 3. [MUST] Resume the existing `CODEX_SESSION` in Phase 4 and Phase 6. Do not initialize a new session for Phase 6.
 
 ---
 
@@ -87,44 +87,44 @@ EOF",
 
 ## Core Workflow
 
-### Phase 0: Prompt Enhancement (Optional)
-
-`[Mode: Prepare]` - If ace-tool MCP available, call `mcp__ace-tool__enhance_prompt`, **replace original $ARGUMENTS with enhanced result for subsequent Codex calls**. If unavailable, use `$ARGUMENTS` as-is.
-
-### Phase 1: Research
+### Phase 1: Research (Context Retrieval)
 
 `[Mode: Research]` - Understand requirements and gather context
 
-1. **Code Retrieval** (if ace-tool MCP available): Call `mcp__ace-tool__search_context` to retrieve existing APIs, data models, service architecture. If unavailable, use built-in tools: `Glob` for file discovery, `Grep` for symbol/API search, `Read` for context gathering, `Task` (Explore agent) for deeper exploration.
+1. **Code Retrieval** (if GitNexus MCP available): Call `mcp__gitnexus__query` to retrieve existing APIs, data models, service architecture. (Use Glob / Grep fallback or standard system calls to list files or directories if needed). If unavailable, use built-in tools: `Glob` for file discovery, `Grep` for symbol/API search, `Read` for context gathering, `Task` (Explore agent) for deeper exploration.
+
+### Phase 2: Prompt Enhancement (Inference) (Optional)
+
+`[Mode: Prepare]` - Perform prompt enhancement (follow `/ccg:enhance` logic): Claude (self) self-infers and enhances the prompt from the results of `mcp__gitnexus__query` (or fallback tools) and `$ARGUMENTS`, expanding it, and **replaces the original $ARGUMENTS with the enhanced result for subsequent Codex calls**.
 2. Requirement completeness score (0-10): >=7 continue, <7 stop and supplement
 
-### Phase 2: Ideation
+### Phase 3: Ideation
 
 `[Mode: Ideation]` - Codex-led analysis
 
 **MUST call Codex** (follow call specification above):
 - ROLE_FILE: `~/.claude/.ccg/prompts/codex/analyzer.md`
 - Requirement: Enhanced requirement (or $ARGUMENTS if not enhanced)
-- Context: Project context from Phase 1
+- Context: Project context from Phase 1 & 2
 - OUTPUT: Technical feasibility analysis, recommended solutions (at least 2), risk assessment
 
 **Save SESSION_ID** (`CODEX_SESSION`) for subsequent phase reuse.
 
 Output solutions (at least 2), wait for user selection.
 
-### Phase 3: Planning
+### Phase 4: Planning
 
 `[Mode: Plan]` - Codex-led planning
 
 **MUST call Codex** (use `resume <CODEX_SESSION>` to reuse session):
 - ROLE_FILE: `~/.claude/.ccg/prompts/codex/architect.md`
 - Requirement: User's selected solution
-- Context: Analysis results from Phase 2
+- Context: Analysis results from Phase 3
 - OUTPUT: File structure, function/class design, dependency relationships
 
 Claude synthesizes plan, save to `.claude/plan/task-name.md` after user approval.
 
-### Phase 4: Implementation
+### Phase 5: Implementation
 
 `[Mode: Execute]` - Code development
 
@@ -132,11 +132,12 @@ Claude synthesizes plan, save to `.claude/plan/task-name.md` after user approval
 - Follow existing project code standards
 - Ensure error handling, security, performance optimization
 
-### Phase 5: Optimization
+### Phase 6: Optimization
 
 `[Mode: Optimize]` - Codex-led review
 
 **MUST call Codex** (follow call specification above):
+[MUST] Resume the existing CODEX_SESSION. Do not initialize a new session for this optimization phase.
 - ROLE_FILE: `~/.claude/.ccg/prompts/codex/reviewer.md`
 - Requirement: Review the following backend code changes
 - Context: git diff or code content
@@ -144,7 +145,7 @@ Claude synthesizes plan, save to `.claude/plan/task-name.md` after user approval
 
 Integrate review feedback, execute optimization after user confirmation.
 
-### Phase 6: Quality Review
+### Phase 7: Quality Review
 
 `[Mode: Review]` - Final evaluation
 
@@ -157,6 +158,6 @@ Integrate review feedback, execute optimization after user confirmation.
 ## Key Rules
 
 1. **Codex backend opinions are trustworthy**
-2. **Gemini backend opinions for reference only**
+2. **Antigravity backend opinions for reference only**
 3. External models have **zero filesystem write access**
 4. Claude handles all code writes and file operations

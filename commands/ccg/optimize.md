@@ -38,7 +38,7 @@ You are the **performance engineer**, orchestrating the multi-model refinement f
 
 ```
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -56,8 +56,8 @@ EOF",
 
 | Model | Prompt |
 |------|--------|
-| Backend | `/home/pc/.claude/.ccg/prompts/codex/optimizer.md` |
-| Frontend | `/home/pc/.claude/.ccg/prompts/antigravity/optimizer.md` |
+| Backend | `/home/thangtn/.claude/.ccg/prompts/codex/optimizer.md` |
+| Frontend | `/home/thangtn/.claude/.ccg/prompts/antigravity/optimizer.md` |
 
 **Parallel calls**: Start with `run_in_background: true`, wait for results with `TaskOutput`. **Must wait for all models before entering the next phase.**
 
@@ -94,7 +94,7 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 
 `[Mode: Research]`
 
-1. Call `mcp__fast-context__fast_context_search` to retrieve target code (if available).
+1. **Code Retrieval** (if GitNexus MCP is available): Call `mcp__gitnexus__query` to retrieve target code. If GitNexus is not available (e.g. missing API key or index not initialized), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
 2. Identify performance critical paths.
 3. Collect existing metrics (if any).
 
@@ -105,12 +105,12 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 **⚠️ Must launch two parallel Bash calls** (per the invocation rules above):
 
 1. **codex backend analysis**: `Bash({ command: "...--backend codex...", run_in_background: true })`
-   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/optimizer.md`
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/optimizer.md`
    - Requirement: Analyze backend performance issues ($ARGUMENTS)
    - OUTPUT: Performance bottleneck list, refinement solutions, expected benefits
 
 2. **antigravity frontend analysis**: `Bash({ command: "...--backend antigravity...", run_in_background: true })`
-   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/optimizer.md`
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/antigravity/optimizer.md`
    - Requirement: Analyze frontend performance issues (Core Web Vitals)
    - OUTPUT: Performance bottleneck list, refinement solutions, expected benefits
 

@@ -6,8 +6,8 @@ Translate `~/.claude/skills/ccg` Chinese prose into English without changing log
 ## codex Analysis Summary
 Codex owns technical, orchestration, infra, security, and system docs. Translation must preserve semantic precision, prompt behavior, architecture terminology, and all executable syntax exactly. Final checks require no Chinese characters remain and no logic drift in orchestration or tooling docs.
 
-## gemini Analysis Summary
-Gemini owns UI/UX, reference, and human-facing docs. Translation must favor natural English readability while preserving design-system semantics, formatting, and examples exactly. Final checks require no Chinese characters remain in assigned files.
+## antigravity Analysis Summary
+Antigravity owns UI/UX, reference, and human-facing docs. Translation must favor natural English readability while preserving design-system semantics, formatting, and examples exactly. Final checks require no Chinese characters remain in assigned files.
 
 ## Technical Solution
 Use two isolated translation passes by document family. First pass covers frontend, human-facing, and reference content; second pass covers system, orchestration, security, and tooling content. Translate only Chinese prose, comments, and documentation text. Keep all filenames, directories, YAML/JSON keys, shell commands, paths, and code blocks unchanged. Verify each file with a Chinese grep check, then run a repository-wide grep to confirm zero Chinese text remains.

@@ -29,7 +29,7 @@ $ARGUMENTS
 
 ```
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement>
@@ -47,8 +47,8 @@ EOF",
 
 | Phase | Backend | Frontend |
 |-------|---------|----------|
-| Analysis | `/home/pc/.claude/.ccg/prompts/codex/analyzer.md` | `/home/pc/.claude/.ccg/prompts/antigravity/analyzer.md` |
-| Planning | `/home/pc/.claude/.ccg/prompts/codex/architect.md` | `/home/pc/.claude/.ccg/prompts/antigravity/architect.md` |
+| Analysis | `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/analyzer.md` |
+| Planning | `/home/thangtn/.claude/.ccg/prompts/codex/architect.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/architect.md` |
 
 **Session reuse**: Each call returns `SESSION_ID: xxx` (usually output by the wrapper), **must be saved** for later use in `/ccg:execute`.
 
@@ -81,18 +81,17 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 
 #### 1.2 Context Retrieval
 
-**Call the `mcp__fast-context__fast_context_search` tool**:
+**Call the `mcp__gitnexus__query` tool**:
 
 ```
-mcp__fast-context__fast_context_search({
-  query: "<semantic query built from enhanced requirement>",
-  project_root_path: "{{WORKDIR}}"
+mcp__gitnexus__query({
+  query: "<semantic query built from enhanced requirement>"
 })
 ```
 
 - Use natural language to build semantic queries (Where/What/How).
 - **Prohibit answers based on assumptions.**
-- If MCP is unavailable: fall back to Glob + Grep for file discovery and key symbol localization.
+- If GitNexus is not available (e.g. missing API key or index not initialized): fallback to discovering and reading files directly using built-in search/view tools (e.g., Glob, Grep, view_file, read_file).
 
 #### 1.3 Integrity Check
 
@@ -116,16 +115,16 @@ mcp__fast-context__fast_context_search({
 Distribute the **original requirement** (without preset viewpoints) to both models:
 
 1. **codex backend analysis**:
-   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/analyzer.md`
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md`
    - Focus: technical feasibility, architectural impact, performance considerations, potential risks.
    - OUTPUT: multi-perspective solutions + pros and cons analysis.
 
 2. **antigravity frontend analysis**:
-   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/analyzer.md`
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/antigravity/analyzer.md`
    - Focus: UI/UX impact, user experience, visual design.
    - OUTPUT: multi-perspective solutions + pros and cons analysis.
 
-Use `TaskOutput` to wait for full results from both models. **📌 Save SESSION_ID** (`CODEX_SESSION` and `GEMINI_SESSION`).
+Use `TaskOutput` to wait for full results from both models. **📌 Save SESSION_ID** (`CODEX_SESSION` and `ANTIGRAVITY_SESSION`).
 
 #### 2.2 Cross-validation
 
@@ -141,11 +140,11 @@ Synthesize thoughts from all sides, perform iterative refinement:
 To reduce the risk of omissions in Claude's synthesized plan, have both models output "Draft Plans" in parallel (still **not allowed** to modify files):
 
 1. **codex Draft Plan** (backend authoritative):
-   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/architect.md`
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/architect.md`
    - OUTPUT: Step-by-step plan + pseudo-code (focus: data flow/boundary conditions/error handling/testing strategy).
 
 2. **antigravity Draft Plan** (frontend authoritative):
-   - ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/architect.md`
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/antigravity/architect.md`
    - OUTPUT: Step-by-step plan + pseudo-code (focus: information architecture/interaction/accessibility/visual consistency).
 
 Use `TaskOutput` to wait for full results from both models, and record the key differences in their suggestions.
@@ -181,7 +180,7 @@ Synthesize analysis from both sides, generate a **Step-by-step Implementation Pl
 
 ### SESSION_ID (for /ccg:execute use)
 - CODEX_SESSION: <session_id>
-- GEMINI_SESSION: <session_id>
+- ANTIGRAVITY_SESSION: <session_id>
 ```
 
 ### ⛔ Phase 2 End: Plan Delivery (Not Execution)
@@ -254,4 +253,4 @@ After the user is satisfied with the review, **manually** execute:
 2. **Do Not Ask Y/N** – Just present the plan and let the user decide the next step.
 3. **Trust Rules** – Backend based on codex, frontend based on antigravity.
 4. External models have **zero write access** to the filesystem.
-5. **SESSION_ID Handover** – The end of the plan must contain `CODEX_SESSION` / `GEMINI_SESSION` (for `/ccg:execute resume <SESSION_ID>` use).
+5. **SESSION_ID Handover** – The end of the plan must contain `CODEX_SESSION` / `ANTIGRAVITY_SESSION` (for `/ccg:execute resume <SESSION_ID>` use).

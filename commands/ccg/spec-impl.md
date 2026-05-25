@@ -55,7 +55,7 @@ description: 'Execute according to specification + Multi-model collaboration + A
    EOF
    ```
 
-   **Session reuse**: Save the returned `SESSION_ID:` (codex → `CODEX_PROTO_SESSION`, antigravity → `GEMINI_PROTO_SESSION`) for reuse during review in Step 7.
+   **Session reuse**: Save the returned `SESSION_ID:` (codex → `CODEX_PROTO_SESSION`, antigravity → `ANTIGRAVITY_PROTO_SESSION`) for reuse during review in Step 7.
 
 5. **Rewrite Prototype to Production Code**
    Upon receiving diff patch, **NEVER apply directly**. Rewrite by:
@@ -83,7 +83,7 @@ description: 'Execute according to specification + Multi-model collaboration + A
    **FIRST Bash call (codex)**:
    ```
    Bash({
-     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex resume <CODEX_PROTO_SESSION> - \"{{WORKDIR}}\" <<'EOF'\nReview the implementation changes:\n- Correctness: logic errors, edge cases\n- Security: injection, auth issues\n- Spec compliance: constraints satisfied\nOUTPUT: JSON with findings\nEOF",
+     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex resume <CODEX_PROTO_SESSION> - \"{{WORKDIR}}\" <<'EOF'\nReview the implementation changes:\n- Correctness: logic errors, edge cases\n- Security: injection, auth issues\n- Spec compliance: constraints satisfied\nOUTPUT: JSON with findings\nEOF",
      run_in_background: true,
      timeout: 300000,
      description: "codex: correctness/security review"
@@ -93,7 +93,7 @@ description: 'Execute according to specification + Multi-model collaboration + A
    **SECOND Bash call (antigravity) - IN THE SAME MESSAGE**:
    ```
    Bash({
-     command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend antigravity resume <GEMINI_PROTO_SESSION> - \"{{WORKDIR}}\" <<'EOF'\nReview the implementation changes:\n- Maintainability: readability, complexity\n- Patterns: consistency with project style\n- Integration: cross-module impacts\nOUTPUT: JSON with findings\nEOF",
+     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend antigravity resume <ANTIGRAVITY_PROTO_SESSION> - \"{{WORKDIR}}\" <<'EOF'\nReview the implementation changes:\n- Maintainability: readability, complexity\n- Patterns: consistency with project style\n- Integration: cross-module impacts\nOUTPUT: JSON with findings\nEOF",
      run_in_background: true,
      timeout: 300000,
      description: "antigravity: maintainability/patterns review"

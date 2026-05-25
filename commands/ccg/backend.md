@@ -39,7 +39,7 @@ You are the **backend orchestrator**, coordinating multiple models to complete s
 ```
 # New session invocation
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -54,7 +54,7 @@ EOF",
 
 # Resume session invocation
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -72,9 +72,9 @@ EOF",
 
 | Phase | Backend |
 |-------|---------|
-| Analysis | `/home/pc/.claude/.ccg/prompts/codex/analyzer.md` |
-| Planning | `/home/pc/.claude/.ccg/prompts/codex/architect.md` |
-| Review | `/home/pc/.claude/.ccg/prompts/codex/reviewer.md` |
+| Analysis | `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md` |
+| Planning | `/home/thangtn/.claude/.ccg/prompts/codex/architect.md` |
+| Review | `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md` |
 
 **Session reuse**: Each call returns `SESSION_ID: xxx`, subsequent phases use `resume xxx` to reuse context. Phase 2 saves `CODEX_SESSION`, Phase 3 and 5 use `resume` for reuse.
 
@@ -100,7 +100,7 @@ EOF",
 
 `[Mode: Research]` - Understand requirements and collect context
 
-1. **Code retrieval** (if the ace-tool MCP is available): Call `mcp__fast-context__fast_context_search` to retrieve existing APIs, data models, and service architecture.
+1. **Code Retrieval** (if GitNexus MCP is available): Call `mcp__gitnexus__query` to retrieve existing APIs, data models, and service architecture. If GitNexus is not available (e.g. missing API key or index not initialized), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
 2. Requirement completeness score (0-10): Continue if ≥7, otherwise stop and gather more information.
 
 ### 💡 Phase 2: Ideation
@@ -108,7 +108,7 @@ EOF",
 `[Mode: Ideation]` - codex-led analysis
 
 **⚠️ Must call codex** (refer to invocation rules above):
-- ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/analyzer.md`
+- ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md`
 - Requirement: Enhanced requirement (or $ARGUMENTS if not enhanced)
 - Context: Project context collected in Phase 1
 - OUTPUT: Technical feasibility analysis, recommended options (at least 2), risk assessment
@@ -122,7 +122,7 @@ Output options (at least 2) and wait for the user to choose.
 `[Mode: Planning]` - codex-led planning
 
 **⚠️ Must call codex** (using `resume <CODEX_SESSION>` to reuse session):
-- ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/architect.md`
+- ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/architect.md`
 - Requirement: The solution chosen by the user
 - Context: Analysis results from Phase 2
 - OUTPUT: File structure, function/class design, dependencies
@@ -142,7 +142,7 @@ Claude synthesizes the plan and saves it to `.claude/plan/task-name.md` after us
 `[Mode: Refinement]` - codex-led review
 
 **⚠️ Must call codex** (refer to invocation rules above):
-- ROLE_FILE: `/home/pc/.claude/.ccg/prompts/codex/reviewer.md`
+- ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md`
 - Requirement: Review the following backend code changes
 - Context: git diff or code content
 - OUTPUT: A list of issues regarding security, performance, error handling, and API conventions

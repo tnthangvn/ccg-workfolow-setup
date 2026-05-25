@@ -1,96 +1,96 @@
-# Strategy: Quick Implement — 快速实现
+# Strategy: Quick Implement
 
-> 适用于范围清晰的小功能开发。Claude 独立完成，不调用外部模型。
+> Suitable for small feature development with a clear scope. Claude completes it independently without calling external models.
 
-## 适用条件
-- 复杂度 S（单文件/单组件，<30 行变更）
-- 需求明确，无需架构决策
-- 风险 low
+## Applicable Conditions
+- Complexity S (single file/component, <30 lines of changes).
+- Clear requirements, no architectural decisions required.
+- Low risk.
 
 ---
 
-## 工作流状态机
+## Workflow State Machine
 
 [phase-state:1-context]
-当前阶段：上下文收集
-📍 Next: 了解现有代码模式后进入计划阶段
+Current Phase: Context collection
+📍 Next: Enter planning phase after understanding existing code patterns
 [/phase-state:1-context]
 
 [phase-state:2-plan]
-当前阶段：简要计划
-Gate: 上下文已收集 ✓
-📍 Next: 用户确认计划后进入实施阶段
+Current Phase: Brief plan
+Gate: Context collected ✓
+📍 Next: Enter implementation phase after user confirms the plan
 [/phase-state:2-plan]
 
 [phase-state:3-implement]
-当前阶段：实施
-Gate: 用户已确认计划 ✓
-📍 Next: 实施完成后进入验证阶段
+Current Phase: Implementation
+Gate: User confirmed plan ✓
+📍 Next: Enter verification phase after implementation is complete
 [/phase-state:3-implement]
 
 [phase-state:4-verify]
-当前阶段：验证
-Gate: 实施已完成 ✓
-📍 Next: 验证通过后报告结果
+Current Phase: Verification
+Gate: Implementation complete ✓
+📍 Next: Report results after verification passes
 [/phase-state:4-verify]
 
 ---
 
-## 阶段详情
+## Phase Details
 
-### Phase 1: 上下文收集 [required]
+### Phase 1: Context Collection [required]
 
-1. 用 MCP 搜索工具或 Grep 搜索与需求相关的现有代码
-2. 读取目标文件，理解：
-   - 现有代码模式和规范
-   - 相关的类型定义/接口
-   - 已有的类似实现（可复用的模式）
+1. Search for existing code related to the requirements using MCP search tools or Grep.
+2. Read the target files to understand:
+   - Existing code patterns and standards.
+   - Relevant type definitions/interfaces.
+   - Similar existing implementations (reusable patterns).
 
-### Phase 2: 简要计划 [required]
+### Phase 2: Brief Plan [required]
 
-输出 3-5 步实施计划，简洁明了：
+Output a brief 3-5 step implementation plan that is clear and concise:
 
 ```
-📝 实施计划
-  1. [具体步骤]
-  2. [具体步骤]
-  3. [具体步骤]
-  预计变更: [N] 文件
+📝 Implementation Plan
+  1. [Specific step]
+  2. [Specific step]
+  3. [Specific step]
+  Expected Changes: [N] files
 ```
 
-等待用户确认或调整。
+Wait for user confirmation or adjustments.
 
-### Phase 3: 实施
+### Phase 3: Implementation
 
-1. 按计划逐步执行
-2. 遵循项目现有的代码规范和命名约定
-3. 不引入新的依赖（除非计划中已说明）
+1. Execute step-by-step according to the plan.
+2. Adhere to the project's existing code standards and naming conventions.
+3. Do not introduce new dependencies (unless specified in the plan).
 
-### Phase 4: 验证
+### Phase 4: Verification
 
-1. `git diff` 展示变更
-2. 如果项目有测试 → 运行相关测试
-3. **质量快检**（变更 >30 行时）：`/verify-quality` 检测代码质量
-4. 如果涉及认证/输入处理/加密 → `/verify-security` 安全扫描
-5. 输出结果：
+1. Display changes using `git diff`.
+2. If the project has tests → Run relevant tests.
+3. **Quality Quick Check** (when changes >30 lines): `/verify-quality` to detect code quality.
+4. If it involves authentication/input handling/security-related code → `/verify-security` safety scan.
+5. Output results:
    ```
-   ✅ 实现完成
-     变更: [N] 文件，[M] 行
-     新增: [描述]
-     📍 Next: 可以用 /ccg:commit 提交
+   ✅ Implementation Complete
+     Changes: [N] files, [M] lines
+     Additions: [Description]
+     📍 Next: Can submit using /ccg:commit
    ```
 
 ---
 
-## 升级规则
+## Upgrade Rules
 
-- 涉及 3+ 文件或需要架构决策 → 升级到 `guided-develop`
-- 涉及认证/数据库等高风险领域 → 升级到 `guided-develop`
+- If 3+ files are involved or architectural decisions are required → Upgrade to `guided-develop`.
+- If high-risk areas like authentication/databases are involved → Upgrade to `guided-develop`.
 
 ---
 
-## 铁律
+## Hard Rules
 
-- **不可跳过 Phase 2 计划步骤** — 即使"很简单"也要列出步骤
-- **不引入未计划的变更** — 只做用户要求的，不"顺手"改其他东西
-- **遵循现有规范** — 新代码必须与现有代码风格一致
+- **Do not skip the Phase 2 planning step** — Even if it is "very simple", list the steps.
+- **Do not introduce unplanned changes** — Only do what the user requests; do not do "convenience refactoring".
+- **Follow existing standards** — New code must style-match the existing code.

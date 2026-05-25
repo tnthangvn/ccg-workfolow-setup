@@ -11,7 +11,7 @@ Security Verification Checkpoint. Automatically scans for code security vulnerab
 Execute the following command:
 
 ```bash
-node "/home/pc/.claude/skills/ccg/run_skill.js" verify-security $ARGUMENTS
+node "/home/thangtn/.claude/skills/ccg/run_skill.js" verify-security $ARGUMENTS
 ```
 
-For a detailed description of this skill, please read: /home/pc/.claude/skills/ccg/tools/verify-security/SKILL.md
+For a detailed description of this skill, please read: /home/thangtn/.claude/skills/ccg/tools/verify-security/SKILL.md

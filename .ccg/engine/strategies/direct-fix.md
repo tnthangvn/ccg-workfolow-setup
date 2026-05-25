@@ -1,108 +1,108 @@
-# Strategy: Direct Fix — 直接修复
+# Strategy: Direct Fix
 
-> 适用于范围清晰、单文件的简单 bug 修复。Claude 独立完成，不调用外部模型。
+> Suitable for simple bug fixes with a clear scope and a single file. Claude completes it independently without calling external models.
 
-## 适用条件
-- 复杂度 S（单文件，<30 行变更）
-- 错误信息或复现路径明确
-- 风险 low 或 medium
+## Applicable Conditions
+- Complexity S (single file, <30 lines of changes).
+- Error message or reproduction path is clear.
+- Low or medium risk.
 
 ---
 
-## 工作流状态机
+## Workflow State Machine
 
 [phase-state:1-locate]
-当前阶段：定位问题代码
-Gate: 项目上下文已获取 ✓（由 /ccg Phase 1 完成）
-📍 Next: 找到问题代码后进入诊断阶段
+Current Phase: Locate problematic code
+Gate: Project context obtained ✓ (Completed by /ccg Phase 1)
+📍 Next: Enter diagnostic phase after finding the problematic code
 [/phase-state:1-locate]
 
 [phase-state:2-diagnose]
-当前阶段：诊断根因
-Gate: 已找到相关代码 ✓
-📍 Next: 确定根因后进入修复阶段
+Current Phase: Diagnose root cause
+Gate: Relevant code found ✓
+📍 Next: Enter fix phase after determining root cause
 [/phase-state:2-diagnose]
 
 [phase-state:3-fix]
-当前阶段：应用修复
-Gate: 根因已确定 ✓
-📍 Next: 修复完成后进入验证阶段
+Current Phase: Apply fix
+Gate: Root cause determined ✓
+📍 Next: Enter verification phase after fix is complete
 [/phase-state:3-fix]
 
 [phase-state:4-verify]
-当前阶段：验证修复
-Gate: 修复已应用 ✓
-📍 Next: 验证通过后报告结果，建议提交
+Current Phase: Verify fix
+Gate: Fix applied ✓
+📍 Next: Report results and suggest submission after verification passes
 [/phase-state:4-verify]
 
 ---
 
-## 阶段详情
+## Phase Details
 
-### Phase 1: 定位 [required]
+### Phase 1: Locate [required]
 
-1. 从用户描述中提取关键信息：
-   - 错误消息（如果有）
-   - 发生位置（文件、功能、页面）
-   - 复现步骤
+1. Extract key information from user descriptions:
+   - Error messages (if any).
+   - Occurrence location (file, feature, page).
+   - Reproduction steps.
 
-2. 搜索相关代码：
-   - 有错误消息 → `Grep` 搜索错误文本
-   - 有文件/函数名 → 直接 `Read` 目标文件
-   - 信息不足 → 用 MCP 搜索工具或 `Grep` 按关键词搜索
+2. Search for relevant code:
+   - Error message exists → `Grep` search for error text.
+   - File/function name exists → Directly `Read` the target file.
+   - Insufficient information → Search by keywords using MCP search tools or `Grep`.
 
-3. 读取找到的代码文件，理解上下文
+3. Read the identified code files to understand the context.
 
-### Phase 2: 诊断 [required]
+### Phase 2: Diagnose [required]
 
-1. 分析代码逻辑，找到 bug 的根因
-2. 如果有多个可能原因，按可能性排序
-3. 简要说明诊断结果：
+1. Analyze code logic to find the root cause of the bug.
+2. If there are multiple potential causes, sort them by probability.
+3. Briefly explain diagnostic results:
    ```
-   🔍 诊断
-     文件: [path:line]
-     根因: [一句话说明]
-     修复方案: [一句话说明]
+   🔍 Diagnosis
+     File: [path:line]
+     Root Cause: [One-sentence explanation]
+     Fix Plan: [One-sentence explanation]
    ```
 
-### Phase 3: 修复
+### Phase 3: Fix
 
-1. 应用最小修复（只改必要的部分）
-2. 如果项目有测试 → 运行相关测试
-3. 如果没有测试 → 建议但不强制添加
+1. Apply minimal fix (change only necessary parts).
+2. If the project has tests → Run relevant tests.
+3. If there are no tests → Recommended but not mandatory to add them.
 
-### Phase 4: 验证
+### Phase 4: Verification
 
-1. `git diff` 展示变更
-2. 确认修复合理性：
-   - 变更范围是否最小？
-   - 是否引入新问题？
-   - 边界条件是否考虑？
-3. 如果修复涉及认证/输入处理/安全相关代码 → `/verify-security` 安全扫描
-4. 输出结果：
+1. Display changes using `git diff`.
+2. Confirm the rationality of the fix:
+   - Is the change scope minimal?
+   - Does it introduce new issues?
+   - Are edge cases considered?
+3. If the fix involves authentication/input handling/security-related code → `/verify-security` safety scan.
+4. Output results:
    ```
-   ✅ 修复完成
-     变更: [N] 文件，[M] 行
-     根因: [简述]
-     修复: [简述]
-     📍 Next: 可以用 /ccg:commit 提交
+   ✅ Fix Complete
+     Changes: [N] files, [M] lines
+     Root Cause: [Brief description]
+     Fix: [Brief description]
+     📍 Next: Can submit using /ccg:commit
    ```
 
 ---
 
-## 升级规则
+## Upgrade Rules
 
-如果在 Phase 1-2 中发现以下情况，建议升级：
-- 涉及 3+ 文件 → 升级到 `guided-develop`
-- 原因不明，需要深度调试 → 升级到 `debug-investigate`
-- 涉及架构问题 → 升级到 `refactor-safely`
+If the following situations are discovered during Phase 1-2, upgrading is recommended:
+- 3+ files are involved → Upgrade to `guided-develop`.
+- Cause is unknown and deep debugging is needed → Upgrade to `debug-investigate`.
+- Involves architectural issues → Upgrade to `refactor-safely`.
 
-告知用户并等待确认后切换策略。
+Inform the user and switch strategies after waiting for confirmation.
 
 ---
 
-## 铁律
+## Hard Rules
 
-- **不可在未读代码的情况下猜测修复方案** — Phase 1 必须实际读取代码
-- **最小修复原则** — 只改导致 bug 的部分，不做"顺手重构"
-- **不可跳过诊断直接改代码** — 即使"一眼看出问题"，也要经过 Phase 2 确认根因
+- **Do not guess fix schemes without reading the code** — Phase 1 must actually read the code.
+- **Minimal fix principle** — Only modify the part causing the bug, do no "convenience refactoring".
+- **Do not skip diagnostics to modify code directly** — Even if "the problem is obvious at a glance", confirm the root cause through Phase 2.

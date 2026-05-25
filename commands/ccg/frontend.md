@@ -39,7 +39,7 @@ You are the **frontend orchestrator**, coordinating multiple models to complete 
 ```
 # New session invocation
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend antigravity - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend antigravity - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -54,7 +54,7 @@ EOF",
 
 # Resume session invocation
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend antigravity resume <GEMINI_SESSION> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend antigravity resume <ANTIGRAVITY_SESSION> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -72,11 +72,11 @@ EOF",
 
 | Phase | Frontend |
 |-------|----------|
-| Analysis | `/home/pc/.claude/.ccg/prompts/antigravity/analyzer.md` |
-| Planning | `/home/pc/.claude/.ccg/prompts/antigravity/architect.md` |
-| Review | `/home/pc/.claude/.ccg/prompts/antigravity/reviewer.md` |
+| Analysis | `/home/thangtn/.claude/.ccg/prompts/antigravity/analyzer.md` |
+| Planning | `/home/thangtn/.claude/.ccg/prompts/antigravity/architect.md` |
+| Review | `/home/thangtn/.claude/.ccg/prompts/antigravity/reviewer.md` |
 
-**Session reuse**: Each call returns `SESSION_ID: xxx`, subsequent phases use `resume xxx` to reuse context. Phase 2 saves `GEMINI_SESSION`, Phase 3 and 5 use `resume` for reuse.
+**Session reuse**: Each call returns `SESSION_ID: xxx`, subsequent phases use `resume xxx` to reuse context. Phase 2 saves `ANTIGRAVITY_SESSION`, Phase 3 and 5 use `resume` for reuse.
 
 ⛔ **Frontend model failures must be retried**: if the frontend model call fails (non-zero exit code or output contains an error), retry up to 2 times (5-second intervals). Only if all 3 attempts fail should you report the error and terminate.
 
@@ -100,7 +100,7 @@ EOF",
 
 `[Mode: Research]` - Understand requirements and collect context
 
-1. **Code retrieval** (if the ace-tool MCP is available): Call `mcp__fast-context__fast_context_search` to retrieve existing components, styles, and design systems.
+1. **Code Retrieval** (if GitNexus MCP is available): Call `mcp__gitnexus__query` to retrieve existing components, styles, and design systems. If GitNexus is not available (e.g. missing API key or index not initialized), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
 2. Requirement completeness score (0-10): Continue if ≥7, otherwise stop and gather more information.
 
 ### 💡 Phase 2: Ideation
@@ -108,12 +108,12 @@ EOF",
 `[Mode: Ideation]` - antigravity-led analysis
 
 **⚠️ Must call antigravity** (refer to invocation rules above):
-- ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/analyzer.md`
+- ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/antigravity/analyzer.md`
 - Requirement: Enhanced requirement (or $ARGUMENTS if not enhanced)
 - Context: Project context collected in Phase 1
 - OUTPUT: UI feasibility analysis, recommended options (at least 2), user experience assessment
 
-**📌 Save SESSION_ID** (`GEMINI_SESSION`) for reuse in later phases.
+**📌 Save SESSION_ID** (`ANTIGRAVITY_SESSION`) for reuse in later phases.
 
 Output options (at least 2) and wait for the user to choose.
 
@@ -121,8 +121,8 @@ Output options (at least 2) and wait for the user to choose.
 
 `[Mode: Planning]` - antigravity-led planning
 
-**⚠️ Must call antigravity** (using `resume <GEMINI_SESSION>` to reuse session):
-- ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/architect.md`
+**⚠️ Must call antigravity** (using `resume <ANTIGRAVITY_SESSION>` to reuse session):
+- ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/antigravity/architect.md`
 - Requirement: The solution chosen by the user
 - Context: Analysis results from Phase 2
 - OUTPUT: Component structure, UI flow, style solution
@@ -142,7 +142,7 @@ Claude synthesizes the plan and saves it to `.claude/plan/task-name.md` after us
 `[Mode: Refinement]` - antigravity-led review
 
 **⚠️ Must call antigravity** (refer to invocation rules above):
-- ROLE_FILE: `/home/pc/.claude/.ccg/prompts/antigravity/reviewer.md`
+- ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/antigravity/reviewer.md`
 - Requirement: Review the following frontend code changes
 - Context: git diff or code content
 - OUTPUT: List of issues regarding accessibility, responsiveness, performance, and design consistency
