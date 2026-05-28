@@ -76,7 +76,7 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 
 **With arguments**: use specified code/description.
 
-Call `mcp__gitnexus__query` to get relevant context. If GitNexus is not available (e.g. missing API key or index not initialized), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
+Call `mcp__fast-context__fast_context_search` to get relevant context. If fast-context is not available (e.g. missing API key), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
 
 ### 🔬 Phase 2: Parallel Review
 

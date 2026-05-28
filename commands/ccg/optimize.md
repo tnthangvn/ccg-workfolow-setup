@@ -94,7 +94,7 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 
 `[Mode: Research]`
 
-1. **Code Retrieval** (if GitNexus MCP is available): Call `mcp__gitnexus__query` to retrieve target code. If GitNexus is not available (e.g. missing API key or index not initialized), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
+1. **Code Retrieval** (if fast-context MCP is available): Call `mcp__fast-context__fast_context_search` to retrieve target code. If fast-context is not available (e.g. missing API key), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
 2. Identify performance critical paths.
 3. Collect existing metrics (if any).
 

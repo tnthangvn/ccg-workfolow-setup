@@ -144,15 +144,16 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 
 **⚠️ Must use MCP tools for rapid context retrieval; avoid manual individual file reading.**
 
-Call `mcp__gitnexus__query` based on the "key file" list in planning to retrieve related code:
+Call `mcp__fast-context__fast_context_search` based on the "key file" list in planning to retrieve related code:
 
 ```
-mcp__gitnexus__query({
-  query: "<semantic query built from planning content, including key files, modules, function names>"
+mcp__fast-context__fast_context_search({
+  query: "<semantic query built from planning content, including key files, modules, function names>",
+  project_root_path: "{{WORKDIR}}"
 })
 ```
 
-**Fallback (If GitNexus is not available or missing index/API key)**:
+**Fallback (If fast-context is not available or missing API key)**:
 Do not make assumptions. Fall back to discovering and reading the files directly using built-in search/view tools (e.g., Glob, Grep, view_file, read_file) targeting the key files specified in the plan to gather context.
 
 **Retrieval strategy**:

@@ -16,7 +16,7 @@ description: 'Agent Teams Planning - Lead calls Backend/Frontend models for para
 **Steps**
 1. **Context Collection**
    - Use Glob/Grep/Read to analyze project structure, tech stack, and existing code patterns.
-   - Prioritize semantic retrieval if GitNexus MCP (`mcp__gitnexus__query`) is available. If GitNexus is not available (e.g. missing API key or index not initialized), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
+   - Prioritize semantic retrieval if fast-context MCP (`mcp__fast-context__fast_context_search`) is available. If fast-context is not available (e.g. missing API key), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
    - Organize: tech stack, directory structure, key files, and existing patterns.
 
 2. **Multi-Model Parallel Analysis (PARALLEL)**

@@ -30,8 +30,8 @@ prompts = "/home/pc/.claude/.ccg/prompts"
 backup = "/home/pc/.claude/.ccg/backup"
 
 [mcp]
-provider = "gitnexus"
-setup_url = "https://gitnexus.com/"
+provider = "fast-context"
+setup_url = "https://augmentcode.com/"
 
 [performance]
 liteMode = false

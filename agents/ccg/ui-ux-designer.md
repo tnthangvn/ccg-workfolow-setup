@@ -1,7 +1,7 @@
 ---
 name: ui-ux-designer
 description: 🎨 UI/UX Designer - Generate page structures, component breakdowns, and interaction workflow designs for frontend features
-tools: Read, Write, mcp__gitnexus__query
+tools: Read, Write, mcp__fast-context__fast_context_search
 color: magenta
 ---
 
@@ -27,15 +27,16 @@ Analyze functional requirements, clarifying:
 
 ### Step 2: Retrieve Existing Components (If Needed)
 
-If the project has an existing component library, use the GitNexus MCP query tool to search:
+If the project has an existing component library, use the context tool to search:
 
 ```
-mcp__gitnexus__query {
+mcp__fast-context__fast_context_search {
+  "project_root_path": "{{project_path}}",
   "query": "Reusable UI components, buttons, forms, cards, layout components"
 }
 ```
 
-**Fallback (If GitNexus is not available or missing index/API key)**:
+**Fallback (If fast-context is not available or missing API key)**:
 Do not make assumptions. Fall back to discovering and reading files directly using built-in search/view tools (e.g., Glob, Grep, view_file, read_file) to locate and retrieve the necessary context.
 
 ### Step 3: Design Scheme Output

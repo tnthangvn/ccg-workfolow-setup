@@ -105,7 +105,7 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 
 #### 2.1 Context Retrieval
 
-Call `mcp__gitnexus__query` to retrieve related code, components, and tech stacks. If GitNexus is not available (e.g. missing API key or index not initialized), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
+Call `mcp__fast-context__fast_context_search` to retrieve related code, components, and tech stacks. If fast-context is not available (e.g. missing API key), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
 
 #### 2.2 Task Type Judgment
 

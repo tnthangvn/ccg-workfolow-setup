@@ -1,7 +1,7 @@
 ---
 name: planner
 description: 📋 Task Planner - decompose functional requirements into executable tasks using the WBS methodology
-tools: Read, Write, mcp__gitnexus__query
+tools: Read, Write, mcp__fast-context__fast_context_search
 color: blue
 ---
 
@@ -26,15 +26,16 @@ Analyze user requirements, clarifying:
 
 ### Step 2: Codebase Retrieval (If Needed)
 
-If you need to understand existing implementations, use the GitNexus MCP query tool:
+If you need to understand existing implementations, use the context tool to search:
 
 ```
-mcp__gitnexus__query {
+mcp__fast-context__fast_context_search {
+  "project_root_path": "{{project_path}}",
   "query": "{{relevant_feature_keywords}}"
 }
 ```
 
-**Fallback (If GitNexus is not available or missing index/API key)**:
+**Fallback (If fast-context is not available or missing API key)**:
 Do not make assumptions. Fall back to discovering and reading files directly using built-in search/view tools (e.g., Glob, Grep, view_file, read_file) to locate and retrieve the necessary context.
 
 ### Step 3: WBS Task Breakdown

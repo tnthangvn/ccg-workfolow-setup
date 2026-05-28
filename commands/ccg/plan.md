@@ -81,17 +81,18 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 
 #### 1.2 Context Retrieval
 
-**Call the `mcp__gitnexus__query` tool**:
+**Call the `mcp__fast-context__fast_context_search` tool**:
 
 ```
-mcp__gitnexus__query({
-  query: "<semantic query built from enhanced requirement>"
+mcp__fast-context__fast_context_search({
+  query: "<semantic query built from enhanced requirement>",
+  project_root_path: "{{WORKDIR}}"
 })
 ```
 
 - Use natural language to build semantic queries (Where/What/How).
 - **Prohibit answers based on assumptions.**
-- If GitNexus is not available (e.g. missing API key or index not initialized): fallback to discovering and reading files directly using built-in search/view tools (e.g., Glob, Grep, view_file, read_file).
+- If fast-context is not available (e.g. missing API key): fallback to discovering and reading files directly using built-in search/view tools (e.g., Glob, Grep, view_file, read_file).
 
 #### 1.3 Integrity Check
 

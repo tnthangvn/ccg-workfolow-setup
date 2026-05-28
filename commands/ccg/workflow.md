@@ -117,7 +117,7 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 `[Mode: Research]` - Understand requirements and collect context:
 
 1. **Prompt enhancement** (follow `/ccg:enhance` execution logic): Analyze the intent, missing information, and implicit assumptions in $ARGUMENTS, expand it into a structured requirement (clear goals, technical constraints, scope boundaries, acceptance criteria). **Replace the original $ARGUMENTS with the enhanced result, and pass the enhanced requirement to backend/frontend models in later calls.**
-2. **Context Retrieval**: Call `mcp__gitnexus__query`. If GitNexus is not available (e.g. missing API key or index not initialized), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
+2. **Context Retrieval**: Call `mcp__fast-context__fast_context_search`. If fast-context is not available (e.g. missing API key), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
 3. **Requirement Completeness Score** (0-10):
    - Goal Clarity (0-3), Expected Results (0-3), Boundary Scope (0-2), Constraints (0-2).
    - ≥7 points: Continue | <7 points: ⛔ Stop, ask follow-up questions.

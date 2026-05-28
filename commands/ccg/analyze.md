@@ -83,7 +83,7 @@ If still unfinished after 10 minutes, continue polling with `TaskOutput`; **neve
 
 `[Mode: Research]`
 
-1. **Code Retrieval** (if GitNexus MCP is available): Call `mcp__gitnexus__query` to retrieve related code. If GitNexus is not available (e.g. missing API key or index not initialized), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
+1. **Code Retrieval** (if fast-context MCP is available): Call `mcp__fast-context__fast_context_search` to retrieve related code. If fast-context is not available (e.g. missing API key), fallback to discovering and reading files directly using built-in search/view tools (e.g. Glob, Grep, view_file, read_file).
 2. Identify the analysis scope and key components
 3. List known constraints and assumptions
 
