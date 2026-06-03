@@ -132,7 +132,7 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
    |-----------|-----------|-------|
    | **Frontend** | Pages, components, UI, styles, layout | Antigravity |
    | **Backend** | API, interfaces, database, logic, algorithms | Codex |
-   | **Fullstack** | Contains both frontend and backend | Codex ∥ Antigravity parallel |
+   | **Fullstack** | Contains both frontend and backend | Antigravity (agy) — single agent, handles FE + BE |
 
 ---
 
@@ -193,13 +193,15 @@ mcp__gitnexus__query({
 4. **Codex is backend logic authority, leverage its logical reasoning and debug capabilities**
 5. If plan contains `CODEX_SESSION`: prefer `resume <CODEX_SESSION>`
 
-#### Route C: Fullstack → Parallel Calls
+#### Route C: Fullstack → Antigravity (single agent)
 
-1. **Parallel Calls** (`run_in_background: true`):
-   - Antigravity: Handle frontend part
-   - Codex: Handle backend part
-2. Wait for both models' complete results with `TaskOutput`
-3. Each uses corresponding `SESSION_ID` from plan for `resume` (create new session if missing)
+1. **Single Call** to Antigravity (use `~/.claude/.ccg/prompts/antigravity/architect.md`):
+   - agy handles BOTH frontend and backend in one pass — no Codex/parallel split.
+   - Invoke with `--backend antigravity` (add `--gemini-model "Gemini 3.5 Flash (Medium)"`).
+2. Input: Plan content + retrieved context + ALL target files (frontend + backend)
+3. OUTPUT: `Unified Diff Patch ONLY. Strictly prohibit any actual modifications.`
+4. **Antigravity (agy) is the sole authority for fullstack tasks**
+5. If plan contains `ANTIGRAVITY_SESSION`: prefer `resume <ANTIGRAVITY_SESSION>` (else create a new session)
 
 **Follow the `IMPORTANT` instructions in `Multi-Model Call Specification` above**
 

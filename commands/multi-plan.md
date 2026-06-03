@@ -164,7 +164,7 @@ Synthesize both analyses, generate **Step-by-step Implementation Plan**:
 ### Task Type
 - [ ] Frontend (→ Antigravity)
 - [ ] Backend (→ Codex)
-- [ ] Fullstack (→ Parallel)
+- [ ] Fullstack (→ Antigravity / agy)
 
 ### Technical Solution
 <Optimal solution synthesized from Codex + Antigravity analysis>
