@@ -1,0 +1,180 @@
+#!/usr/bin/env node
+/*
+ * codex → cursor-agent shim  (CCG backend bridge) — PORTABLE
+ * ---------------------------------------------------------------------------
+ * Deployed by override.sh to ~/.local/bin/codex. Because ~/.local/bin is first
+ * on PATH, codeagent-wrapper's LookPath("codex") resolves to THIS script, so
+ * every `--backend codex` call (multi-execute, multi-backend, /ccg:*, parallel
+ * mode, ...) is bridged to `cursor-agent`. Any non-matching codex call is
+ * passed through to the real codex, located dynamically (no hard-coded paths).
+ *
+ * Disable without uninstalling:  export CCG_CURSOR_BACKEND=0
+ * Pick a cursor model:           export CURSOR_MODEL=gpt-5     (default: Auto)
+ * Override real codex / cursor:   export CCG_REAL_CODEX=...  /  CCG_CURSOR_AGENT=...
+ */
+'use strict';
+const { spawn, spawnSync } = require('child_process');
+const readline = require('readline');
+const fs = require('fs');
+const path = require('path');
+
+const argv = process.argv.slice(2);
+
+// --- Resolve the genuine binaries dynamically (machine-agnostic) --------------
+function selfPath() {
+  try { return fs.realpathSync(process.argv[1] || __filename); } catch { return process.argv[1] || __filename; }
+}
+function findOnPath(name, excludeRealpath) {
+  for (const dir of (process.env.PATH || '').split(path.delimiter)) {
+    if (!dir) continue;
+    const p = path.join(dir, name);
+    try {
+      fs.accessSync(p, fs.constants.X_OK);
+      let rp; try { rp = fs.realpathSync(p); } catch { rp = p; }
+      if (excludeRealpath && rp === excludeRealpath) continue; // skip our own shim
+      return p;
+    } catch { /* not here */ }
+  }
+  return null;
+}
+const SELF = selfPath();
+const REAL_CODEX = process.env.CCG_REAL_CODEX || findOnPath('codex', SELF);
+const CURSOR_AGENT = process.env.CCG_CURSOR_AGENT || findOnPath('cursor-agent', SELF);
+
+// --- Decide whether to hijack -------------------------------------------------
+const hasJson = argv.includes('--json');
+const sub = argv.find((a) => !a.startsWith('-'));
+const isExec = sub === 'e' || sub === 'exec';
+const hijack =
+  process.env.CCG_CURSOR_BACKEND !== '0' && hasJson && isExec && !!CURSOR_AGENT;
+
+if (!hijack) {
+  if (!REAL_CODEX) {
+    process.stderr.write('codex shim: real codex not found on PATH and not bridging\n');
+    process.exit(127);
+  }
+  const r = spawnSync(REAL_CODEX, argv, { stdio: 'inherit' });
+  process.exit(r.status == null ? 1 : r.status);
+}
+
+// --- Parse the wrapper's codex args -------------------------------------------
+let workdir = process.cwd();
+let resumeId = null;
+let continueLast = false;
+for (let i = 0; i < argv.length; i++) {
+  const a = argv[i];
+  if (a === '-C' || a === '--cd') workdir = argv[++i] || workdir;
+  else if (a === 'resume') {
+    const next = argv[i + 1];
+    if (next && !next.startsWith('-')) resumeId = next; // codex e ... resume <id>
+  } else if (a === '--last') continueLast = true;
+}
+
+// --- Read the task from stdin (the wrapper pipes it in) -----------------------
+const stdinChunks = [];
+process.stdin.on('data', (c) => stdinChunks.push(c));
+process.stdin.on('end', run);
+process.stdin.on('error', run);
+
+// --- codex-event emitter ------------------------------------------------------
+let itemSeq = 0;
+const out = (obj) => process.stdout.write(JSON.stringify(obj) + '\n');
+const nextId = () => `item_${itemSeq++}`;
+let threadStarted = false;
+function startThread(sessionId) {
+  if (threadStarted) return;
+  threadStarted = true;
+  out({ type: 'thread.started', thread_id: sessionId || 'cursor-session' });
+  out({ type: 'turn.started' });
+}
+
+function describeTool(tc) {
+  if (!tc || typeof tc !== 'object') return { type: 'tool_call', label: 'tool' };
+  const key = Object.keys(tc)[0] || 'tool';
+  const args = (tc[key] && tc[key].args) || {};
+  if (/shell|terminal|command|exec/i.test(key))
+    return { type: 'command_execution', command: args.command || args.cmd || JSON.stringify(args).slice(0, 200) };
+  if (/edit|write|create|apply/i.test(key))
+    return { type: 'file_change', path: args.path || args.file || '' };
+  if (/read|view|cat|grep|search|list/i.test(key))
+    return { type: 'file_read', path: args.path || args.query || '' };
+  return { type: 'tool_call', label: key };
+}
+
+function run() {
+  if (run._done) return; run._done = true; // stdin 'end' and 'error' guard
+  const cursorArgs = ['-p', '--output-format', 'stream-json', '--force', '--trust', '--workspace', workdir];
+  if (process.env.CURSOR_MODEL) cursorArgs.push('--model', process.env.CURSOR_MODEL);
+  if (resumeId) cursorArgs.push('--resume', resumeId);
+  else if (continueLast) cursorArgs.push('--continue');
+
+  const task = Buffer.concat(stdinChunks).toString('utf8');
+  const child = spawn(CURSOR_AGENT, cursorArgs, { cwd: workdir, stdio: ['pipe', 'pipe', 'inherit'] });
+  child.stdin.write(task);
+  child.stdin.end();
+
+  let finalText = null, failed = null, lastUsage = null;
+  readline.createInterface({ input: child.stdout }).on('line', (line) => {
+    line = line.trim(); if (!line) return;
+    let ev; try { ev = JSON.parse(line); } catch { return; }
+    try { translate(ev); } catch { /* never let a bad event kill the bridge */ }
+  });
+
+  function translate(ev) {
+    switch (ev.type) {
+      case 'system':
+        if (ev.subtype === 'init') startThread(ev.session_id);
+        break;
+      case 'tool_call': {
+        if (ev.subtype !== 'completed') break;
+        const d = describeTool(ev.tool_call);
+        const item = { id: nextId(), ...d };
+        if (d.type === 'command_execution') { item.exit_code = 0; item.aggregated_output = ''; }
+        out({ type: 'item.completed', item });
+        break;
+      }
+      case 'assistant': {
+        const txt = extractText(ev.message);
+        if (txt) out({ type: 'item.completed', item: { id: nextId(), type: 'reasoning', text: txt } });
+        break;
+      }
+      case 'result':
+        lastUsage = ev.usage || null;
+        if (ev.is_error || (ev.subtype && ev.subtype !== 'success'))
+          failed = ev.result || ev.error || `cursor-agent: ${ev.subtype || 'error'}`;
+        else
+          finalText = typeof ev.result === 'string' ? ev.result : extractText(ev.message) || '';
+        break;
+      default: break;
+    }
+  }
+
+  child.on('close', (code) => {
+    startThread(null);
+    if (failed != null || (code && finalText == null)) {
+      out({ type: 'turn.failed', error: { message: failed || `cursor-agent exited ${code}` } });
+      process.exit(code || 1);
+    }
+    out({ type: 'item.completed', item: { id: nextId(), type: 'agent_message', text: finalText || '' } });
+    const u = lastUsage || {};
+    out({ type: 'turn.completed', usage: {
+      input_tokens: u.inputTokens || 0,
+      cached_input_tokens: u.cacheReadTokens || 0,
+      output_tokens: u.outputTokens || 0,
+    } });
+    process.exit(0);
+  });
+  child.on('error', (e) => {
+    startThread(null);
+    out({ type: 'turn.failed', error: { message: `cursor-agent spawn failed: ${e.message}` } });
+    process.exit(127);
+  });
+}
+
+function extractText(message) {
+  if (!message) return '';
+  const c = message.content;
+  if (typeof c === 'string') return c;
+  if (Array.isArray(c)) return c.filter((b) => b && b.type === 'text' && b.text).map((b) => b.text).join('');
+  return '';
+}

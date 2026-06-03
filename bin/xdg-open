@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# ---------------------------------------------------------------------------
+# CCG xdg-open shim — PORTABLE. Deployed by override.sh to ~/.local/bin/xdg-open.
+#
+# codeagent-wrapper's live-output page already calls window.close() 3s after a
+# task finishes, but Chrome refuses to close a tab it didn't open via script.
+# Opening that localhost page in a Chrome --app WINDOW makes the close work, so
+# the live window disappears on its own. Every other URL is forwarded to the
+# real xdg-open (resolved dynamically, so no hard-coded paths).
+#
+# Disable without uninstalling:  export CCG_AUTOCLOSE=0
+# ---------------------------------------------------------------------------
+url="$1"
+
+# Resolve the genuine xdg-open (skip this shim).
+self="$(readlink -f "$0" 2>/dev/null || echo "$0")"
+real_xdg=""
+IFS=':' read -ra _dirs <<< "$PATH"
+for d in "${_dirs[@]}" /usr/bin /bin; do
+  [ -n "$d" ] || continue
+  cand="$d/xdg-open"
+  [ -x "$cand" ] || continue
+  [ "$(readlink -f "$cand" 2>/dev/null || echo "$cand")" = "$self" ] && continue
+  real_xdg="$cand"; break
+done
+
+if [ "${CCG_AUTOCLOSE:-1}" = "1" ] && \
+   printf '%s' "$url" | grep -qiE '^https?://(localhost|127\.0\.0\.1):[0-9]+'; then
+  for c in google-chrome-stable google-chrome chromium chromium-browser brave-browser; do
+    chrome="$(command -v "$c" 2>/dev/null)" || continue
+    setsid "$chrome" --app="$url" >/dev/null 2>&1 </dev/null &
+    exit 0
+  done
+fi
+
+if [ -n "$real_xdg" ]; then exec "$real_xdg" "$@"; fi
+# Last resort: try common openers.
+for o in gio open; do command -v "$o" >/dev/null 2>&1 && exec "$o" ${o:+open} "$@"; done
+exit 0
