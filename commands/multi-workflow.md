@@ -4,7 +4,7 @@ description: Run a full multi-model development workflow with research, planning
 
 # Workflow - Multi-Model Collaborative Development
 
-Multi-model collaborative development workflow (Research → Ideation → Plan → Execute → Optimize → Review), with intelligent routing: Frontend → Antigravity, Backend → Codex.
+Multi-model collaborative development workflow (Research → Ideation → Plan → Execute → Optimize → Review), with intelligent routing: Frontend → Antigravity, Backend → Claude.
 
 Structured development workflow with quality gates, MCP services, and multi-model collaboration.
 
@@ -18,7 +18,7 @@ Structured development workflow with quality gates, MCP services, and multi-mode
 
 - Task to develop: $ARGUMENTS
 - Structured 6-phase workflow with quality gates
-- Multi-model collaboration: Codex (backend) + Antigravity (frontend) + Claude (orchestration)
+- Multi-model collaboration: Claude (backend) + Antigravity (frontend) + Claude (orchestration)
 - MCP service integration (gitnexus, optional) for enhanced capabilities
 
 ## Your Role
@@ -27,7 +27,7 @@ You are the **Orchestrator**, coordinating a multi-model collaborative system (R
 
 **Collaborative Models**:
 - **GitNexus MCP** (optional) – Code retrieval (using mcp__gitnexus__query)
-- **Codex** – Backend logic, algorithms, debugging (**Backend authority, trustworthy**)
+- **Claude** – Backend logic, algorithms, debugging (**Backend authority, trustworthy**)
 - **Antigravity** – Frontend UI/UX, visual design (**Frontend expert, backend opinions for reference only**)
 - **Claude (self)** – Orchestration, planning, execution, delivery
 
@@ -40,7 +40,7 @@ You are the **Orchestrator**, coordinating a multi-model collaborative system (R
 ```
 # New session call
 Bash({
-  command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--backend <codex|antigravity> {{ANTIGRAVITY_MODEL_FLAG}}- \"$PWD\" <<'EOF'
+  command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--backend <claude|antigravity> {{ANTIGRAVITY_MODEL_FLAG}}- \"$PWD\" <<'EOF'
 ROLE_FILE: <role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -55,7 +55,7 @@ EOF",
 
 # Resume session call
 Bash({
-  command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--backend <codex|antigravity> {{ANTIGRAVITY_MODEL_FLAG}}resume <SESSION_ID> - \"$PWD\" <<'EOF'
+  command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--backend <claude|antigravity> {{ANTIGRAVITY_MODEL_FLAG}}resume <SESSION_ID> - \"$PWD\" <<'EOF'
 ROLE_FILE: <role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -70,15 +70,15 @@ EOF",
 ```
 
 **Model Parameter Notes**:
-- `{{ANTIGRAVITY_MODEL_FLAG}}`: When using `--backend antigravity`, replace with `--gemini-model "Gemini 3.5 Flash (Medium)"` (or `"Gemini 3.5 Flash (High)"` / `"Gemini 3.5 Flash (Low)"`, note trailing space); use empty string for codex
+- `{{ANTIGRAVITY_MODEL_FLAG}}`: When using `--backend antigravity`, replace with `--gemini-model "Gemini 3.5 Flash (Medium)"` (or `"Gemini 3.5 Flash (High)"` / `"Gemini 3.5 Flash (Low)"`, note trailing space); use empty string for claude
 
 **Role Prompts**:
 
-| Phase | Codex | Antigravity |
+| Phase | Claude | Antigravity |
 |-------|-------|--------|
-| Analysis | `~/.claude/.ccg/prompts/codex/analyzer.md` | `~/.claude/.ccg/prompts/antigravity/analyzer.md` |
-| Planning | `~/.claude/.ccg/prompts/codex/architect.md` | `~/.claude/.ccg/prompts/antigravity/architect.md` |
-| Review | `~/.claude/.ccg/prompts/codex/reviewer.md` | `~/.claude/.ccg/prompts/antigravity/reviewer.md` |
+| Analysis | `~/.claude/.ccg/prompts/claude/analyzer.md` | `~/.claude/.ccg/prompts/antigravity/analyzer.md` |
+| Planning | `~/.claude/.ccg/prompts/claude/architect.md` | `~/.claude/.ccg/prompts/antigravity/architect.md` |
+| Review | `~/.claude/.ccg/prompts/claude/reviewer.md` | `~/.claude/.ccg/prompts/antigravity/reviewer.md` |
 
 **Session Reuse**: Each call returns `SESSION_ID: xxx`, use `resume xxx` subcommand for subsequent phases (note: `resume`, not `--resume`).
 
@@ -124,7 +124,7 @@ node scripts/orchestrate-worktrees.js .claude/plan/workflow-e2e-test.json --exec
 `[Mode: Research]` - Understand requirements and gather context:
 
 1. **Context Retrieval** (if GitNexus MCP available): Call `mcp__gitnexus__query`. (To list directory structure, use Glob/Grep fallback or standard system calls). If unavailable, use built-in tools: `Glob` for file discovery, `Grep` for symbol search, `Read` for context gathering, `Task` (Explore agent) for deeper exploration.
-2. **Prompt Enhancement** (Optional): Perform prompt enhancement (follow `/ccg:enhance` logic) using Claude (self) self-inferring from the results of `mcp__gitnexus__query` (or fallback tools) and `$ARGUMENTS`, **replace original $ARGUMENTS with enhanced result for all subsequent Codex/Antigravity calls**.
+2. **Prompt Enhancement** (Optional): Perform prompt enhancement (follow `/ccg:enhance` logic) using Claude (self) self-inferring from the results of `mcp__gitnexus__query` (or fallback tools) and `$ARGUMENTS`, **replace original $ARGUMENTS with enhanced result for all subsequent Claude/Antigravity calls**.
 3. **Requirement Completeness Score** (0-10):
    - Goal clarity (0-3), Expected outcome (0-3), Scope boundaries (0-2), Constraints (0-2)
    - ≥7: Continue | <7: Stop, ask clarifying questions
@@ -134,10 +134,10 @@ node scripts/orchestrate-worktrees.js .claude/plan/workflow-e2e-test.json --exec
 `[Mode: Ideation]` - Multi-model parallel analysis:
 
 **Parallel Calls** (`run_in_background: true`):
-- Codex: Use analyzer prompt, output technical feasibility, solutions, risks
+- Claude: Use analyzer prompt, output technical feasibility, solutions, risks
 - Antigravity: Use analyzer prompt, output UI feasibility, solutions, UX evaluation
 
-Wait for results with `TaskOutput`. **Save SESSION_ID** (`CODEX_SESSION` and `ANTIGRAVITY_SESSION`).
+Wait for results with `TaskOutput`. **Save SESSION_ID** (`CLAUDE_SESSION` and `ANTIGRAVITY_SESSION`).
 
 **Follow the `IMPORTANT` instructions in `Multi-Model Call Specification` above**
 
@@ -148,14 +148,14 @@ Synthesize both analyses, output solution comparison (at least 2 options), wait 
 `[Mode: Plan]` - Multi-model collaborative planning:
 
 **Parallel Calls** (resume session with `resume <SESSION_ID>`):
-- Codex: Use architect prompt + `resume $CODEX_SESSION`, output backend architecture
+- Claude: Use architect prompt + `resume $CLAUDE_SESSION`, output backend architecture
 - Antigravity: Use architect prompt + `resume $ANTIGRAVITY_SESSION`, output frontend architecture
 
 Wait for results with `TaskOutput`.
 
 **Follow the `IMPORTANT` instructions in `Multi-Model Call Specification` above**
 
-**Claude Synthesis**: Adopt Codex backend plan + Antigravity frontend plan, save to `.claude/plan/task-name.md` after user approval.
+**Claude Synthesis**: Adopt Claude backend plan + Antigravity frontend plan, save to `.claude/plan/task-name.md` after user approval.
 
 ### Phase 4: Implementation
 
@@ -170,7 +170,7 @@ Wait for results with `TaskOutput`.
 `[Mode: Optimize]` - Multi-model parallel review:
 
 **Parallel Calls**:
-- Codex: Use reviewer prompt, focus on security, performance, error handling
+- Claude: Use reviewer prompt, focus on security, performance, error handling
 - Antigravity: Use reviewer prompt, focus on accessibility, design consistency
 
 Wait for results with `TaskOutput`. Integrate review feedback, execute optimization after user confirmation.

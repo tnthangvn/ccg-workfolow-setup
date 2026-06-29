@@ -185,7 +185,7 @@ Strictly execute according to the loaded strategy file. Adhere to the following 
 4. **M+ complexity must create Task before loading strategy** — Without `task.json`, there is no Hook breadcrumb injection, which is equivalent to losing state tracking
 5. **Do not skip phases marked as [required] in the strategy** — Even if it "looks very simple"
 6. **When in doubt about complexity, default to one level higher** — Rather take an extra step than miss a critical one
-7. **⛔ Must let user choose execution mode before writing code** — If the strategy contains execution mode selection (Agent Teams / Codex / Claude), you **must explicitly present options to the user and wait for their response**. Do not default to any mode, do not skip selection to start writing code directly. Violating this rule = most severe out-of-control process
+7. **⛔ Must let user choose execution mode before writing code** — If the strategy contains execution mode selection (Agent Teams / Claude / Claude), you **must explicitly present options to the user and wait for their response**. Do not default to any mode, do not skip selection to start writing code directly. Violating this rule = most severe out-of-control process
 
 ---
 

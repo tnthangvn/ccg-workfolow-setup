@@ -10,7 +10,7 @@ description: 'Agent Teams Requirement Research - Parallel exploration of codebas
 **Guardrails**
 - **STOP! BEFORE ANY OTHER ACTION**: Prompt enhancement must be performed first.
 - Divide exploration scope by context boundaries, not by roles.
-- Multi-model collaboration is **mandatory**: codex (backend boundary) + antigravity (frontend boundary).
+- Multi-model collaboration is **mandatory**: claude (backend boundary) + antigravity (frontend boundary).
 - Do not make architectural decisions—only discover constraints.
 - Use `AskUserQuestion` to resolve any ambiguity; never assume.
 
@@ -36,13 +36,13 @@ description: 'Agent Teams Requirement Research - Parallel exploration of codebas
    - **CRITICAL**: Must launch two Bash calls simultaneously in a single message.
    - **Working directory**: `{{WORKDIR}}` **must obtain the absolute path of the current working directory by running Bash `pwd` (Unix) or `cd` (Windows CMD)**; do not infer it from `$HOME` or environment variables.
 
-   **FIRST Bash call (codex)**:
+   **FIRST Bash call (claude)**:
    ```
    Bash({
-     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/thangtn/.claude/.ccg/prompts/codex/analyzer.md\n<TASK>\nRequirement: <Enhanced requirement>\nExploration Scope: Backend-related context boundaries\n</TASK>\nOUTPUT (JSON):\n{\n  \"module_name\": \"Context boundary explored\",\n  \"existing_structures\": [\"Key patterns discovered\"],\n  \"existing_conventions\": [\"Standards in use\"],\n  \"constraints_discovered\": [\"Hard constraints limiting solution space\"],\n  \"open_questions\": [\"Ambiguities requiring user confirmation\"],\n  \"dependencies\": [\"Cross-module dependencies\"],\n  \"risks\": [\"Potential blockers\"],\n  \"success_criteria_hints\": [\"Observable success behaviors\"]\n}\nEOF",
+     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend claude - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/thangtn/.claude/.ccg/prompts/claude/analyzer.md\n<TASK>\nRequirement: <Enhanced requirement>\nExploration Scope: Backend-related context boundaries\n</TASK>\nOUTPUT (JSON):\n{\n  \"module_name\": \"Context boundary explored\",\n  \"existing_structures\": [\"Key patterns discovered\"],\n  \"existing_conventions\": [\"Standards in use\"],\n  \"constraints_discovered\": [\"Hard constraints limiting solution space\"],\n  \"open_questions\": [\"Ambiguities requiring user confirmation\"],\n  \"dependencies\": [\"Cross-module dependencies\"],\n  \"risks\": [\"Potential blockers\"],\n  \"success_criteria_hints\": [\"Observable success behaviors\"]\n}\nEOF",
      run_in_background: true,
      timeout: 3600000,
-     description: "codex backend exploration"
+     description: "claude backend exploration"
    })
    ```
 
@@ -119,7 +119,7 @@ description: 'Agent Teams Requirement Research - Parallel exploration of codebas
    - Prompt: `Research complete, run /clear then execute /ccg:team-plan <task-name> to start planning`
 
 **Exit Criteria**
-- [ ] codex + antigravity exploration complete
+- [ ] claude + antigravity exploration complete
 - [ ] All ambiguities resolved through user confirmation
 - [ ] Constraint set + success criteria written to research file
 - [ ] Zero open questions remaining

@@ -8,7 +8,7 @@ description: 'Agent Teams Review - Cross-review outputs of parallel implementati
 - Review scope is strictly limited to team-exec changes; do not expand scope.
 
 **Guardrails**
-- **MANDATORY**: Both codex and antigravity must complete review before synthesis.
+- **MANDATORY**: Both claude and antigravity must complete review before synthesis.
 - Review scope limited to `git diff` changes; avoid scope creep.
 - Lead can directly fix Critical issues (coding allowed during review phase).
 
@@ -22,13 +22,13 @@ description: 'Agent Teams Review - Cross-review outputs of parallel implementati
    - **CRITICAL**: Must launch two Bash calls simultaneously in a single message.
    - **Working directory**: `{{WORKDIR}}` **must obtain the absolute path of the current working directory by running Bash `pwd` (Unix) or `cd` (Windows CMD)**; do not infer it from `$HOME` or environment variables.
 
-   **FIRST Bash call (codex)**:
+   **FIRST Bash call (claude)**:
    ```
    Bash({
-     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/thangtn/.claude/.ccg/prompts/codex/reviewer.md\n<TASK>\nReview the following changes:\n<git diff output or list of modified files>\n</TASK>\nOUTPUT (JSON):\n{\n  \"findings\": [\n    {\n      \"severity\": \"Critical|Warning|Info\",\n      \"dimension\": \"logic|security|performance|error_handling\",\n      \"file\": \"path/to/file\",\n      \"line\": 42,\n      \"description\": \"Issue description\",\n      \"fix_suggestion\": \"Fix suggestion\"\n    }\n  ],\n  \"passed_checks\": [\"Verified check items\"],\n  \"summary\": \"Overall assessment\"\n}\nEOF",
+     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend claude - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/thangtn/.claude/.ccg/prompts/claude/reviewer.md\n<TASK>\nReview the following changes:\n<git diff output or list of modified files>\n</TASK>\nOUTPUT (JSON):\n{\n  \"findings\": [\n    {\n      \"severity\": \"Critical|Warning|Info\",\n      \"dimension\": \"logic|security|performance|error_handling\",\n      \"file\": \"path/to/file\",\n      \"line\": 42,\n      \"description\": \"Issue description\",\n      \"fix_suggestion\": \"Fix suggestion\"\n    }\n  ],\n  \"passed_checks\": [\"Verified check items\"],\n  \"summary\": \"Overall assessment\"\n}\nEOF",
      run_in_background: true,
      timeout: 3600000,
-     description: "codex backend review"
+     description: "claude backend review"
    })
    ```
 
@@ -81,7 +81,7 @@ description: 'Agent Teams Review - Cross-review outputs of parallel implementati
 5. **Decision Gate**
    - **Critical > 0**:
      * Display findings, use `AskUserQuestion` to ask: "Fix now / Skip".
-     * Choice "Fix now" → Lead directly fixes (Backend issues refer to codex suggestions, frontend refer to antigravity suggestions).
+     * Choice "Fix now" → Lead directly fixes (Backend issues refer to claude suggestions, frontend refer to antigravity suggestions).
      * After fix, re-run affected review dimensions.
      * Repeat until Critical = 0.
    - **Critical = 0**:
@@ -91,7 +91,7 @@ description: 'Agent Teams Review - Cross-review outputs of parallel implementati
    - Report current context usage.
 
 **Exit Criteria**
-- [ ] codex + antigravity review complete
+- [ ] claude + antigravity review complete
 - [ ] All findings synthesized and classified
 - [ ] Critical = 0 (fixed or user confirmed skip)
 - [ ] Review report output

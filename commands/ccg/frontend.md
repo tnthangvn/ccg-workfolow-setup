@@ -13,7 +13,7 @@ description: 'Frontend-specific workflow (Research → Ideation → Planning →
 ## Context
 
 - Frontend task: $ARGUMENTS
-- antigravity led, codex as auxiliary reference
+- antigravity led, claude as auxiliary reference
 - Applies to: Component design, responsive layout, UI animation, style refinement
 
 ## Your role
@@ -22,7 +22,7 @@ You are the **frontend orchestrator**, coordinating multiple models to complete 
 
 **Collaboration Models**:
 - **antigravity** – Frontend UI/UX (**frontend authoritative, trusted**)
-- **codex** – Backend perspective (**frontend opinions for reference only**)
+- **claude** – Backend perspective (**frontend opinions for reference only**)
 - **Claude (self)** – Orchestration, Planning, Execution, Delivery
 
 ---
@@ -162,6 +162,6 @@ Incorporate review feedback and apply refinements after user confirmation.
 ## Key rules
 
 1. **antigravity frontend opinions are trusted**
-2. **codex frontend opinions are for reference only**
+2. **claude frontend opinions are for reference only**
 3. External models have **zero write access** to the filesystem
 4. Claude is responsible for all code writes and file operations

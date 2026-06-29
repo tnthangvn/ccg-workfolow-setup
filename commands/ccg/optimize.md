@@ -1,5 +1,5 @@
 ---
-description: 'Multi-model Performance Refinement: codex backend refinement + antigravity frontend refinement'
+description: 'Multi-model Performance Refinement: claude backend refinement + antigravity frontend refinement'
 ---
 
 # Optimize - Multi-model Performance Refinement
@@ -15,13 +15,13 @@ Dual-model parallel analysis of performance bottlenecks, sorting refinement sugg
 ## Context
 
 - Refinement target: $ARGUMENTS
-- codex focuses on backend performance (database, algorithms, caching)
+- claude focuses on backend performance (database, algorithms, caching)
 - antigravity focuses on frontend performance (rendering, loading, interaction)
 
 ## Your role
 
 You are the **performance engineer**, orchestrating the multi-model refinement flow:
-- **codex** – Backend performance refinement (**backend authoritative**)
+- **claude** – Backend performance refinement (**backend authoritative**)
 - **antigravity** – Frontend performance refinement (**frontend authoritative**)
 - **Claude (self)** – Synthesis, implementing changes
 
@@ -38,7 +38,7 @@ You are the **performance engineer**, orchestrating the multi-model refinement f
 
 ```
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <claude|antigravity> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -56,7 +56,7 @@ EOF",
 
 | Model | Prompt |
 |------|--------|
-| Backend | `/home/thangtn/.claude/.ccg/prompts/codex/optimizer.md` |
+| Backend | `/home/thangtn/.claude/.ccg/prompts/claude/optimizer.md` |
 | Frontend | `/home/thangtn/.claude/.ccg/prompts/antigravity/optimizer.md` |
 
 **Parallel calls**: Start with `run_in_background: true`, wait for results with `TaskOutput`. **Must wait for all models before entering the next phase.**
@@ -104,8 +104,8 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
 
 **⚠️ Must launch two parallel Bash calls** (per the invocation rules above):
 
-1. **codex backend analysis**: `Bash({ command: "...--backend codex...", run_in_background: true })`
-   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/optimizer.md`
+1. **claude backend analysis**: `Bash({ command: "...--backend claude...", run_in_background: true })`
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/claude/optimizer.md`
    - Requirement: Analyze backend performance issues ($ARGUMENTS)
    - OUTPUT: Performance bottleneck list, refinement solutions, expected benefits
 
@@ -163,4 +163,4 @@ Run tests to verify functionality, and compare metrics before and after refineme
 1. **Measure Before Refining** – Don't refine blindly without data.
 2. **Cost-effectiveness First** – High impact + low difficulty takes priority.
 3. **Do Not Break Functionality** – Refinement must not introduce bugs.
-4. **Trust Rules** – Backend based on codex, frontend based on antigravity.
+4. **Trust Rules** – Backend based on claude, frontend based on antigravity.

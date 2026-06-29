@@ -19,9 +19,9 @@ Receive Task → Assess Scale
 
 **Iron Rule**: When in doubt, prefer TeamCreate. Multi-Agent parallel efficiency is far higher than serial subagents.
 
-## Codex Native Action Mapping
+## Claude Native Action Mapping
 
-| Coordination Action | Codex Tool |
+| Coordination Action | Claude Tool |
 |---------------------|------------|
 | Create sub-task | `spawn_agent` |
 | Dispatch/Follow-up | `send_input` |
@@ -246,7 +246,7 @@ Report Format:
 - Blocked: State reason + suggested solution
 ```
 
-### Strict Constraint Template (Codex)
+### Strict Constraint Template (Claude)
 ```text
 You may only modify: {owned_files}
 Do not touch unassigned files; if cross-file modifications are needed, report blockage first.

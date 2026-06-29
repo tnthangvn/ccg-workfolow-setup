@@ -13,16 +13,16 @@ primary = "antigravity"
 strategy = "fallback"
 
 [routing.backend]
-models = [ "codex" ]
-primary = "codex"
+models = [ "claude" ]
+primary = "claude"
 strategy = "fallback"
 
 [routing.review]
-models = [ "antigravity", "codex" ]
+models = [ "antigravity", "claude" ]
 strategy = "parallel"
 
 [workflows]
-installed = [ "workflow", "plan", "execute", "team", "team-research", "team-plan", "team-exec", "team-review", "frontend", "codex-exec", "context", "backend", "feat", "analyze", "debug", "optimize", "test", "review", "enhance", "init-project", "commit", "rollback", "clean-branches", "worktree", "spec-init", "spec-research", "spec-plan", "spec-impl", "spec-review" ]
+installed = [ "workflow", "plan", "execute", "team", "team-research", "team-plan", "team-exec", "team-review", "frontend", "claude-exec", "context", "backend", "feat", "analyze", "debug", "optimize", "test", "review", "enhance", "init-project", "commit", "rollback", "clean-branches", "worktree", "spec-init", "spec-research", "spec-plan", "spec-impl", "spec-review" ]
 
 [paths]
 commands = "/home/pc/.claude/commands/ccg"

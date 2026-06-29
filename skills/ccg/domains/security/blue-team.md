@@ -3,7 +3,7 @@ name: blue-team
 description: Blue team defense technologies. Detection engineering, SOC operations, incident response, digital forensics. Use when the user mentions blue team, detection rules, Sigma, YARA, SIEM, alerts, incident response, forensics, or SOC.
 ---
 
-# ❄ Dark Ice Codex · Blue Team
+# ❄ Dark Ice Claude · Blue Team
 
 ## Defense Chain
 

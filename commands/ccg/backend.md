@@ -1,5 +1,5 @@
 ---
-description: 'Backend workflow (research → ideation → planning → execution → refinement → review), led by codex'
+description: 'Backend workflow (research → ideation → planning → execution → refinement → review), led by claude'
 ---
 
 # Backend - Backend development
@@ -13,7 +13,7 @@ description: 'Backend workflow (research → ideation → planning → execution
 ## Context
 
 - Backend task: $ARGUMENTS
-- codex led, antigravity as auxiliary reference
+- claude led, antigravity as auxiliary reference
 - Applies to: API design, algorithm implementation, database optimization, business logic
 
 ## Your role
@@ -21,7 +21,7 @@ description: 'Backend workflow (research → ideation → planning → execution
 You are the **backend orchestrator**, coordinating multiple models to complete server-side tasks (Research → Ideation → Planning → Execution → Refinement → Review). Use English to assist the user.
 
 **Collaboration Models**:
-- **codex** – Backend logic, algorithms (**backend authoritative, trusted**)
+- **claude** – Backend logic, algorithms (**backend authoritative, trusted**)
 - **antigravity** – Frontend perspective (**backend opinions for reference only**)
 - **Claude (self)** – Orchestration, Planning, Execution, Delivery
 
@@ -39,7 +39,7 @@ You are the **backend orchestrator**, coordinating multiple models to complete s
 ```
 # New session invocation
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend claude - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -54,7 +54,7 @@ EOF",
 
 # Resume session invocation
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend claude resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -72,11 +72,11 @@ EOF",
 
 | Phase | Backend |
 |-------|---------|
-| Analysis | `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md` |
-| Planning | `/home/thangtn/.claude/.ccg/prompts/codex/architect.md` |
-| Review | `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md` |
+| Analysis | `/home/thangtn/.claude/.ccg/prompts/claude/analyzer.md` |
+| Planning | `/home/thangtn/.claude/.ccg/prompts/claude/architect.md` |
+| Review | `/home/thangtn/.claude/.ccg/prompts/claude/reviewer.md` |
 
-**Session reuse**: Each call returns `SESSION_ID: xxx`, subsequent phases use `resume xxx` to reuse context. Phase 2 saves `CODEX_SESSION`, Phase 3 and 5 use `resume` for reuse.
+**Session reuse**: Each call returns `SESSION_ID: xxx`, subsequent phases use `resume xxx` to reuse context. Phase 2 saves `CLAUDE_SESSION`, Phase 3 and 5 use `resume` for reuse.
 
 ⛔ **Backend model output must be awaited**: Backend model execution taking 5-15 minutes is normal. If the call times out, continue waiting; do not skip or terminate early.
 
@@ -94,7 +94,7 @@ EOF",
 
 ### 🔍 Phase 0: Prompt enhancement (optional)
 
-`[Mode: Preparation]` - **Prompt enhancement** (follow `/ccg:enhance` execution logic): Analyze the intent, missing information, and implicit assumptions in $ARGUMENTS, and expand it into a structured requirement (clear goals, technical constraints, scope boundaries, acceptance criteria). **Replace the original $ARGUMENTS with the enhanced result, and pass the enhanced requirement to codex in later calls.**
+`[Mode: Preparation]` - **Prompt enhancement** (follow `/ccg:enhance` execution logic): Analyze the intent, missing information, and implicit assumptions in $ARGUMENTS, and expand it into a structured requirement (clear goals, technical constraints, scope boundaries, acceptance criteria). **Replace the original $ARGUMENTS with the enhanced result, and pass the enhanced requirement to claude in later calls.**
 
 ### 🔍 Phase 1: Research
 
@@ -105,24 +105,24 @@ EOF",
 
 ### 💡 Phase 2: Ideation
 
-`[Mode: Ideation]` - codex-led analysis
+`[Mode: Ideation]` - claude-led analysis
 
-**⚠️ Must call codex** (refer to invocation rules above):
-- ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md`
+**⚠️ Must call claude** (refer to invocation rules above):
+- ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/claude/analyzer.md`
 - Requirement: Enhanced requirement (or $ARGUMENTS if not enhanced)
 - Context: Project context collected in Phase 1
 - OUTPUT: Technical feasibility analysis, recommended options (at least 2), risk assessment
 
-**📌 Save SESSION_ID** (`CODEX_SESSION`) for reuse in later phases.
+**📌 Save SESSION_ID** (`CLAUDE_SESSION`) for reuse in later phases.
 
 Output options (at least 2) and wait for the user to choose.
 
 ### 📋 Phase 3: Planning
 
-`[Mode: Planning]` - codex-led planning
+`[Mode: Planning]` - claude-led planning
 
-**⚠️ Must call codex** (using `resume <CODEX_SESSION>` to reuse session):
-- ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/architect.md`
+**⚠️ Must call claude** (using `resume <CLAUDE_SESSION>` to reuse session):
+- ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/claude/architect.md`
 - Requirement: The solution chosen by the user
 - Context: Analysis results from Phase 2
 - OUTPUT: File structure, function/class design, dependencies
@@ -139,10 +139,10 @@ Claude synthesizes the plan and saves it to `.claude/plan/task-name.md` after us
 
 ### 🚀 Phase 5: Refinement
 
-`[Mode: Refinement]` - codex-led review
+`[Mode: Refinement]` - claude-led review
 
-**⚠️ Must call codex** (refer to invocation rules above):
-- ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md`
+**⚠️ Must call claude** (refer to invocation rules above):
+- ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/claude/reviewer.md`
 - Requirement: Review the following backend code changes
 - Context: git diff or code content
 - OUTPUT: A list of issues regarding security, performance, error handling, and API conventions
@@ -161,7 +161,7 @@ Incorporate review feedback and apply refinements after user confirmation.
 
 ## Key rules
 
-1. **codex backend guidance is authoritative**
+1. **claude backend guidance is authoritative**
 2. **antigravity backend guidance is for reference only**
 3. External models have **zero write access** to the filesystem
 4. Claude is responsible for all code writes and file operations

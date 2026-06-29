@@ -3,7 +3,7 @@ name: code-audit
 description: Code security audit. Dangerous function identification, taint analysis, vulnerability mining, security auditing. Use when the user mentions code auditing, security auditing, vulnerability mining, dangerous functions, sink points, source points, or taint analysis.
 ---
 
-# 🔥 Red Flame Codex · Code Audit
+# 🔥 Red Flame Claude · Code Audit
 
 ## Audit Workflow
 

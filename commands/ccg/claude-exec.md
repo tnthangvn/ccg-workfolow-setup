@@ -1,8 +1,8 @@
 ---
-description: 'Codex full ownership Execution Planning - Reads planning files produced by /ccg:plan; codex handles MCP search + code implementation + tests, multi-model review'
+description: 'Claude full ownership Execution Planning - Reads planning files produced by /ccg:plan; claude handles MCP search + code implementation + tests, multi-model review'
 ---
 
-# Codex-Exec - Codex full ownership Execution Planning
+# Claude-Exec - Claude full ownership Execution Planning
 
 $ARGUMENTS
 
@@ -13,19 +13,19 @@ $ARGUMENTS
 **Use with `/ccg:plan`**:
 
 ```
-/ccg:plan → Multi-model collaborative planning (Codex ∥ Antigravity analysis → Claude synthesis)
+/ccg:plan → Multi-model collaborative planning (Claude ∥ Antigravity analysis → Claude synthesis)
                 ↓ Planning file (.claude/plan/xxx.md)
-/ccg:codex-exec → Codex full ownership execution (MCP search + code implementation + tests)
+/ccg:claude-exec → Claude full ownership execution (MCP search + code implementation + tests)
                 ↓ Code changes
-                → Multi-model review (Codex ∥ Antigravity cross-review)
+                → Multi-model review (Claude ∥ Antigravity cross-review)
 ```
 
 **Difference from `/ccg:execute`**:
 
-| Dimension | `/ccg:execute` | `/ccg:codex-exec` |
+| Dimension | `/ccg:execute` | `/ccg:claude-exec` |
 |------|---------------|-------------------|
-| Code implementation | Claude refactors codex/antigravity diffs | **codex implements directly** |
-| MCP search | Claude calls MCP | **codex calls MCP** |
+| Code implementation | Claude refactors claude/antigravity diffs | **claude implements directly** |
+| MCP search | Claude calls MCP | **claude calls MCP** |
 | Claude context | High (search results + full code come in) | **Very low (summary + diff only)** |
 | Claude tokens | Heavy usage | **Very low usage** |
 | Review | Multi-model review | **Multi-model review (unchanged)** |
@@ -46,11 +46,11 @@ $ARGUMENTS
 - If the user added multiple workspaces via `/add-dir`, use Glob/Grep first to identify the workspace relevant to the task
 - If unclear, use `AskUserQuestion` to ask the user to choose the target workspace
 
-**codex execution invocation syntax**:
+**claude execution invocation syntax**:
 
 ```
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EXEC_EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend claude - \"{{WORKDIR}}\" <<'EXEC_EOF'
 <TASK>
 <Instruction content>
 </TASK>
@@ -61,11 +61,11 @@ EXEC_EOF",
 })
 ```
 
-**codex resume session invocation**:
+**claude resume session invocation**:
 
 ```
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EXEC_EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend claude resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EXEC_EOF'
 <TASK>
 <Instruction content>
 </TASK>
@@ -76,14 +76,14 @@ EXEC_EOF",
 })
 ```
 
-**Review invocation syntax** (Codex ∥ Antigravity parallel review):
+**Review invocation syntax** (Claude ∥ Antigravity parallel review):
 
 ```
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'REVIEW_EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <claude|antigravity> - \"{{WORKDIR}}\" <<'REVIEW_EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
-Scope: Audit the code changes made by Codex.
+Scope: Audit the code changes made by Claude.
 Inputs:
 - The git diff (applied changes)
 - The implementation plan
@@ -104,7 +104,7 @@ REVIEW_EOF",
 
 | Phase | Backend | Frontend |
 |-------|---------|----------|
-| Review | `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/reviewer.md` |
+| Review | `/home/thangtn/.claude/.ccg/prompts/claude/reviewer.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/reviewer.md` |
 
 **Wait for background tasks** (max timeout 600000ms = 10 minutes):
 
@@ -138,7 +138,7 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
    - Technical solution
    - Implementation steps
    - Key file list
-   - SESSION_ID (`CODEX_SESSION` / `ANTIGRAVITY_SESSION`)
+   - SESSION_ID (`CLAUDE_SESSION` / `ANTIGRAVITY_SESSION`)
 
 3. **Confirm before execution**:
    Present planning summary to the user, execute after confirmation:
@@ -147,27 +147,27 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
    ## Upcoming Execution
 
    **Task**: <Planning title>
-   **Mode**: Codex full ownership execution
+   **Mode**: Claude full ownership execution
    **Steps**: <N steps>
    **Key files**: <N files>
 
-   Codex will complete autonomously: MCP search + code implementation + test verification
-   Claude only performs final review
+   Claude will complete autonomously: MCP search + code implementation + test verification
+   Claude (self) only performs final review
 
    Confirm execution? (Y/N)
    ```
 
 ---
 
-### ⚡ Phase 1: Codex full ownership execution
+### ⚡ Phase 1: Claude full ownership execution
 
 `[Mode: Execution]`
 
-**Convert the plan into structured Codex instructions and send them in one shot**:
+**Convert the plan into structured Claude instructions and send them in one shot**:
 
 ```
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex resume <CODEX_SESSION> - \"{{WORKDIR}}\" <<'EXEC_EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend claude resume <CLAUDE_SESSION> - \"{{WORKDIR}}\" <<'EXEC_EOF'
 <TASK>
 You are a full-stack execution agent. Implement the following plan end to end.
 
@@ -222,13 +222,13 @@ For each file changed:
 EXEC_EOF",
   run_in_background: true,
   timeout: 3600000,
-  description: "Codex full ownership execution: <Planning title>"
+  description: "Claude full ownership execution: <Planning title>"
 })
 ```
 
-**📌 Record SESSION_ID** (`CODEX_EXEC_SESSION`)
+**📌 Record SESSION_ID** (`CLAUDE_EXEC_SESSION`)
 
-If there is no `CODEX_SESSION` in the plan (user skipped multi-model analysis in `/ccg:plan`), use a new session.
+If there is no `CLAUDE_SESSION` in the plan (user skipped multi-model analysis in `/ccg:plan`), use a new session.
 
 Wait for completion using `TaskOutput`.
 
@@ -238,13 +238,13 @@ Wait for completion using `TaskOutput`.
 
 `[Mode: Review]`
 
-**Claude only performs minimal validation and does not repeat work already done by Codex**:
+**Claude only performs minimal validation and does not repeat work already done by Claude backend**:
 
-1. **Read Codex report**: Parse CONTEXT_GATHERED / CHANGES_MADE / VERIFICATION_RESULTS / REMAINING_ISSUES
+1. **Read Claude report**: Parse CONTEXT_GATHERED / CHANGES_MADE / VERIFICATION_RESULTS / REMAINING_ISSUES
 2. **Inspect actual changes**:
 
    ```
-   Bash({ command: "git diff HEAD", description: "Inspect Codex actual changes" })
+   Bash({ command: "git diff HEAD", description: "Inspect Claude actual changes" })
    ```
 
 3. **Fast judgment**:
@@ -263,11 +263,11 @@ Wait for completion using `TaskOutput`.
 
 `[Mode: Additional]`
 
-**Reuse the Codex session and send correction instructions**:
+**Reuse the Claude session and send correction instructions**:
 
 ```
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex resume <CODEX_EXEC_SESSION> - \"{{WORKDIR}}\" <<'FIXEOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend claude resume <CLAUDE_EXEC_SESSION> - \"{{WORKDIR}}\" <<'FIXEOF'
 <TASK>
 The implementation needs corrections:
 
@@ -284,7 +284,7 @@ Apply fixes and rerun tests. Report results in the same format.
 FIXEOF",
   run_in_background: true,
   timeout: 3600000,
-  description: "Codex fix: <brief problem description>"
+  description: "Claude backend fix: <brief problem description>"
 })
 ```
 
@@ -296,7 +296,7 @@ Return to Phase 2 after completion. **Maximum 2 rework rounds**, beyond which Cl
 
 `[Mode: Review]`
 
-**Call codex + antigravity in parallel for cross-review** (multi-model collaboration unchanged):
+**Call claude + antigravity in parallel for cross-review** (multi-model collaboration unchanged):
 
 1. **Get change diff**:
 
@@ -306,8 +306,8 @@ Return to Phase 2 after completion. **Maximum 2 rework rounds**, beyond which Cl
 
 2. **Parallel calls** (`run_in_background: true`):
 
-   - **codex review**:
-     - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md`
+   - **claude review**:
+     - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/claude/reviewer.md`
      - Input: Change Diff + Planning file content
      - Focus: Security, performance, error handling, logical correctness
 
@@ -319,14 +319,14 @@ Return to Phase 2 after completion. **Maximum 2 rework rounds**, beyond which Cl
    Wait for full review results from both models using `TaskOutput`.
 
 3. **Integrate review feedback**:
-   - Based on trust rules: Backend issues based on codex, frontend issues based on antigravity.
-   - **Critical** → must fix (Claude fixes directly or delegates to Codex again)
+   - Based on trust rules: Backend issues based on claude, frontend issues based on antigravity.
+   - **Critical** → must fix (Claude fixes directly or delegates to Claude backend again)
    - **Warning** → recommended fix, report to user for decision
    - **Info** → record only, no action
 
 4. **Execution cleanup** (if Critical issues exist):
    - < 10 lines correction: Claude fixes directly
-   - ≥ 10 lines correction: Dispatch Codex again (reuse `CODEX_EXEC_SESSION`)
+   - ≥ 10 lines correction: Dispatch Claude backend again (reuse `CLAUDE_EXEC_SESSION`)
    - Optional repeat of Phase 3 after fix (until risk is acceptable)
 
 ---
@@ -344,8 +344,8 @@ Report to the user:
 | Item | Details |
 |------|------|
 | Planning | <Planning file path> |
-| Mode | Codex full ownership execution + Multi-model review |
-| Search | <Which MCP tools Codex used, key findings> |
+| Mode | Claude full ownership execution + Multi-model review |
+| Search | <Which MCP tools Claude backend used, key findings> |
 | Changes | <N files, +X/-Y lines> |
 | Tests | <Pass/Fail> |
 | Rework | <0/1/2 rounds> |
@@ -356,7 +356,7 @@ Report to the user:
 | path/to/file.ts | Modify/Add | Description |
 
 ### Review results
-- Codex review: <Pass/Found N issues>
+- Claude review: <Pass/Found N issues>
 - Antigravity review: <Pass/Found N issues>
 - Claude handling: <Fixed N Critical, N Warning pending user decision>
 
@@ -369,13 +369,13 @@ Report to the user:
 
 ## Key rules
 
-1. **Claude minimalism principle** — Claude does not call MCP or perform code retrieval. It only reads the plan, directs Codex, and reviews results.
-2. **Codex full ownership execution** — MCP search, documentation lookup, code retrieval, implementation, and testing are all handled by codex.
-3. **Multi-model review unchanged** — review stage still uses Codex ∥ Antigravity cross-review to ensure quality.
-4. **Trust rules** — Backend based on codex, frontend based on antigravity.
-5. **One-shot delivery** — give Codex the full instructions + full plan in one go whenever possible to reduce back-and-forth.
-6. **At most 2 rework rounds** — after 2 rounds, Claude takes over directly to avoid infinite loops.
-7. **Plan alignment** — Codex implementation must stay within plan scope; out-of-scope changes are violations.
+1. **Claude minimalism principle** — Claude (self) does not call MCP or perform code retrieval. It only reads the plan, directs Claude backend, and reviews results.
+2. **Claude backend full ownership execution** — MCP search, documentation lookup, code retrieval, implementation, and testing are all handled by Claude backend.
+3. **Multi-model review unchanged** — review stage still uses Claude ∥ Antigravity cross-review to ensure quality.
+4. **Trust rules** — Backend based on claude, frontend based on antigravity.
+5. **One-shot delivery** — give Claude backend the full instructions + full plan in one go whenever possible to reduce back-and-forth.
+6. **At most 2 rework rounds** — after 2 rounds, Claude (self) takes over directly to avoid infinite loops.
+7. **Plan alignment** — Claude backend implementation must stay within plan scope; out-of-scope changes are violations.
 
 ---
 
@@ -385,10 +385,10 @@ Report to the user:
 # Standard flow: plan first, then execution
 /ccg:plan Implement user authentication
 # After reviewing the plan...
-/ccg:codex-exec .claude/plan/user-auth.md
+/ccg:claude-exec .claude/plan/user-auth.md
 
 # Direct execution (will prompt to run /ccg:plan first)
-/ccg:codex-exec Implement user authentication
+/ccg:claude-exec Implement user authentication
 ```
 
 ---
@@ -400,12 +400,12 @@ Report to the user:
                     │
           ┌─────────┴─────────┐
           ↓                   ↓
-   /ccg:execute        /ccg:codex-exec
-   (Claude refactor)   (Codex full)
+   /ccg:execute        /ccg:claude-exec
+   (Claude refactor)   (Claude backend full)
    Claude high cost    Claude extremely low cost
    Fine control        High efficiency execution
 ```
 
 Users can choose based on task characteristics:
 - **Need fine control** → `/ccg:execute` (Claude line-by-line refactor)
-- **Need high efficiency execution** → `/ccg:codex-exec` (Codex one-shot)
+- **Need high efficiency execution** → `/ccg:claude-exec` (Claude backend one-shot)

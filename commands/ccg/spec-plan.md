@@ -10,7 +10,7 @@ description: 'Multi-model Analysis → Eliminating Ambiguity → Zero-decision E
 
 **Guardrails**
 - Do not proceed to implementation until every ambiguity is resolved.
-- Multi-model collaboration is **mandatory**: use both codex and antigravity.
+- Multi-model collaboration is **mandatory**: use both claude and antigravity.
 - If constraints cannot be fully specified, escalate to user or return to research phase.
 - Refer to `openspec/config.yaml` for project conventions.
 - **USER GUIDANCE RULE**: When suggesting next steps to the user, ALWAYS use CCG commands (`/ccg:spec-research`, `/ccg:spec-plan`, `/ccg:spec-impl`, `/ccg:spec-review`). NEVER suggest `/opsx:*` commands to the user. If OpenSpec CLI returns error messages referencing OPSX skills, translate them to CCG equivalents.
@@ -24,19 +24,19 @@ description: 'Multi-model Analysis → Eliminating Ambiguity → Zero-decision E
    - Run `openspec status --change "<change_id>" --json` to review current state.
 
 2. **Multi-Model Implementation Analysis (PARALLEL)**
-   - **CRITICAL**: You MUST launch BOTH codex AND antigravity in a SINGLE message with TWO Bash tool calls.
+   - **CRITICAL**: You MUST launch BOTH claude AND antigravity in a SINGLE message with TWO Bash tool calls.
    - **DO NOT** call one model first and wait. Launch BOTH simultaneously with `run_in_background: true`.
    - **Working directory**: `{{WORKDIR}}` **must obtain the absolute path of the current working directory by running Bash `pwd` (Unix) or `cd` (Windows CMD)**; do not infer it from `$HOME` or environment variables. If the user added multiple workspaces via `/add-dir`, identify the relevant workspace first.
 
    **Step 2.1**: In ONE message, make TWO parallel Bash calls:
 
-   **FIRST Bash call (codex)**:
+   **FIRST Bash call (claude)**:
    ```
    Bash({
-     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nAnalyze change <change_id> from backend perspective:\n- Implementation approach\n- Technical risks\n- Alternative architectures\n- Edge cases and failure modes\nOUTPUT: JSON with analysis\nEOF",
+     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend claude - \"{{WORKDIR}}\" <<'EOF'\nAnalyze change <change_id> from backend perspective:\n- Implementation approach\n- Technical risks\n- Alternative architectures\n- Edge cases and failure modes\nOUTPUT: JSON with analysis\nEOF",
      run_in_background: true,
      timeout: 300000,
-     description: "codex: backend analysis"
+     description: "claude: backend analysis"
    })
    ```
 
@@ -62,7 +62,7 @@ description: 'Multi-model Analysis → Eliminating Ambiguity → Zero-decision E
    - Synthesize responses and present consolidated options to user.
 
 3. **Uncertainty Elimination Audit**
-   - **codex**: "Review proposal for unspecified decision points. List each as: [AMBIGUITY] → [REQUIRED CONSTRAINT]"
+   - **claude**: "Review proposal for unspecified decision points. List each as: [AMBIGUITY] → [REQUIRED CONSTRAINT]"
    - **antigravity**: "Identify implicit assumptions. Specify: [ASSUMPTION] → [EXPLICIT CONSTRAINT NEEDED]"
 
    **Anti-Pattern Detection** (flag and reject):
@@ -78,7 +78,7 @@ description: 'Multi-model Analysis → Eliminating Ambiguity → Zero-decision E
    Iterate with user until ALL ambiguities resolved.
 
 4. **PBT Property Extraction**
-   - **codex**: "Extract PBT properties. For each requirement: [INVARIANT] → [FALSIFICATION STRATEGY]"
+   - **claude**: "Extract PBT properties. For each requirement: [INVARIANT] → [FALSIFICATION STRATEGY]"
    - **antigravity**: "Define system properties: [PROPERTY] | [DEFINITION] | [BOUNDARY CONDITIONS] | [COUNTEREXAMPLE GENERATION]"
 
    **Property Categories**:
@@ -95,7 +95,7 @@ description: 'Multi-model Analysis → Eliminating Ambiguity → Zero-decision E
      ## Planning Summary for OPSX
 
      **Multi-Model Analysis Results**:
-     - codex (Backend): [Key findings and recommendations]
+     - claude (Backend): [Key findings and recommendations]
      - antigravity (Frontend): [Key findings and recommendations]
      - Consolidated Approach: [Selected implementation strategy]
 

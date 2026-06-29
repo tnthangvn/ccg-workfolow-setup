@@ -6,7 +6,7 @@ user-invocable: false
 disable-model-invocation: false
 ---
 
-# 🕸 Collaborative Orchestration Codex
+# 🕸 Collaborative Orchestration Claude
 
 ## Knowledge Topics
 
@@ -22,7 +22,7 @@ disable-model-invocation: false
 - Cross-module collaborative development
 - Emergency multi-point fixes
 
-## Codex Enhancement Points
+## Claude Enhancement Points
 
 - Prioritize using `spawn_agent/send_input/wait/close_agent` to form a closed loop.
 - Use `explorer` for code exploration, `worker` for executing changes, and `awaiter` for long-running tasks.

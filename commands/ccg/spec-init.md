@@ -61,9 +61,9 @@ description: 'Initialize OpenSpec (OPSX) environment + Verify multi-model MCP to
 4. **Validate Multi-Model MCP Tools**
    - Check `codeagent-wrapper` availability: `/home/thangtn/.claude/bin/codeagent-wrapper --version`
    - **Working directory**: `{{WORKDIR}}` **must obtain the absolute path of the current working directory by running Bash `pwd` (Unix) or `cd` (Windows CMD)**; do not infer it from `$HOME` or environment variables. If the user added multiple workspaces via `/add-dir`, identify the relevant workspace first.
-   - Test codex backend:
+   - Test claude backend:
      ```bash
-     echo "echo test" | /home/thangtn/.claude/bin/codeagent-wrapper --backend codex - "{{WORKDIR}}"
+     echo "echo test" | /home/thangtn/.claude/bin/codeagent-wrapper --backend claude - "{{WORKDIR}}"
      ```
    - Test antigravity backend:
      ```bash
@@ -80,7 +80,7 @@ description: 'Initialize OpenSpec (OPSX) environment + Verify multi-model MCP to
    Project initialized       ✓/✗
    OPSX Skills               ✓/✗
    codeagent-wrapper         ✓/✗
-   codex backend             ✓/✗
+   claude backend             ✓/✗
    antigravity backend            ✓/✗
    ```
 

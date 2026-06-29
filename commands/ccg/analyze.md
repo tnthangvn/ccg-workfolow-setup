@@ -1,5 +1,5 @@
 ---
-description: 'Multi-model technical analysis (parallel execution): codex backend perspective + antigravity frontend perspective, cross-validated into a synthesized view'
+description: 'Multi-model technical analysis (parallel execution): claude backend perspective + antigravity frontend perspective, cross-validated into a synthesized view'
 ---
 
 # Analyze - Multi-model technical analysis
@@ -16,7 +16,7 @@ Use two models in parallel, cross-validate, and derive a synthesized technical v
 
 You are the **analysis coordinator**, orchestrating the multi-model analysis flow:
 - **ace-tool** – code context retrieval
-- **codex** – backend/system perspective (**backend authoritative**)
+- **claude** – backend/system perspective (**backend authoritative**)
 - **antigravity** – frontend/user perspective (**frontend authoritative**)
 - **Claude (self)** – synthesized insights
 
@@ -33,7 +33,7 @@ You are the **analysis coordinator**, orchestrating the multi-model analysis flo
 
 ```
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <claude|antigravity> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -51,7 +51,7 @@ EOF",
 
 | Model | Prompt |
 |------|--------|
-| Backend | `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md` |
+| Backend | `/home/thangtn/.claude/.ccg/prompts/claude/analyzer.md` |
 | Frontend | `/home/thangtn/.claude/.ccg/prompts/antigravity/analyzer.md` |
 
 **Parallel calls**: start with `run_in_background: true` and wait with `TaskOutput`. **Must wait for all models before moving to the next phase**.
@@ -93,8 +93,8 @@ If still unfinished after 10 minutes, continue polling with `TaskOutput`; **neve
 
 **⚠️ Must launch two Bash calls in parallel** (per the invocation rules above):
 
-1. **codex backend analysis**: `Bash({ command: "...--backend codex...", run_in_background: true })`
-   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md`
+1. **claude backend analysis**: `Bash({ command: "...--backend claude...", run_in_background: true })`
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/claude/analyzer.md`
    - OUTPUT: technical feasibility, architecture impact, performance considerations
 
 2. **antigravity frontend analysis**: `Bash({ command: "...--backend antigravity...", run_in_background: true })`
@@ -114,7 +114,7 @@ Use `TaskOutput` to wait for the full results from both models. **Must wait for 
    - **Aligned views** (strong signal)
    - **Differences** (need tradeoff)
    - **Complementary insights** (domain-specific observations)
-3. Apply trust rules: codex is authoritative for backend, antigravity is authoritative for frontend
+3. Apply trust rules: claude is authoritative for backend, antigravity is authoritative for frontend
 
 ### 📊 Phase 4: Synthesized output
 
@@ -155,5 +155,5 @@ Use `TaskOutput` to wait for the full results from both models. **Must wait for 
 ## Key rules
 
 1. **Analysis only, no modifications** – this command makes no code changes
-2. **Trust rules** – backend uses codex as source of truth, frontend uses antigravity
+2. **Trust rules** – backend uses claude as source of truth, frontend uses antigravity
 3. External models have **zero write access** to the filesystem

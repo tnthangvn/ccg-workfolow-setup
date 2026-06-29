@@ -71,7 +71,7 @@ Present the enhanced requirements and have the user confirm or adjust them.
 
 **Gate check**: Requirements enhanced ✓, Context collected ✓
 
-**⛔ For M complexity, dual models (Antigravity + Codex) must be invoked for parallel analysis. Cannot call only one, and cannot skip.**
+**⛔ For M complexity, dual models (Antigravity + Claude) must be invoked for parallel analysis. Cannot call only one, and cannot skip.**
 
 This is the core value of multi-model collaboration—two models analyze the same problem from different angles, cross-validating and covering each other's blind spots.
 
@@ -84,7 +84,7 @@ Execution steps:
 Backend Model:
 ```
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend codex - \"$WORKDIR\" <<'CODEAGENT_EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/analyzer.md\n<TASK>\nRequirement: {Enhanced requirements}\nContext: {Project context collected in Phase 2, relevant code summaries}\n</TASK>\nOUTPUT: Technical analysis report (feasibility, architectural recommendations, risk assessment, comparison of implementation options)\nCODEAGENT_EOF",
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --backend claude - \"$WORKDIR\" <<'CODEAGENT_EOF'\nROLE_FILE: /home/pc/.claude/.ccg/prompts/claude/analyzer.md\n<TASK>\nRequirement: {Enhanced requirements}\nContext: {Project context collected in Phase 2, relevant code summaries}\n</TASK>\nOUTPUT: Technical analysis report (feasibility, architectural recommendations, risk assessment, comparison of implementation options)\nCODEAGENT_EOF",
   run_in_background: true,
   timeout: 3600000,
   description: "Backend model analysis"
@@ -146,19 +146,14 @@ Update .ccg/tasks/{task-name}/task.json:
 
 **⛔⛔⛔ HARD STOP — You must stop here, present the following options to the user, and wait for a response. Do not skip, do not select by default. ⛔⛔⛔**
 
-You must output the following text exactly (raw output, not code block examples):
-
----
-⛔ **Plan Approval + Execution Mode Selection**
-
 Please approve the plan above and select who will write the code:
 1. **Claude writes code** — Fine control, step-by-step implementation.
-2. **Codex / Antigravity** — External models write code, faster, Claude monitors and reviews.
+2. **Claude / Antigravity** — External models write code, faster, Claude monitors and reviews.
 
-Please reply with 1 or 2 (or state directly "you write it", "use codex", etc.).
+Please reply with 1 or 2 (or state directly "you write it", "use claude", etc.).
 ---
 
-**Before the user replies, you must not perform any file writing operations.** Violations = process out of control.
+Before the user replies, you must not perform any file writing operations. Violations = process out of control.
 
 After user confirmation:
 ```
@@ -178,7 +173,7 @@ According to the execution mode selected by the user:
 
 #### Mode B: External model implementation (User selects [2])
 
-Claude acts as the orchestrator, invoking external models (Codex / Antigravity) to write code.
+Claude acts as the orchestrator, invoking external models (Claude / Antigravity) to write code.
 
 **Step 1**: Split subtasks from plan.md by file ownership:
 - **Layer 1** — Dependency-free tasks (low-level modules: model/util/store).
@@ -189,16 +184,16 @@ Claude acts as the orchestrator, invoking external models (Codex / Antigravity) 
 
 ```
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --parallel --backend codex - \"$WORKDIR\" <<'PARALLEL_EOF'\n---TASK---\nid: layer1-{name1}\nworkdir: $WORKDIR\n---CONTENT---\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/builder.md\n<TASK>\n## File Scope (⛔ Modify ONLY these files)\n{file1, file2}\n\n## Implementation Steps\n{steps from plan.md}\n</TASK>\n---TASK---\nid: layer1-{name2}\nworkdir: $WORKDIR\n---CONTENT---\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/builder.md\n<TASK>\n## File Scope\n{file3, file4}\n\n## Implementation Steps\n{steps}\n</TASK>\n---TASK---\nid: layer2-{name3}\nworkdir: $WORKDIR\ndependencies: layer1-{name1},layer1-{name2}\n---CONTENT---\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/builder.md\n<TASK>\n## File Scope\n{file5}\n\n## Implementation Steps\n{steps}\n</TASK>\nPARALLEL_EOF",
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --parallel --backend claude - \"$WORKDIR\" <<'PARALLEL_EOF'\n---TASK---\nid: layer1-{name1}\nworkdir: $WORKDIR\n---CONTENT---\nROLE_FILE: /home/pc/.claude/.ccg/prompts/claude/builder.md\n<TASK>\n## File Scope (⛔ Modify ONLY these files)\n{file1, file2}\n\n## Implementation Steps\n{steps from plan.md}\n</TASK>\n---TASK---\nid: layer1-{name2}\nworkdir: $WORKDIR\n---CONTENT---\nROLE_FILE: /home/pc/.claude/.ccg/prompts/claude/builder.md\n<TASK>\n## File Scope\n{file3, file4}\n\n## Implementation Steps\n{steps}\n</TASK>\n---TASK---\nid: layer2-{name3}\nworkdir: $WORKDIR\ndependencies: layer1-{name1},layer1-{name2}\n---CONTENT---\nROLE_FILE: /home/pc/.claude/.ccg/prompts/claude/builder.md\n<TASK>\n## File Scope\n{file5}\n\n## Implementation Steps\n{steps}\n</TASK>\nPARALLEL_EOF",
   run_in_background: true,
   timeout: 3600000,
   description: "Parallel Builder: {task count} subtasks"
 })
 ```
 
-**Can also use Codex native spawn mode** (if the project has configured multi_agent_v2 in `.codex/`):
-- Send orchestration instructions to Codex to read the "Parallel Spawn" mode in AGENTS.md §5.
-- Codex spawns ccg-implement sub-agents on its own to write in parallel.
+**Can also use Claude native spawn mode** (if the project has configured multi_agent_v2 in `.claude/`):
+- Send orchestration instructions to Claude to read the "Parallel Spawn" mode in AGENTS.md §5.
+- Claude spawns ccg-implement sub-agents on its own to write in parallel.
 
 **Step 3**: Wait for completion and read the summary report.
 

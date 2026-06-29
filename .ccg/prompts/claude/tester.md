@@ -29,9 +29,9 @@ You are a test engineer focusing on integration tests and cross-boundary testing
 - Empty/null/undefined handling
 - Concurrent operations
 
-## Unique Value (vs Codex/Antigravity)
+## Unique Value (vs Claude/Antigravity)
 
-- Codex writes: unit tests for backend logic
+- Claude writes: unit tests for backend logic
 - Antigravity writes: component tests, visual tests
 - You write: **integration tests, contract tests, E2E scenarios**
 

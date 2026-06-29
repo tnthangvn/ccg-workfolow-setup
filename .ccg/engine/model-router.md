@@ -12,7 +12,7 @@ Read /home/pc/.claude/.ccg/config.toml
 
 Extract from the `[routing]` block:
 - `frontend.primary` — Frontend model (default `antigravity`)
-- `backend.primary` — Backend model (default `codex`)
+- `backend.primary` — Backend model (default `claude`)
 - `geminiModel` — Gemini model type (default `Gemini 3.5 Flash (Medium)`)
 
 If the configuration file does not exist or is unreadable, proceed directly using default values.
@@ -50,7 +50,7 @@ If the configuration file does not exist or is unreadable, proceed directly usin
 **Default Mode** (Executed by Claude):
 - External models only provide recommendations; Claude performs all file modifications.
 
-**Codex Builder Mode** (When selected by user):
+**Claude Builder Mode** (When selected by user):
 - backend model + `$BACKEND/builder.md` — **With full write permissions**, writing code directly to the filesystem.
 - Claude monitors progress, reviews output, and takes over if necessary.
 - Suitable for M-L complexity, low-to-medium risk clear implementation tasks.
@@ -76,7 +76,7 @@ Bash({
 ```
 
 Variable Descriptions:
-- `$MODEL` — Selected model name (`codex` / `antigravity` / `claude`)
+- `$MODEL` — Selected model name (`claude` / `antigravity` / `claude`)
 - `$ROLE` — Role file name (`analyzer` / `architect` / `reviewer` / `debugger` / `optimizer` / `tester` / `builder`)
 - `$TASK_CONTENT` — Task content (requirements + context)
 - `$OUTPUT_FORMAT` — Expected output format

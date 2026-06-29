@@ -5,10 +5,10 @@ description: 'Agent Teams Planning - Lead calls Backend/Frontend models for para
 **Core Philosophy**
 - Produced planning must allow Builder teammates to execute mechanically without decisions.
 - File scopes for each subtask must be isolated to ensure no parallel conflicts.
-- Multi-model collaboration is mandatory: codex (backend authoritative) + antigravity (frontend authoritative).
+- Multi-model collaboration is mandatory: claude (backend authoritative) + antigravity (frontend authoritative).
 
 **Guardrails**
-- Multi-model analysis is **mandatory**: must call both codex and antigravity.
+- Multi-model analysis is **mandatory**: must call both claude and antigravity.
 - Do not write product code, only analysis and planning.
 - Planning file must contain actual analysis summaries from external models.
 - Use `AskUserQuestion` to resolve any ambiguity.
@@ -23,13 +23,13 @@ description: 'Agent Teams Planning - Lead calls Backend/Frontend models for para
    - **CRITICAL**: Must launch two Bash calls simultaneously in a single message with `run_in_background: true`.
    - **Working directory**: `{{WORKDIR}}` **must obtain the absolute path of the current working directory by running Bash `pwd` (Unix) or `cd` (Windows CMD)**; do not infer it from `$HOME` or environment variables.
 
-   **FIRST Bash call (codex)**:
+   **FIRST Bash call (claude)**:
    ```
    Bash({
-     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/thangtn/.claude/.ccg/prompts/codex/analyzer.md\n<TASK>\nRequirement: $ARGUMENTS\nContext: <Project structure and key code collected in Step 1>\n</TASK>\nOUTPUT:\n1) Technical feasibility assessment\n2) Recommended architectural solution (precise to files and functions)\n3) Detailed implementation steps\n4) Risk assessment\nEOF",
+     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend claude - \"{{WORKDIR}}\" <<'EOF'\nROLE_FILE: /home/thangtn/.claude/.ccg/prompts/claude/analyzer.md\n<TASK>\nRequirement: $ARGUMENTS\nContext: <Project structure and key code collected in Step 1>\n</TASK>\nOUTPUT:\n1) Technical feasibility assessment\n2) Recommended architectural solution (precise to files and functions)\n3) Detailed implementation steps\n4) Risk assessment\nEOF",
      run_in_background: true,
      timeout: 3600000,
-     description: "codex backend analysis"
+     description: "claude backend analysis"
    })
    ```
 
@@ -55,7 +55,7 @@ description: 'Agent Teams Planning - Lead calls Backend/Frontend models for para
    - ⛔ **Backend model output must be awaited**: Backend model execution taking 5-15 minutes is normal. After TaskOutput times out, continue polling; **strictly prohibit skipping when the backend model hasn't returned results**.
 
 3. **Synthesized Analysis + Task Breakdown**
-   - Backend solution based on codex, frontend solution based on antigravity.
+   - Backend solution based on claude, frontend solution based on antigravity.
    - Breakdown into independent subtasks, each with:
      * Non-overlapping file scopes (**mandatory**)
      * Set as dependency if overlap is unavoidable
@@ -72,7 +72,7 @@ description: 'Agent Teams Planning - Lead calls Backend/Frontend models for para
    ## Overview
    <one-line description>
 
-   ## codex Analysis Summary
+   ## claude Analysis Summary
    <Actual key content returned by backend model>
 
    ## antigravity Analysis Summary
@@ -113,7 +113,7 @@ description: 'Agent Teams Planning - Lead calls Backend/Frontend models for para
    - If approaching 80K: Suggest running `/ccg:team-exec` after `/clear`.
 
 **Exit Criteria**
-- [ ] codex + antigravity analysis complete
+- [ ] claude + antigravity analysis complete
 - [ ] No subtask file scope conflicts
 - [ ] Planning file written to `.claude/team-plan/`
 - [ ] User has confirmed planning

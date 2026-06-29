@@ -49,7 +49,7 @@ description: 'Requirement → Constraint Sets (Parallel Exploration + OPSX Propo
    - Each boundary should be self-contained: no cross-communication needed.
 
 4. **Parallel Multi-Model Exploration**
-   - **CRITICAL**: You MUST launch BOTH codex AND antigravity in a SINGLE message with TWO Bash tool calls.
+   - **CRITICAL**: You MUST launch BOTH claude AND antigravity in a SINGLE message with TWO Bash tool calls.
    - **DO NOT** call one model first and wait. Launch BOTH simultaneously with `run_in_background: true`.
    - **Working directory**: `{{WORKDIR}}` **must obtain the absolute path of the current working directory by running Bash `pwd` (Unix) or `cd` (Windows CMD)**; do not infer it from `$HOME` or environment variables. If the user added multiple workspaces via `/add-dir`, identify the relevant workspace first.
 
@@ -69,13 +69,13 @@ description: 'Requirement → Constraint Sets (Parallel Exploration + OPSX Propo
 
    **Step 4.1**: In ONE message, make TWO parallel Bash calls:
 
-   **FIRST Bash call (codex — backend boundaries)**:
+   **FIRST Bash call (claude — backend boundaries)**:
    ```
    Bash({
-     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - \"{{WORKDIR}}\" <<'EOF'\nExplore backend context boundaries for <change description>:\n- Existing structures and patterns\n- Conventions in use\n- Hard constraints limiting solution space\n- Dependencies and risks\nOUTPUT: JSON using the output template above\nEOF",
+     command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend claude - \"{{WORKDIR}}\" <<'EOF'\nExplore backend context boundaries for <change description>:\n- Existing structures and patterns\n- Conventions in use\n- Hard constraints limiting solution space\n- Dependencies and risks\nOUTPUT: JSON using the output template above\nEOF",
      run_in_background: true,
      timeout: 300000,
-     description: "codex: backend boundary exploration"
+     description: "claude: backend boundary exploration"
    })
    ```
 

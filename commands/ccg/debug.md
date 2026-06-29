@@ -1,5 +1,5 @@
 ---
-description: 'Multi-model Debugging: codex backend diagnosis + antigravity frontend diagnosis, cross-validation to locate issues'
+description: 'Multi-model Debugging: claude backend diagnosis + antigravity frontend diagnosis, cross-validation to locate issues'
 ---
 
 # Debug - Multi-model Debugging
@@ -15,7 +15,7 @@ Dual-model parallel diagnosis, cross-validation for fast root cause localization
 ## Your role
 
 You are the **debugging coordinator**, orchestrating the multi-model diagnosis flow:
-- **codex** – Backend diagnosis (**authoritative for backend issues**)
+- **claude** – Backend diagnosis (**authoritative for backend issues**)
 - **antigravity** – Frontend diagnosis (**authoritative for frontend issues**)
 - **Claude (self)** – Synthesis, execution of fixes
 
@@ -30,10 +30,10 @@ You are the **debugging coordinator**, orchestrating the multi-model diagnosis f
 
 **Invocation examples**:
 
-**codex backend diagnosis**:
+**claude backend diagnosis**:
 ```bash
-/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend codex - "$(pwd)" <<'EOF'
-ROLE_FILE: /home/thangtn/.claude/.ccg/prompts/codex/debugger.md
+/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend claude - "$(pwd)" <<'EOF'
+ROLE_FILE: /home/thangtn/.claude/.ccg/prompts/claude/debugger.md
 <TASK>
 Requirement: <enhanced requirement>
 Context: <error logs, stack traces, reproduction steps>
@@ -58,12 +58,12 @@ EOF
 
 | Model | Prompt |
 |------|--------|
-| Backend | `/home/thangtn/.claude/.ccg/prompts/codex/debugger.md` |
+| Backend | `/home/thangtn/.claude/.ccg/prompts/claude/debugger.md` |
 | Frontend | `/home/thangtn/.claude/.ccg/prompts/antigravity/debugger.md` |
 
 **Parallel calls**:
 1. Use the `Bash` tool with `run_in_background: true` and `timeout: 600000` (10 minutes).
-2. Launch two background tasks simultaneously (codex + antigravity).
+2. Launch two background tasks simultaneously (claude + antigravity).
 3. Use `TaskOutput` to wait for results: `TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })`.
 
 **Important**:
@@ -97,8 +97,8 @@ EOF
 
 **⚠️ Must launch two parallel Bash calls** (per the invocation rules above):
 
-1. **codex backend diagnosis**: `Bash({ command: "...--backend codex...", run_in_background: true })`
-   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/debugger.md`
+1. **claude backend diagnosis**: `Bash({ command: "...--backend claude...", run_in_background: true })`
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/claude/debugger.md`
    - OUTPUT: Diagnostic hypotheses (sorted by probability), each containing cause, evidence, and fix suggestions.
 
 2. **antigravity frontend diagnosis**: `Bash({ command: "...--backend antigravity...", run_in_background: true })`
@@ -124,7 +124,7 @@ Wait for diagnostic results from both models using `TaskOutput`. **Must wait for
 ```markdown
 ## 🔍 Diagnostic Results
 
-### codex Analysis (backend perspective)
+### claude Analysis (backend perspective)
 <Diagnostic summary>
 
 ### antigravity Analysis (frontend perspective)
@@ -153,5 +153,5 @@ After user confirmation:
 ## Key rules
 
 1. **User Confirmation** – Must get confirmation before fixing.
-2. **Trust Rules** – Backend issues based on codex, frontend issues based on antigravity.
+2. **Trust Rules** – Backend issues based on claude, frontend issues based on antigravity.
 3. External models have **zero write access** to the filesystem.

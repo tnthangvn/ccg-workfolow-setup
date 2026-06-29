@@ -145,9 +145,9 @@ You must output the following text exactly (raw output, not code block examples)
 
 Please approve the plan above and select who will write the code:
 1. **Agent Teams** — Claude Builders write in parallel, multiple files simultaneously.
-2. **Codex / Antigravity** — External models write code, faster and cheaper, Claude monitors and reviews.
+2. **Claude / Antigravity** — External models write code, faster and cheaper, Claude monitors and reviews.
 
-Please reply with 1 or 2 (or state directly "use team", "use codex", etc.).
+Please reply with 1 or 2 (or state directly "use team", "use claude", etc.).
 ---
 
 **Before the user replies, you must not perform any file writing operations.** Unapproved plans must not enter Phase 4.
@@ -247,7 +247,7 @@ If TeamCreate returns an error (e.g. `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` not 
 
 **Task Update**: `currentPhase → "4-implementation"`, `nextAction → "Parallel Builder executes plan"`
 
-Claude acts as the orchestrator, calling external models (Codex / Antigravity) to **write code in parallel**.
+Claude acts as the orchestrator, calling external models (Claude / Antigravity) to **write code in parallel**.
 
 **Step 1**: Split into parallel subtasks from plan.md by **file ownership**:
 - **Layer 1** — Dependency-free (low-level modules: model/store/util/schema) → Parallel.
@@ -258,7 +258,7 @@ Claude acts as the orchestrator, calling external models (Codex / Antigravity) t
 
 ```
 Bash({
-  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --parallel --backend codex - \"$WORKDIR\" <<'PARALLEL_EOF'\n---TASK---\nid: layer1-{name1}\nworkdir: $WORKDIR\n---CONTENT---\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/builder.md\n<TASK>\n## File Scope (⛔ Modify ONLY these files)\n{file1, file2}\n\n## Implementation Steps\n{steps from plan.md Layer 1}\n\n## Verification Commands\n{test/lint commands}\n</TASK>\n---TASK---\nid: layer1-{name2}\nworkdir: $WORKDIR\n---CONTENT---\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/builder.md\n<TASK>\n## File Scope\n{file3, file4}\n\n## Implementation Steps\n{steps}\n</TASK>\n---TASK---\nid: layer2-{name3}\nworkdir: $WORKDIR\ndependencies: layer1-{name1},layer1-{name2}\n---CONTENT---\nROLE_FILE: /home/pc/.claude/.ccg/prompts/codex/builder.md\n<TASK>\n## File Scope\n{file5, file6}\n\n## Implementation Steps\n{steps from Layer 2}\n</TASK>\nPARALLEL_EOF",
+  command: "/home/pc/.claude/bin/codeagent-wrapper --progress --parallel --backend claude - \"$WORKDIR\" <<'PARALLEL_EOF'\n---TASK---\nid: layer1-{name1}\nworkdir: $WORKDIR\n---CONTENT---\nROLE_FILE: /home/pc/.claude/.ccg/prompts/claude/builder.md\n<TASK>\n## File Scope (⛔ Modify ONLY these files)\n{file1, file2}\n\n## Implementation Steps\n{steps from plan.md Layer 1}\n\n## Verification Commands\n{test/lint commands}\n</TASK>\n---TASK---\nid: layer1-{name2}\nworkdir: $WORKDIR\n---CONTENT---\nROLE_FILE: /home/pc/.claude/.ccg/prompts/claude/builder.md\n<TASK>\n## File Scope\n{file3, file4}\n\n## Implementation Steps\n{steps}\n</TASK>\n---TASK---\nid: layer2-{name3}\nworkdir: $WORKDIR\ndependencies: layer1-{name1},layer1-{name2}\n---CONTENT---\nROLE_FILE: /home/pc/.claude/.ccg/prompts/claude/builder.md\n<TASK>\n## File Scope\n{file5, file6}\n\n## Implementation Steps\n{steps from Layer 2}\n</TASK>\nPARALLEL_EOF",
   run_in_background: true,
   timeout: 3600000,
   description: "Parallel Builder: {N} subtasks (L1: {X} parallel → L2: {Y} sequential)"
@@ -268,7 +268,7 @@ Bash({
 Splitting principles:
 - Number of Layer 1 subtasks = number of dependency-free file groups in plan (usually 2-4).
 - The file scope of each subtask **must not overlap**.
-- Backend can be mixed (backend tasks use codex, frontend tasks use antigravity) — specify `backend: antigravity` in `---TASK---`.
+- Backend can be mixed (backend tasks use claude, frontend tasks use antigravity) — specify `backend: antigravity` in `---TASK---`.
 
 **Step 3**: Wait for completion and read the summary report (the wrapper automatically merges all subtask results).
 

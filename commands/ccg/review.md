@@ -28,7 +28,7 @@ Dual-model parallel review, cross-validated synthesized feedback. Automatically 
 
 ```
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <claude|antigravity> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Review the following code changes:
@@ -46,7 +46,7 @@ EOF",
 
 | Model | Prompt |
 |------|--------|
-| Backend | `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md` |
+| Backend | `/home/thangtn/.claude/.ccg/prompts/claude/reviewer.md` |
 | Frontend | `/home/thangtn/.claude/.ccg/prompts/antigravity/reviewer.md` |
 
 **Parallel calls**: Start with `run_in_background: true`, wait for results with `TaskOutput`. **Must wait for all models before entering the next phase.**
@@ -84,8 +84,8 @@ Call `mcp__gitnexus__query` to get relevant context. If GitNexus is not availabl
 
 **⚠️ Must launch two parallel Bash calls** (per the invocation rules above):
 
-1. **codex backend review**: `Bash({ command: "...--backend codex...", run_in_background: true })`
-   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md`
+1. **claude backend review**: `Bash({ command: "...--backend claude...", run_in_background: true })`
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/claude/reviewer.md`
    - Requirement: Review code changes (git diff content).
    - OUTPUT: List security, performance, and error handling issues categorized by Critical/Major/Minor/Suggestion.
 
@@ -133,5 +133,5 @@ Wait for review results from both models using `TaskOutput`. **Must wait for all
 ## Key rules
 
 1. **No arguments = review git diff** – automatically acquire current changes.
-2. **Dual-model cross-validation** – backend issues based on codex, frontend issues based on antigravity.
+2. **Dual-model cross-validation** – backend issues based on claude, frontend issues based on antigravity.
 3. External models have **zero write access** to the filesystem.

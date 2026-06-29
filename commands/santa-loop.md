@@ -74,7 +74,7 @@ Launch an Agent (subagent_type: `code-reviewer`, model: `opus`) with the full ru
 
 First, detect which CLIs are available:
 ```bash
-command -v codex >/dev/null 2>&1 && echo "codex" || true
+command -v claude >/dev/null 2>&1 && echo "claude" || true
 command -v agy >/dev/null 2>&1 && echo "agy" || true
 ```
 
@@ -88,19 +88,19 @@ EOF
 
 Use the first available CLI:
 
-**Codex CLI** (if installed)
+**Claude CLI** (if installed)
 ```bash
-codex exec --sandbox read-only -m gpt-5.5-review -C "$(pwd)" - < "$PROMPT_FILE"
+claude exec --sandbox read-only -m gpt-5.5-review -C "$(pwd)" - < "$PROMPT_FILE"
 rm -f "$PROMPT_FILE"
 ```
 
-**Antigravity CLI** (if installed and codex is not)
+**Antigravity CLI** (if installed and claude is not)
 ```bash
 agy -p "$(cat "$PROMPT_FILE")"
 rm -f "$PROMPT_FILE"
 ```
 
-**Claude Agent fallback** (only if neither `codex` nor `antigravity (agy)` is installed)
+**Claude Agent fallback** (only if neither `claude` nor `antigravity (agy)` is installed)
 Launch a second Claude Agent (subagent_type: `code-reviewer`, model: `opus`). Log a warning that both reviewers share the same model family — true model diversity was not achieved but context isolation is still enforced.
 
 In all cases, the reviewer must return the same structured JSON verdict as Reviewer A.
@@ -168,7 +168,7 @@ Result:     [PUSHED / ESCALATED TO USER]
 - Reviewer A (Claude Opus) always runs — guarantees at least one strong reviewer regardless of tooling.
 - Model diversity is the goal for Reviewer B. GPT-5.5-review or Antigravity (Gemini 3.5 Flash) gives true independence — different training data, different biases, different blind spots. The Claude-only fallback still provides value via context isolation but loses model diversity.
 - Strongest available models are used: Opus for Reviewer A, GPT-5.5-review or Antigravity (Gemini 3.5 Flash) for Reviewer B.
-- External reviewers run with `--sandbox read-only` (Codex) to prevent repo mutation during review.
+- External reviewers run with `--sandbox read-only` (Claude) to prevent repo mutation during review.
 - Fresh reviewers each round prevents anchoring bias from prior findings.
 - The rubric is the most important input. Tighten it if reviewers rubber-stamp or flag subjective style issues.
 - Commits happen on NAUGHTY rounds so fixes are preserved even if the loop is interrupted.

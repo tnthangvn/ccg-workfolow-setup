@@ -6,7 +6,7 @@ user-invocable: false
 disable-model-invocation: false
 ---
 
-# 🕸 Heavenly Net Codex · Multi-Agent Collaboration (Ant Colony Bionic Edition)
+# 🕸 Heavenly Net Claude · Multi-Agent Collaboration (Ant Colony Bionic Edition)
 
 > Reference ant colony bionic architecture: Scout → Worker → Soldier → Repair → Complete, indirect pheromone communication, adaptive concurrency.
 
@@ -35,11 +35,11 @@ Target → Scout → Task Pool → Workers execute in parallel → Soldiers revi
 
 ---
 
-## Codex Native Collaboration Protocol (Enhanced)
+## Claude Native Collaboration Protocol (Enhanced)
 
-In Codex CLI, the TeamCreate/Task abstractions map directly to the following native actions:
+In Claude CLI, the TeamCreate/Task abstractions map directly to the following native actions:
 
-| Collaboration Intent | Codex Action | Constraints |
+| Collaboration Intent | Claude Action | Constraints |
 |---------|------------|------|
 | Create team/subtasks | `spawn_agent` | Clear roles, file ownership, and completion definitions |
 | Dispatch task/follow-up | `send_input` | A single message contains only one target action |
@@ -121,18 +121,18 @@ The `/ccg:team` command adds 3 enterprise-grade professional roles on top of the
 |------|----------|------|------|----------|------|
 | 🏗 Architect | `team-architect` | Heavenly Net Strategist (天罗军师) | Codebase scanning, architecture blueprints, file allocation matrix | Read/Glob/Grep (Read-only) | Sonnet |
 | 🧪 QA Engineer | `team-qa` | Heavenly Net Poison Tester (天罗验毒) | Write tests, run tests, lint, typecheck | Read/Write/Edit/Bash/Glob/Grep | Sonnet |
-| 🔬 Reviewer | `team-reviewer` | Heavenly Net Soldier (天罗护法) | Comprehensive Codex/Antigravity review, graded verdicts | Read/Glob/Grep (Read-only) | Sonnet |
+| 🔬 Reviewer | `team-reviewer` | Heavenly Net Soldier (天罗护法) | Comprehensive Claude/Antigravity review, graded verdicts | Read/Glob/Grep (Read-only) | Sonnet |
 
 ### 8-Stage Pipeline
 
 ```
 Phase 0: PRE-FLIGHT    → Environment check + argument parsing
 Phase 1: REQUIREMENT   → Lead requirement enhancement → mini-PRD
-Phase 2: ARCHITECTURE  → Codex∥Antigravity assistance + Architect teammate drafts blueprint
+Phase 2: ARCHITECTURE  → Claude∥Antigravity assistance + Architect teammate drafts blueprint
 Phase 3: PLANNING      → Lead breaks down tasks → Zero-decision parallel planning
 Phase 4: DEVELOPMENT   → Dev×N teammates code in parallel (file isolation)
 Phase 5: TESTING       → QA teammate writes tests + runs full verification
-Phase 6: REVIEW        → Codex∥Antigravity assistance + Reviewer teammate comprehensive review
+Phase 6: REVIEW        → Claude∥Antigravity assistance + Reviewer teammate comprehensive review
 Phase 7: FIX           → Dev teammate(s) fix Critical issues (max 2 rounds)
 Phase 8: INTEGRATION   → Lead full verification + report + cleanup
 ```
@@ -356,7 +356,7 @@ Output:
 
 ## Strong Constraint Prompt Templates (Ready to reuse)
 
-### Worker Instruction Template (Codex)
+### Worker Instruction Template (Claude)
 
 ```text
 You are an execution Agent, currently only allowed to modify the following files:
@@ -369,7 +369,7 @@ Hard Constraints:
 4) If failed, return minimal reproduction and alternative solutions.
 ```
 
-### Reviewer Instruction Template (Codex)
+### Reviewer Instruction Template (Claude)
 
 ```text
 You are a review Agent, in read-only mode.
@@ -377,7 +377,7 @@ Please output an issue list in the order of "Correctness > Security > Regression
 If no issues, explicitly state "no findings".
 ```
 
-### Lead Aggregation Template (Codex)
+### Lead Aggregation Template (Claude)
 
 ```text
 Aggregate the results from each Sub-Agent and provide:

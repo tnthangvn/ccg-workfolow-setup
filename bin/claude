@@ -1,0 +1,69 @@
+#!/usr/bin/env node
+/*
+ * claude → claude --model sonnet shim (CCG backend bridge) — PORTABLE
+ * ---------------------------------------------------------------------------
+ * Deployed by override.sh to ~/.local/bin/claude. Intercepts the wrapper's 
+ * execution of `claude` and injects `--model sonnet` so that the backend 
+ * executes with the Claude 3.5 Sonnet model.
+ */
+'use strict';
+const { spawn } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+
+const argv = process.argv.slice(2);
+
+function getRealClaude() {
+  if (process.env.CCG_REAL_CLAUDE) {
+    return process.env.CCG_REAL_CLAUDE;
+  }
+  const versionsDir = path.join(os.homedir(), '.local/share/claude/versions');
+  if (fs.existsSync(versionsDir)) {
+    const files = fs.readdirSync(versionsDir);
+    const versions = files
+      .filter(f => /^\d+\.\d+\.\d+$/.test(f))
+      .sort((a, b) => {
+        const partsA = a.split('.').map(Number);
+        const partsB = b.split('.').map(Number);
+        for (let i = 0; i < 3; i++) {
+          if (partsA[i] !== partsB[i]) {
+            return partsB[i] - partsA[i]; // descending
+          }
+        }
+        return 0;
+      });
+    if (versions.length > 0) {
+      return path.join(versionsDir, versions[0]);
+    }
+  }
+  return null;
+}
+
+const REAL_CLAUDE = getRealClaude();
+if (!REAL_CLAUDE) {
+  process.stderr.write('claude shim: real claude binary not found in ~/.local/share/claude/versions/\n');
+  process.exit(127);
+}
+
+// Injects --model sonnet if not already present
+const newArgv = [...argv];
+const hasModel = argv.includes('--model') || argv.includes('-m');
+
+if (!hasModel) {
+  const dashIndex = newArgv.indexOf('-');
+  if (dashIndex !== -1) {
+    newArgv.splice(dashIndex, 0, '--model', 'sonnet');
+  } else {
+    newArgv.push('--model', 'sonnet');
+  }
+}
+
+const child = spawn(REAL_CLAUDE, newArgv, { stdio: 'inherit' });
+child.on('close', (code) => {
+  process.exit(code == null ? 1 : code);
+});
+child.on('error', (err) => {
+  process.stderr.write(`claude shim: spawn error: ${err.message}\n`);
+  process.exit(127);
+});

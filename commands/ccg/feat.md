@@ -20,7 +20,7 @@ $ARGUMENTS
 ```
 # New session invocation
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <claude|antigravity> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -35,7 +35,7 @@ EOF",
 
 # Resume session invocation
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <claude|antigravity> resume <SESSION_ID> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement (or $ARGUMENTS if not enhanced)>
@@ -53,10 +53,10 @@ EOF",
 
 | Phase | Backend | Frontend |
 |-------|---------|----------|
-| Analysis | `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/analyzer.md` |
-| Planning | `/home/thangtn/.claude/.ccg/prompts/codex/architect.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/architect.md` |
-| Implementation | `/home/thangtn/.claude/.ccg/prompts/codex/architect.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/frontend.md` |
-| Review | `/home/thangtn/.claude/.ccg/prompts/codex/reviewer.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/reviewer.md` |
+| Analysis | `/home/thangtn/.claude/.ccg/prompts/claude/analyzer.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/analyzer.md` |
+| Planning | `/home/thangtn/.claude/.ccg/prompts/claude/architect.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/architect.md` |
+| Implementation | `/home/thangtn/.claude/.ccg/prompts/claude/architect.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/frontend.md` |
+| Review | `/home/thangtn/.claude/.ccg/prompts/claude/reviewer.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/reviewer.md` |
 
 **Session reuse**: Each call returns `SESSION_ID: xxx`, subsequent phases use `resume xxx` to reuse context.
 
@@ -162,8 +162,8 @@ Extract task classification from planning: Frontend / Backend / Full-stack.
 Call external models according to invocation rules:
 
 - **Frontend tasks**: Call antigravity using implementation prompt.
-- **Backend tasks**: Call codex using implementation prompt.
-- **Full-stack tasks**: Parallel calling codex + antigravity (`run_in_background: true`), wait for results with `TaskOutput`.
+- **Backend tasks**: Call claude using implementation prompt.
+- **Full-stack tasks**: Parallel calling claude + antigravity (`run_in_background: true`), wait for results with `TaskOutput`.
 
 **⚠️ Mandatory Rule: Must wait for TaskOutput to return full results from all models before entering the next phase.**
 
@@ -187,7 +187,7 @@ Ask the user whether to run code review (`/ccg:review`).
 3. **Dependency Management**: Frontend tasks must ensure UI design integrity.
 4. **Multi-model Trust Rules**:
    - Frontend based on antigravity.
-   - Backend based on codex.
+   - Backend based on claude.
 5. **Transparent Communication**: All judgments and actions must be clearly communicated to the user.
 
 ---

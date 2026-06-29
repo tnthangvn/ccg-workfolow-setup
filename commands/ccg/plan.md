@@ -29,7 +29,7 @@ $ARGUMENTS
 
 ```
 Bash({
-  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <codex|antigravity> - \"{{WORKDIR}}\" <<'EOF'
+  command: "/home/thangtn/.claude/bin/codeagent-wrapper --progress --backend <claude|antigravity> - \"{{WORKDIR}}\" <<'EOF'
 ROLE_FILE: <Role prompt path>
 <TASK>
 Requirement: <enhanced requirement>
@@ -47,8 +47,8 @@ EOF",
 
 | Phase | Backend | Frontend |
 |-------|---------|----------|
-| Analysis | `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/analyzer.md` |
-| Planning | `/home/thangtn/.claude/.ccg/prompts/codex/architect.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/architect.md` |
+| Analysis | `/home/thangtn/.claude/.ccg/prompts/claude/analyzer.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/analyzer.md` |
+| Planning | `/home/thangtn/.claude/.ccg/prompts/claude/architect.md` | `/home/thangtn/.claude/.ccg/prompts/antigravity/architect.md` |
 
 **Session reuse**: Each call returns `SESSION_ID: xxx` (usually output by the wrapper), **must be saved** for later use in `/ccg:execute`.
 
@@ -110,12 +110,12 @@ mcp__gitnexus__query({
 
 #### 2.1 Distribute Input
 
-**Parallel calling** codex and antigravity (`run_in_background: true`):
+**Parallel calling** claude and antigravity (`run_in_background: true`):
 
 Distribute the **original requirement** (without preset viewpoints) to both models:
 
-1. **codex backend analysis**:
-   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/analyzer.md`
+1. **claude backend analysis**:
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/claude/analyzer.md`
    - Focus: technical feasibility, architectural impact, performance considerations, potential risks.
    - OUTPUT: multi-perspective solutions + pros and cons analysis.
 
@@ -124,7 +124,7 @@ Distribute the **original requirement** (without preset viewpoints) to both mode
    - Focus: UI/UX impact, user experience, visual design.
    - OUTPUT: multi-perspective solutions + pros and cons analysis.
 
-Use `TaskOutput` to wait for full results from both models. **📌 Save SESSION_ID** (`CODEX_SESSION` and `ANTIGRAVITY_SESSION`).
+Use `TaskOutput` to wait for full results from both models. **📌 Save SESSION_ID** (`CLAUDE_SESSION` and `ANTIGRAVITY_SESSION`).
 
 #### 2.2 Cross-validation
 
@@ -132,15 +132,15 @@ Synthesize thoughts from all sides, perform iterative refinement:
 
 1. **Identify aligned views** (strong signals).
 2. **Identify points of divergence** (need tradeoffs).
-3. **Complementary strengths**: Backend logic based on codex, frontend design based on antigravity.
+3. **Complementary strengths**: Backend logic based on claude, frontend design based on antigravity.
 4. **Logical deduction**: Eliminate logic gaps in the solutions.
 
 #### 2.3 (Optional but Recommended) Dual-model "Draft Plans"
 
 To reduce the risk of omissions in Claude's synthesized plan, have both models output "Draft Plans" in parallel (still **not allowed** to modify files):
 
-1. **codex Draft Plan** (backend authoritative):
-   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/codex/architect.md`
+1. **claude Draft Plan** (backend authoritative):
+   - ROLE_FILE: `/home/thangtn/.claude/.ccg/prompts/claude/architect.md`
    - OUTPUT: Step-by-step plan + pseudo-code (focus: data flow/boundary conditions/error handling/testing strategy).
 
 2. **antigravity Draft Plan** (frontend authoritative):
@@ -158,7 +158,7 @@ Synthesize analysis from both sides, generate a **Step-by-step Implementation Pl
 
 ### Task Type
 - [ ] Frontend (→ antigravity)
-- [ ] Backend (→ codex)
+- [ ] Backend (→ claude)
 - [ ] Full-stack (→ parallel)
 
 ### Technical Solution
@@ -179,7 +179,7 @@ Synthesize analysis from both sides, generate a **Step-by-step Implementation Pl
 |------|--------------------|
 
 ### SESSION_ID (for /ccg:execute use)
-- CODEX_SESSION: <session_id>
+- CLAUDE_SESSION: <session_id>
 - ANTIGRAVITY_SESSION: <session_id>
 ```
 
@@ -251,6 +251,6 @@ After the user is satisfied with the review, **manually** execute:
 
 1. **Planning Only, No Implementation** – This command executes no code changes.
 2. **Do Not Ask Y/N** – Just present the plan and let the user decide the next step.
-3. **Trust Rules** – Backend based on codex, frontend based on antigravity.
+3. **Trust Rules** – Backend based on claude, frontend based on antigravity.
 4. External models have **zero write access** to the filesystem.
-5. **SESSION_ID Handover** – The end of the plan must contain `CODEX_SESSION` / `ANTIGRAVITY_SESSION` (for `/ccg:execute resume <SESSION_ID>` use).
+5. **SESSION_ID Handover** – The end of the plan must contain `CLAUDE_SESSION` / `ANTIGRAVITY_SESSION` (for `/ccg:execute resume <SESSION_ID>` use).

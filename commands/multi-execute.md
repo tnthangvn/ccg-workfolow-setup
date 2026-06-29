@@ -14,7 +14,7 @@ $ARGUMENTS
 
 - **Language Protocol**: Use **English** when interacting with tools/models, communicate with user in their language
 - **Code Sovereignty**: External models have **zero filesystem write access**, all modifications by Claude
-- **Dirty Prototype Refactoring**: Treat Codex/Antigravity Unified Diff as "dirty prototype", must refactor to production-grade code
+- **Dirty Prototype Refactoring**: Treat Claude/Antigravity Unified Diff as "dirty prototype", must refactor to production-grade code
 - **Stop-Loss Mechanism**: Do not proceed to next phase until current phase output is validated
 - **Prerequisite**: Only execute after user explicitly replies "Y" to `/ccg:plan` output (if missing, must confirm first)
 
@@ -27,7 +27,7 @@ $ARGUMENTS
 ```
 # Resume session call (recommended) - Implementation Prototype
 Bash({
-  command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--backend <codex|antigravity> {{ANTIGRAVITY_MODEL_FLAG}}<resume|--conversation> <SESSION_ID> - \"$PWD\" <<'EOF'
+  command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--backend <claude|antigravity> {{ANTIGRAVITY_MODEL_FLAG}}<resume|--conversation> <SESSION_ID> - \"$PWD\" <<'EOF'
 ROLE_FILE: <role prompt path>
 <TASK>
 Requirement: <task description>
@@ -42,7 +42,7 @@ EOF",
 
 # New session call - Implementation Prototype
 Bash({
-  command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--backend <codex|antigravity> {{ANTIGRAVITY_MODEL_FLAG}}- \"$PWD\" <<'EOF'
+  command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--backend <claude|antigravity> {{ANTIGRAVITY_MODEL_FLAG}}- \"$PWD\" <<'EOF'
 ROLE_FILE: <role prompt path>
 <TASK>
 Requirement: <task description>
@@ -60,7 +60,7 @@ EOF",
 
 ```
 Bash({
-  command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--backend <codex|antigravity> {{ANTIGRAVITY_MODEL_FLAG}}<resume|--conversation> <SESSION_ID> - \"$PWD\" <<'EOF'
+  command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--backend <claude|antigravity> {{ANTIGRAVITY_MODEL_FLAG}}<resume|--conversation> <SESSION_ID> - \"$PWD\" <<'EOF'
 ROLE_FILE: <role prompt path>
 <TASK>
 Scope: Audit the final code changes.
@@ -82,14 +82,14 @@ EOF",
 ```
 
 **Model Parameter Notes**:
-- `{{ANTIGRAVITY_MODEL_FLAG}}`: When using `--backend antigravity`, replace with `--gemini-model "Gemini 3.5 Flash (Medium)"` (or `"Gemini 3.5 Flash (High)"` / `"Gemini 3.5 Flash (Low)"`, note trailing space); use empty string for codex
+- `{{ANTIGRAVITY_MODEL_FLAG}}`: When using `--backend antigravity`, replace with `--gemini-model "Gemini 3.5 Flash (Medium)"` (or `"Gemini 3.5 Flash (High)"` / `"Gemini 3.5 Flash (Low)"`, note trailing space); use empty string for claude
 
 **Role Prompts**:
 
-| Phase | Codex | Antigravity |
+| Phase | Claude | Antigravity |
 |-------|-------|--------|
-| Implementation | `~/.claude/.ccg/prompts/codex/architect.md` | `~/.claude/.ccg/prompts/antigravity/frontend.md` |
-| Review | `~/.claude/.ccg/prompts/codex/reviewer.md` | `~/.claude/.ccg/prompts/antigravity/reviewer.md` |
+| Implementation | `~/.claude/.ccg/prompts/claude/architect.md` | `~/.claude/.ccg/prompts/antigravity/frontend.md` |
+| Review | `~/.claude/.ccg/prompts/claude/reviewer.md` | `~/.claude/.ccg/prompts/antigravity/reviewer.md` |
 
 **Session Reuse**: If `/ccg:plan` provided SESSION_ID, use `<resume|--conversation> <SESSION_ID>` to reuse context.
 
@@ -131,8 +131,8 @@ TaskOutput({ task_id: "<task_id>", block: true, timeout: 600000 })
    | Task Type | Detection | Route |
    |-----------|-----------|-------|
    | **Frontend** | Pages, components, UI, styles, layout | Antigravity |
-   | **Backend** | API, interfaces, database, logic, algorithms | Codex |
-   | **Fullstack** | Contains both frontend and backend | Codex ∥ Antigravity parallel |
+   | **Backend** | API, interfaces, database, logic, algorithms | Claude |
+   | **Fullstack** | Contains both frontend and backend | Claude ∥ Antigravity parallel |
 
 ---
 
@@ -185,19 +185,19 @@ mcp__gitnexus__query({
 5. **WARNING**: Ignore Antigravity's backend logic suggestions
 6. If plan contains `ANTIGRAVITY_SESSION`: prefer `resume <ANTIGRAVITY_SESSION>`
 
-#### Route B: Backend/Logic/Algorithms → Codex
+#### Route B: Backend/Logic/Algorithms → Claude
 
-1. Call Codex (use `~/.claude/.ccg/prompts/codex/architect.md`)
+1. Call Claude (use `~/.claude/.ccg/prompts/claude/architect.md`)
 2. Input: Plan content + retrieved context + target files
 3. OUTPUT: `Unified Diff Patch ONLY. Strictly prohibit any actual modifications.`
-4. **Codex is backend logic authority, leverage its logical reasoning and debug capabilities**
-5. If plan contains `CODEX_SESSION`: prefer `resume <CODEX_SESSION>`
+4. **Claude is backend logic authority, leverage its logical reasoning and debug capabilities**
+5. If plan contains `CLAUDE_SESSION`: prefer `resume <CLAUDE_SESSION>`
 
 #### Route C: Fullstack → Parallel Calls
 
 1. **Parallel Calls** (`run_in_background: true`):
    - Antigravity: Handle frontend part
-   - Codex: Handle backend part
+   - Claude: Handle backend part
 2. Wait for both models' complete results with `TaskOutput`
 3. Each uses corresponding `SESSION_ID` from plan for `resume` (create new session if missing)
 
@@ -211,7 +211,7 @@ mcp__gitnexus__query({
 
 **Claude as Code Sovereign executes the following steps**:
 
-1. **Read Diff**: Parse Unified Diff Patch returned by Codex/Antigravity
+1. **Read Diff**: Parse Unified Diff Patch returned by Claude/Antigravity
 
 2. **Mental Sandbox**:
    - Simulate applying Diff to target files
@@ -245,10 +245,10 @@ mcp__gitnexus__query({
 
 #### 4.1 Automatic Audit
 
-**After changes take effect, MUST immediately parallel call** Codex and Antigravity for Code Review:
+**After changes take effect, MUST immediately parallel call** Claude and Antigravity for Code Review:
 
-1. **Codex Review** (`run_in_background: true`):
-   - ROLE_FILE: `~/.claude/.ccg/prompts/codex/reviewer.md`
+1. **Claude Review** (`run_in_background: true`):
+   - ROLE_FILE: `~/.claude/.ccg/prompts/claude/reviewer.md`
    - Input: Changed Diff + target files
    - Focus: Security, performance, error handling, logic correctness
 
@@ -261,8 +261,8 @@ Wait for both models' complete review results with `TaskOutput`. Prefer reusing 
 
 #### 4.2 Integrate and Fix
 
-1. Synthesize Codex + Antigravity review feedback
-2. Weigh by trust rules: Backend follows Codex, Frontend follows Antigravity
+1. Synthesize Claude + Antigravity review feedback
+2. Weigh by trust rules: Backend follows Claude, Frontend follows Antigravity
 3. Execute necessary fixes
 4. Repeat Phase 4.1 as needed (until risk is acceptable)
 
@@ -279,7 +279,7 @@ After audit passes, report to user:
 | path/to/file.ts | Modified | Description |
 
 ### Audit Results
-- Codex: <Passed/Found N issues>
+- Claude: <Passed/Found N issues>
 - Antigravity: <Passed/Found N issues>
 
 ### Recommendations
@@ -292,8 +292,8 @@ After audit passes, report to user:
 ## Key Rules
 
 1. **Code Sovereignty** – All file modifications by Claude, external models have zero write access
-2. **Dirty Prototype Refactoring** – Codex/Antigravity output treated as draft, must refactor
-3. **Trust Rules** – Backend follows Codex, Frontend follows Antigravity
+2. **Dirty Prototype Refactoring** – Claude/Antigravity output treated as draft, must refactor
+3. **Trust Rules** – Backend follows Claude, Frontend follows Antigravity
 4. **Minimal Changes** – Only modify necessary code, no side effects
 5. **Mandatory Audit** – Must perform multi-model Code Review after changes
 
