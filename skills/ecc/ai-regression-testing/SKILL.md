@@ -335,7 +335,7 @@ const handleRemove = async (id: string) => {
     if (!res.ok) throw new Error("API error");
   } catch {
     setItems(prevItems);  // Rollback
-    alert("削除に失敗しました");
+    alert("Failed to delete");
   }
 };
 ```

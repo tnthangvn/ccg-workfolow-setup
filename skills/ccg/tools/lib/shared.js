@@ -1,11 +1,11 @@
 'use strict';
 
 /**
- * 验证工具共享库
- * 消灭 verify-* 脚本间的重复代码
+ * Verification tool shared library
+ * Eliminate duplicate code between verify-* scripts
  */
 
-// --- CLI 参数解析 ---
+// --- CLI Argument Parsing ---
 
 function parseCliArgs(argv, extraFlags) {
   const args = argv.slice(2);
@@ -26,7 +26,7 @@ function parseCliArgs(argv, extraFlags) {
   return result;
 }
 
-// --- 报告格式化 ---
+// --- Report Formatting ---
 
 const SEP = '='.repeat(60);
 const DASH = '-'.repeat(40);
@@ -45,14 +45,14 @@ function reportHeader(title, fields) {
 
 function reportIssues(issues, verbose, groupBy) {
   if (!issues.length) return [];
-  const lines = ['\n' + DASH, '问题列表:', DASH];
+  const lines = ['\n' + DASH, 'Issues List:', DASH];
 
   if (groupBy) {
     const groups = {};
     for (const i of issues) (groups[i[groupBy]] || (groups[i[groupBy]] = [])).push(i);
     for (const cat of Object.keys(groups).sort()) {
       const items = groups[cat];
-      lines.push(`\n【${cat}】(${items.length} 个)`);
+      lines.push(`\n[${cat}] (${items.length} items)`);
       for (const i of items.slice(0, 10)) {
         lines.push(`  ${ICONS[i.severity] || '\u2139'} ` +
           `${i.file_path || ''}${i.line_number ? ':' + i.line_number : ''}`);
@@ -60,13 +60,13 @@ function reportIssues(issues, verbose, groupBy) {
         if (verbose && i.suggestion) lines.push(`    \u{1F4A1} ${i.suggestion}`);
         if (verbose && i.recommendation) lines.push(`    \u{1F4A1} ${i.recommendation}`);
       }
-      if (items.length > 10) lines.push(`  ... 及其他 ${items.length - 10} 个问题`);
+      if (items.length > 10) lines.push(`  ... and ${items.length - 10} other issues`);
     }
   } else {
     for (const i of issues) {
       const icon = ICONS[i.severity] || '\u2139';
       lines.push(`  ${icon} [${i.severity.toUpperCase()}] ${i.message}`);
-      if (i.path && verbose) lines.push(`    路径: ${i.path}`);
+      if (i.path && verbose) lines.push(`    Path: ${i.path}`);
     }
   }
   return lines;
@@ -78,7 +78,7 @@ function buildReport(title, fields, issues, verbose, groupBy) {
   return [...reportHeader(title, fields), ...reportIssues(issues, verbose, groupBy), ...reportFooter()].join('\n');
 }
 
-// --- 通用计数 ---
+// --- Common Counting ---
 
 function countBySeverity(issues, field) {
   field = field || 'severity';

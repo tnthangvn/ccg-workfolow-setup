@@ -149,7 +149,7 @@ function checkDocSync(changes, modules) {
     if (total > 50 && !docPaths.has(design)) {
       issues.push({
         severity: "warning",
-        message: `模块 ${mod} 有较大代码变更 (${total} 行)，但 DESIGN.md 未更新`,
+        message: `Module ${mod} has significant code changes (${total} lines), but DESIGN.md is not updated`,
         related_files: modCode.map(c => c.path)
       });
       docStatus[`${mod}/DESIGN.md`] = false;
@@ -160,7 +160,7 @@ function checkDocSync(changes, modules) {
     if (newFiles.length && !docPaths.has(readme)) {
       issues.push({
         severity: "info",
-        message: `模块 ${mod} 新增了文件，建议更新 README.md`,
+        message: `Module ${mod} added new files, recommending updating README.md`,
         related_files: newFiles.map(c => c.path)
       });
     }
@@ -177,7 +177,7 @@ function analyzeImpact(changes) {
     if (total > 30) {
       issues.push({
         severity: "warning",
-        message: `代码变更 ${total} 行，但没有对应的测试更新`,
+        message: `Code changes (${total} lines) detected, but no corresponding test updates`,
         related_files: code.map(c => c.path)
       });
     }
@@ -186,7 +186,7 @@ function analyzeImpact(changes) {
   if (configs.length) {
     issues.push({
       severity: "info",
-      message: "配置文件有变更，请确认是否需要更新文档",
+      message: "Configuration files changed, please verify if documentation needs updating",
       related_files: configs.map(c => c.path)
     });
   }
@@ -194,7 +194,7 @@ function analyzeImpact(changes) {
   if (deleted.length) {
     issues.push({
       severity: "info",
-      message: `删除了 ${deleted.length} 个文件，请确认相关引用已清理`,
+      message: `Deleted ${deleted.length} files, please ensure relevant references are cleaned up`,
       related_files: deleted.map(c => c.path)
     });
   }
@@ -223,23 +223,23 @@ function analyzeChanges(mode = "working") {
 
 function formatReport(r, verbose) {
   const fields = {
-    '变更文件': r.changes.length,
-    '新增行数': `+${r.totalAdd}`,
-    '删除行数': `-${r.totalDel}`,
-    '受影响模块': [...r.modules].join(", ") || "无",
-    '分析结果': r.passed ? "✓ 通过" : "✗ 需要关注",
+    'Changed files': r.changes.length,
+    'Lines added': `+${r.totalAdd}`,
+    'Lines deleted': `-${r.totalDel}`,
+    'Affected modules': [...r.modules].join(", ") || "None",
+    'Analysis result': r.passed ? "✓ Passed" : "✗ Needs attention",
   };
-  let report = buildReport('变更分析报告', fields, r.issues, verbose);
+  let report = buildReport('Change Analysis Report', fields, r.issues, verbose);
 
   if (r.changes.length && verbose) {
-    const lines = ["\n" + DASH, "变更文件列表:", DASH];
+    const lines = ["\n" + DASH, "Changed Files List:", DASH];
     const icons = { added: "➕", modified: "📝", deleted: "➖", renamed: "📋" };
     for (const c of r.changes) {
       const tags = [];
-      if (c.is_code) tags.push("代码");
-      if (c.is_doc) tags.push("文档");
-      if (c.is_test) tags.push("测试");
-      if (c.is_config) tags.push("配置");
+      if (c.is_code) tags.push("code");
+      if (c.is_doc) tags.push("doc");
+      if (c.is_test) tags.push("test");
+      if (c.is_config) tags.push("config");
       const t = tags.length ? ` [${tags.join(", ")}]` : "";
       lines.push(`  ${icons[c.type] || "📝"} ${c.path}${t} (+${c.additions}/-${c.deletions})`);
     }
@@ -247,7 +247,7 @@ function formatReport(r, verbose) {
   }
 
   if (Object.keys(r.docStatus).length) {
-    const lines = ["\n" + DASH, "文档同步状态:", DASH];
+    const lines = ["\n" + DASH, "Doc Sync Status:", DASH];
     for (const [doc, synced] of Object.entries(r.docStatus)) {
       lines.push(`  ${synced ? "✓" : "✗"} ${doc}`);
     }

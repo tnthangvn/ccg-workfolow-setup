@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { parseCliArgs, buildReport, hasFatal } = require(path.join(__dirname, '..', '..', 'lib', 'shared.js'));
 
-// 质量规则配置
+// Quality rule configuration
 const MAX_LINE_LENGTH = 120;
 const MAX_FUNCTION_LENGTH = 50;
 const MAX_FILE_LENGTH = 500;
@@ -53,8 +53,8 @@ function analyzeGenericFile(filePath) {
 
     if (lines[i].length > MAX_LINE_LENGTH) {
       issues.push({
-        severity: 'info', category: '格式',
-        message: `行过长 (${lines[i].length} > ${MAX_LINE_LENGTH})`,
+        severity: 'info', category: 'Format',
+        message: `Line too long (${lines[i].length} > ${MAX_LINE_LENGTH})`,
         file_path: filePath, line_number: i + 1,
         suggestion: null,
       });
@@ -63,9 +63,9 @@ function analyzeGenericFile(filePath) {
 
   if (metrics.code_lines > MAX_FILE_LENGTH) {
     issues.push({
-      severity: 'warning', category: '复杂度',
-      message: `文件过长 (${metrics.code_lines} 行代码 > ${MAX_FILE_LENGTH})`,
-      file_path: filePath, suggestion: '考虑拆分为多个模块',
+      severity: 'warning', category: 'Complexity',
+      message: `File too long (${metrics.code_lines} lines of code > ${MAX_FILE_LENGTH})`,
+      file_path: filePath, suggestion: 'Consider splitting into multiple modules',
       line_number: null,
     });
   }
@@ -85,8 +85,8 @@ function analyzePythonFile(filePath) {
     content = fs.readFileSync(filePath, 'utf-8');
   } catch (e) {
     issues.push({
-      severity: 'error', category: '文件',
-      message: `无法读取文件: ${e.message}`,
+      severity: 'error', category: 'File',
+      message: `Unable to read file: ${e.message}`,
       file_path: filePath, line_number: null, suggestion: null,
     });
     return { metrics, issues };
@@ -110,8 +110,8 @@ function analyzePythonFile(filePath) {
 
     if (lines[i].length > MAX_LINE_LENGTH) {
       issues.push({
-        severity: 'info', category: '格式',
-        message: `行过长 (${lines[i].length} > ${MAX_LINE_LENGTH})`,
+        severity: 'info', category: 'Format',
+        message: `Line too long (${lines[i].length} > ${MAX_LINE_LENGTH})`,
         file_path: filePath, line_number: i + 1,
         suggestion: null,
       });
@@ -120,9 +120,9 @@ function analyzePythonFile(filePath) {
 
   if (metrics.code_lines > MAX_FILE_LENGTH) {
     issues.push({
-      severity: 'warning', category: '复杂度',
-      message: `文件过长 (${metrics.code_lines} 行代码 > ${MAX_FILE_LENGTH})`,
-      file_path: filePath, suggestion: '考虑拆分为多个模块',
+      severity: 'warning', category: 'Complexity',
+      message: `File too long (${metrics.code_lines} lines of code > ${MAX_FILE_LENGTH})`,
+      file_path: filePath, suggestion: 'Consider splitting into multiple modules',
       line_number: null,
     });
   }
@@ -170,28 +170,28 @@ function analyzePythonFile(filePath) {
     // Check function length
     if (length > MAX_FUNCTION_LENGTH) {
       issues.push({
-        severity: 'warning', category: '复杂度',
-        message: `函数 '${name}' 过长 (${length} 行 > ${MAX_FUNCTION_LENGTH})`,
+        severity: 'warning', category: 'Complexity',
+        message: `Function '${name}' too long (${length} lines > ${MAX_FUNCTION_LENGTH})`,
         file_path: filePath, line_number: lineNum,
-        suggestion: '考虑拆分为多个小函数',
+        suggestion: 'Consider splitting into multiple small functions',
       });
     }
     // Check complexity
     if (complexity > MAX_COMPLEXITY) {
       issues.push({
-        severity: 'warning', category: '复杂度',
-        message: `函数 '${name}' 圈复杂度过高 (${complexity} > ${MAX_COMPLEXITY})`,
+        severity: 'warning', category: 'Complexity',
+        message: `Function '${name}' cyclomatic complexity too high (${complexity} > ${MAX_COMPLEXITY})`,
         file_path: filePath, line_number: lineNum,
-        suggestion: '减少嵌套层级，提取子函数',
+        suggestion: 'Reduce nesting level, extract helper functions',
       });
     }
     // Check parameter count
     if (params.length > MAX_PARAMETERS) {
       issues.push({
-        severity: 'warning', category: '设计',
-        message: `函数 '${name}' 参数过多 (${params.length} > ${MAX_PARAMETERS})`,
+        severity: 'warning', category: 'Design',
+        message: `Function '${name}' has too many parameters (${params.length} > ${MAX_PARAMETERS})`,
         file_path: filePath, line_number: lineNum,
-        suggestion: '考虑使用配置对象或数据类封装参数',
+        suggestion: 'Consider using a configuration object or data class to encapsulate parameters',
       });
     }
     // Check naming
@@ -202,19 +202,19 @@ function analyzePythonFile(filePath) {
     if (!name.startsWith('_') && !SPECIAL.has(name) && !name.startsWith('visit_')) {
       if (!/^[a-z][a-z0-9_]*$/.test(name)) {
         issues.push({
-          severity: 'info', category: '命名',
-          message: `函数名 '${name}' 不符合 snake_case 规范`,
+          severity: 'info', category: 'Naming',
+          message: `Function name '${name}' does not conform to snake_case convention`,
           file_path: filePath, line_number: lineNum,
-          suggestion: '函数名应使用 snake_case',
+          suggestion: 'Function names should use snake_case',
         });
       }
     }
     if (name.length < MIN_FUNCTION_NAME_LENGTH) {
       issues.push({
-        severity: 'warning', category: '命名',
-        message: `函数名 '${name}' 过短`,
+        severity: 'warning', category: 'Naming',
+        message: `Function name '${name}' is too short`,
         file_path: filePath, line_number: lineNum,
-        suggestion: '使用更具描述性的函数名',
+        suggestion: 'Use a more descriptive function name',
       });
     }
   }
@@ -225,10 +225,10 @@ function analyzePythonFile(filePath) {
     metrics.classes++;
     if (!/^[A-Z][a-zA-Z0-9]*$/.test(name)) {
       issues.push({
-        severity: 'warning', category: '命名',
-        message: `类名 '${name}' 不符合 PascalCase 规范`,
+        severity: 'warning', category: 'Naming',
+        message: `Class name '${name}' does not conform to PascalCase convention`,
         file_path: filePath, line_number: lineNum,
-        suggestion: '类名应使用 PascalCase，如 MyClassName',
+        suggestion: 'Class names should use PascalCase, e.g. MyClassName',
       });
     }
   }
@@ -283,15 +283,15 @@ function formatReport(result, verbose) {
   const errs = result.issues.filter(i => i.severity === 'error').length;
   const warns = result.issues.filter(i => i.severity === 'warning').length;
   const fields = {
-    '扫描路径': result.scan_path,
-    '扫描文件': result.files_scanned,
-    '总行数': result.total_lines,
-    '代码行数': result.total_code_lines,
-    '检查结果': passed(result) ? '✓ 通过' : '✗ 需要关注',
-    '统计': `错误: ${errs} | 警告: ${warns}`,
+    'Scan path': result.scan_path,
+    'Files scanned': result.files_scanned,
+    'Total lines': result.total_lines,
+    'Code lines': result.total_code_lines,
+    'Check result': passed(result) ? '✓ Passed' : '✗ Needs attention',
+    'Statistics': `Errors: ${errs} | Warnings: ${warns}`,
   };
   let report = buildReport(
-    '代码质量检查报告', fields, result.issues, verbose, 'category'
+    'Code Quality Check Report', fields, result.issues, verbose, 'category'
   );
 
   if (verbose && result.file_metrics.length) {
@@ -300,8 +300,8 @@ function formatReport(result, verbose) {
       .sort((a, b) => b.max_complexity - a.max_complexity)
       .slice(0, 5);
     if (complex.length) {
-      const lines = ['\n' + '-'.repeat(40), '复杂度最高的文件:', '-'.repeat(40)];
-      for (const m of complex) lines.push(`  ${m.path}: 复杂度 ${m.max_complexity}, ${m.functions} 个函数`);
+      const lines = ['\n' + '-'.repeat(40), 'Files with highest complexity:', '-'.repeat(40)];
+      for (const m of complex) lines.push(`  ${m.path}: Complexity ${m.max_complexity}, ${m.functions} functions`);
       report += '\n' + lines.join('\n');
     }
   }

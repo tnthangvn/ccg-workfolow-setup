@@ -9,42 +9,42 @@ const SEVERITY_ORDER = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
 // prettier-ignore
 const SECURITY_RULES = [
   {
-    id: 'SQL_INJECTION_DYNAMIC', category: '注入',
+    id: 'SQL_INJECTION_DYNAMIC', category: 'Injection',
     severity: 'critical',
     pattern: new RegExp(
       '\\b(execute|query|raw)\\s*\\(\\s*' +
       '(f["\']|["\'][^"\'\\n]*["\']\\s*\\+\\s*|["\'][^"\'\\n]*["\']\\s*%\\s*[^,)]|["\'][^"\'\\n]*["\']' +
       '\\.format\\s*\\()', 'i'),
     extensions: ['.py', '.js', '.ts', '.go', '.java', '.php'],
-    message: '可能存在 SQL 注入风险',
-    recommendation: '使用参数化查询或 ORM',
+    message: 'Potential SQL injection risk',
+    recommendation: 'Use parameterized queries or ORM',
   },
   {
-    id: 'SQL_INJECTION_FSTRING', category: '注入',
+    id: 'SQL_INJECTION_FSTRING', category: 'Injection',
     severity: 'critical',
     pattern: /cursor\.(execute|executemany)\s*\(\s*f["']/i,
     extensions: ['.py'],
-    message: '使用 f-string 构造 SQL 语句',
-    recommendation: '使用参数化查询',
+    message: 'Use f-string to construct SQL statements',
+    recommendation: 'Use parameterized queries',
   },
   {
-    id: 'COMMAND_INJECTION', category: '注入',
+    id: 'COMMAND_INJECTION', category: 'Injection',
     severity: 'critical',
     pattern: /(os\.system|os\.popen|subprocess\.call|subprocess\.run|subprocess\.Popen)\s*\([^)]*shell\s*=\s*True/i,
     extensions: ['.py'],
-    message: '使用 shell=True 可能导致命令注入',
-    recommendation: '避免 shell=True，使用列表参数',
+    message: 'Using shell=True may lead to command injection',
+    recommendation: 'Avoid shell=True, use list parameters instead',
   },
   {
-    id: 'COMMAND_INJECTION_EVAL', category: '注入',
+    id: 'COMMAND_INJECTION_EVAL', category: 'Injection',
     severity: 'critical',
     pattern: /\b(eval|exec)\s*\([^)]*\b(input|request|argv|args)/i,
     extensions: ['.py'],
-    message: 'eval/exec 执行用户输入',
-    recommendation: '避免对用户输入使用 eval/exec',
+    message: 'eval/exec executing user input',
+    recommendation: 'Avoid using eval/exec on user input',
   },
   {
-    id: 'HARDCODED_SECRET', category: '敏感信息',
+    id: 'HARDCODED_SECRET', category: 'Sensitive Info',
     severity: 'high',
     pattern: /(?<!\w)(password|passwd|pwd|secret|api_key|apikey|token|auth_token)\s*=\s*["'][^"']{8,}["']/i,
     excludePattern: /(example|placeholder|changeme|xxx|your[_-]|TODO|FIXME|<.*>|\*{3,})/i,
@@ -52,73 +52,73 @@ const SECURITY_RULES = [
       '.py', '.js', '.ts', '.go', '.java', '.php',
       '.rb', '.yaml', '.yml', '.json', '.env',
     ],
-    message: '可能存在硬编码密钥/密码',
-    recommendation: '使用环境变量或密钥管理服务',
+    message: 'Potential hardcoded secret/password',
+    recommendation: 'Use environment variables or a secret management service',
   },
   {
-    id: 'HARDCODED_AWS_KEY', category: '敏感信息',
+    id: 'HARDCODED_AWS_KEY', category: 'Sensitive Info',
     severity: 'critical',
     pattern: /AKIA[0-9A-Z]{16}/,
     extensions: ['*'],
-    message: '发现 AWS Access Key',
-    recommendation: '立即轮换密钥，使用 IAM 角色或环境变量',
+    message: 'AWS Access Key found',
+    recommendation: 'Rotate keys immediately, use IAM roles or environment variables',
   },
   {
-    id: 'HARDCODED_PRIVATE_KEY', category: '敏感信息',
+    id: 'HARDCODED_PRIVATE_KEY', category: 'Sensitive Info',
     severity: 'critical',
     pattern: /-----BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----/,
     extensions: ['*'],
-    message: '发现私钥',
-    recommendation: '私钥不应提交到代码库',
+    message: 'Private key found',
+    recommendation: 'Private keys should not be committed to the codebase',
   },
   {
     id: 'XSS_INNERHTML', category: 'XSS', severity: 'high',
     pattern: /\.innerHTML\s*=|\.outerHTML\s*=|document\.write\s*\(/i,
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.html'],
-    message: '直接操作 innerHTML 可能导致 XSS',
-    recommendation: '使用 textContent 或框架的安全绑定',
+    message: 'Directly manipulating innerHTML may lead to XSS',
+    recommendation: 'Use textContent or secure bindings of frameworks',
   },
   {
     id: 'XSS_DANGEROUSLY', category: 'XSS',
     severity: 'medium',
     pattern: /dangerouslySetInnerHTML/i,
     extensions: ['.js', '.ts', '.jsx', '.tsx'],
-    message: '使用 dangerouslySetInnerHTML',
-    recommendation: '确保内容已经过净化处理',
+    message: 'Using dangerouslySetInnerHTML',
+    recommendation: 'Ensure content is properly sanitized',
   },
   {
-    id: 'UNSAFE_PICKLE', category: '反序列化',
+    id: 'UNSAFE_PICKLE', category: 'Deserialization',
     severity: 'high',
     pattern: /pickle\.loads?\s*\(|yaml\.load\s*\([^)]*Loader\s*=\s*yaml\.Loader/i,
     extensions: ['.py'],
-    message: '不安全的反序列化',
-    recommendation: '使用 yaml.safe_load() 或验证数据来源',
+    message: 'Unsafe deserialization',
+    recommendation: 'Use yaml.safe_load() or verify data sources',
   },
   {
-    id: 'WEAK_CRYPTO_MD5', category: '加密',
+    id: 'WEAK_CRYPTO_MD5', category: 'Cryptography',
     severity: 'medium',
     pattern: /\b(md5|MD5)\s*\(|hashlib\.md5\s*\(/i,
     extensions: ['.py', '.js', '.ts', '.go', '.java', '.php'],
-    message: '使用弱哈希算法 MD5',
-    recommendation: '使用 bcrypt/argon2 或 SHA-256+',
+    message: 'Using weak hashing algorithm MD5',
+    recommendation: 'Use bcrypt/argon2 or SHA-256+',
   },
   {
-    id: 'WEAK_CRYPTO_SHA1', category: '加密',
+    id: 'WEAK_CRYPTO_SHA1', category: 'Cryptography',
     severity: 'low',
     pattern: /\b(sha1|SHA1)\s*\(|hashlib\.sha1\s*\(/i,
     extensions: ['.py', '.js', '.ts', '.go', '.java', '.php'],
-    message: '使用弱哈希算法 SHA1',
-    recommendation: '使用 SHA-256 或更强的算法',
+    message: 'Using weak hashing algorithm SHA1',
+    recommendation: 'Use SHA-256 or stronger algorithms',
   },
   {
-    id: 'PATH_TRAVERSAL', category: '路径遍历',
+    id: 'PATH_TRAVERSAL', category: 'Path Traversal',
     severity: 'high',
     pattern: new RegExp(
       '(open|read|write|Path|os\\.path\\.join)\\s*\\([^\\n]*' +
       '(request|input|argv|args|params|query|form|path_param)\\b', 'i'),
     extensions: ['.py'],
-    message: '可能存在路径遍历风险',
-    recommendation: '验证并规范化用户输入的路径',
+    message: 'Potential path traversal risk',
+    recommendation: 'Validate and normalize user-input paths',
   },
   {
     id: 'SSRF', category: 'SSRF', severity: 'high',
@@ -126,30 +126,30 @@ const SECURITY_RULES = [
       '(requests\\.(get|post|put|delete|head)|urllib\\.request\\.urlopen)' +
       '\\s*\\([^\\n]*(request|input|argv|args|params|query|url)\\b', 'i'),
     extensions: ['.py'],
-    message: '可能存在 SSRF 风险',
-    recommendation: '验证并限制目标 URL',
+    message: 'Potential SSRF risk',
+    recommendation: 'Validate and restrict target URLs',
   },
   {
-    id: 'DEBUG_CODE', category: '调试', severity: 'low',
+    id: 'DEBUG_CODE', category: 'Debug', severity: 'low',
     pattern: /\b(console\.log|debugger|pdb\.set_trace|breakpoint)\s*\(/i,
     extensions: ['.py', '.js', '.ts'],
-    message: '发现调试代码',
-    recommendation: '生产环境移除调试代码',
+    message: 'Debug code found',
+    recommendation: 'Remove debug code in production',
   },
   {
-    id: 'INSECURE_RANDOM', category: '加密',
+    id: 'INSECURE_RANDOM', category: 'Cryptography',
     severity: 'medium',
     pattern: /\brandom\.(random|randint|choice|shuffle)\s*\(/i,
     extensions: ['.py'],
-    message: '使用不安全的随机数生成器',
-    recommendation: '安全场景使用 secrets 模块',
+    message: 'Using insecure random number generator',
+    recommendation: 'Use secrets module for security-sensitive use cases',
   },
   {
     id: 'XXE', category: 'XXE', severity: 'high',
     pattern: /etree\.(parse|fromstring)\s*\([^)]*\)|xml\.dom\.minidom\.parse/i,
     extensions: ['.py'],
-    message: 'XML 解析可能存在 XXE 风险',
-    recommendation: '禁用外部实体: XMLParser(resolve_entities=False)',
+    message: 'XML parsing may have XXE risk',
+    recommendation: 'Disable external entities: XMLParser(resolve_entities=False)',
   },
 ];
 
@@ -238,14 +238,14 @@ const { buildReport, countBySeverity, parseCliArgs } = require(
 function formatReport(result, verbose) {
   const counts = countBySeverity(result.findings);
   const fields = {
-    '扫描路径': result.scan_path,
-    '扫描文件': result.files_scanned,
-    '扫描结果': result.passed ? '\u2713 通过' : '\u2717 发现高危问题',
-    '统计': `严重: ${counts.critical || 0} | 高危: ${counts.high || 0}` +
-      ` | 中危: ${counts.medium || 0} | 低危: ${counts.low || 0}`,
+    'Scan path': result.scan_path,
+    'Files scanned': result.files_scanned,
+    'Scan result': result.passed ? '\u2713 Passed' : '\u2717 Critical issues found',
+    'Statistics': `Critical: ${counts.critical || 0} | High: ${counts.high || 0}` +
+      ` | Medium: ${counts.medium || 0} | Low: ${counts.low || 0}`,
   };
   return buildReport(
-    '代码安全扫描报告', fields, result.findings, verbose, 'category'
+    'Code Security Scan Report', fields, result.findings, verbose, 'category'
   );
 }
 

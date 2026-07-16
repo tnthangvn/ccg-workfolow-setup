@@ -95,11 +95,11 @@ Enable TeamCreate if **ANY 1 condition** is met:
 
 | Role | Ant Colony Mapping | Daoist Term | Responsibilities | Tool Permissions | Recommended Model |
 |------|----------|------|------|----------|----------|
-| Lead | Queen | Heavenly Net Lead (天罗主修) | Task decomposition, scheduling, aggregation | `spawn_agent/send_input/wait/close_agent` | Current model |
-| Scout | Scout | Heavenly Net Scout (天罗斥候) | Read-only exploration, mark key files | `explorer` + Read/Grep/Glob (Read-only) | haiku (Fast/Low cost) |
-| Worker | Worker | Heavenly Net Worker (天罗道侣) | Execute tasks, can generate subtasks | `worker` + Read/Write/Edit/Bash | sonnet/Current model |
-| Soldier | Soldier | Heavenly Net Soldier (天罗护法) | Quality review, find issues | `worker` (Review mode) + Read/Grep/Glob (Read-only) | sonnet |
-| Drone | Drone | Heavenly Net Drone (天罗走卒) | Simple bash commands, zero LLM cost | Bash (Only this one) | None (execSync) |
+| Lead | Queen | Heavenly Net Lead | Task decomposition, scheduling, aggregation | `spawn_agent/send_input/wait/close_agent` | Current model |
+| Scout | Scout | Heavenly Net Scout | Read-only exploration, mark key files | `explorer` + Read/Grep/Glob (Read-only) | haiku (Fast/Low cost) |
+| Worker | Worker | Heavenly Net Worker | Execute tasks, can generate subtasks | `worker` + Read/Write/Edit/Bash | sonnet/Current model |
+| Soldier | Soldier | Heavenly Net Soldier | Quality review, find issues | `worker` (Review mode) + Read/Grep/Glob (Read-only) | sonnet |
+| Drone | Drone | Heavenly Net Drone | Simple bash commands, zero LLM cost | Bash (Only this one) | None (execSync) |
 
 ### When to Use Roles
 
@@ -119,9 +119,9 @@ The `/ccg:team` command adds 3 enterprise-grade professional roles on top of the
 
 | Role | Agent Name | Daoist Term | Responsibilities | Tool Permissions | Model |
 |------|----------|------|------|----------|------|
-| 🏗 Architect | `team-architect` | Heavenly Net Strategist (天罗军师) | Codebase scanning, architecture blueprints, file allocation matrix | Read/Glob/Grep (Read-only) | Sonnet |
-| 🧪 QA Engineer | `team-qa` | Heavenly Net Poison Tester (天罗验毒) | Write tests, run tests, lint, typecheck | Read/Write/Edit/Bash/Glob/Grep | Sonnet |
-| 🔬 Reviewer | `team-reviewer` | Heavenly Net Soldier (天罗护法) | Comprehensive Claude/Antigravity review, graded verdicts | Read/Glob/Grep (Read-only) | Sonnet |
+| 🏗 Architect | `team-architect` | Heavenly Net Strategist | Codebase scanning, architecture blueprints, file allocation matrix | Read/Glob/Grep (Read-only) | Sonnet |
+| 🧪 QA Engineer | `team-qa` | Heavenly Net Poison Tester | Write tests, run tests, lint, typecheck | Read/Write/Edit/Bash/Glob/Grep | Sonnet |
+| 🔬 Reviewer | `team-reviewer` | Heavenly Net Soldier | Comprehensive Claude/Antigravity review, graded verdicts | Read/Glob/Grep (Read-only) | Sonnet |
 
 ### 8-Stage Pipeline
 

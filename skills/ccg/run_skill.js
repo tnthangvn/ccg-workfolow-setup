@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * Skills 运行入口
- * 跨平台统一调用各 skill 脚本
+ * Skills execution entry point
+ * Cross-platform unified invocation of each skill script
  *
- * 用法:
+ * Usage:
  *     node run_skill.js <skill_name> [args...]
  *
- * 示例:
+ * Example:
  *     node run_skill.js verify-module ./my-project -v
  *     node run_skill.js verify-security ./src --json
  *     node run_skill.js verify-change --mode staged
@@ -47,9 +47,9 @@ function discoverSkills(skillsDir) {
 function getScriptPath(skillName) {
   const available = discoverSkills(getSkillsDir());
   if (!(skillName in available)) {
-    const names = Object.keys(available).join(', ') || '(无)';
-    console.error(`错误: 未知的 skill '${skillName}'`);
-    console.error(`可用的 skills: ${names}`);
+    const names = Object.keys(available).join(', ') || '(none)';
+    console.error(`Error: Unknown skill '${skillName}'`);
+    console.error(`Available skills: ${names}`);
     process.exit(1);
   }
   return available[skillName];
@@ -73,8 +73,8 @@ function acquireTargetLock(args) {
       return { fd, lockPath };
     } catch (e) {
       if (e.code !== 'EEXIST') return { fd: null, lockPath: null };
-      if (first) { console.log(`⏳ 等待锁释放: ${target}`); first = false; }
-      if (Date.now() >= deadline) { console.error(`⏳ 等待锁超时: ${target}`); process.exit(1); }
+      if (first) { console.log(`⏳ Waiting for lock release: ${target}`); first = false; }
+      if (Date.now() >= deadline) { console.error(`⏳ Lock wait timeout: ${target}`); process.exit(1); }
       sleepMs(200);
     }
   }
@@ -113,13 +113,13 @@ function main() {
   });
 
   child.on('error', (err) => {
-    console.error(`执行错误: ${err.message}`);
+    console.error(`Execution error: ${err.message}`);
     releaseLock(lock);
     process.exit(1);
   });
 
   process.on('SIGINT', () => {
-    console.log('\n已取消');
+    console.log('\nCancelled');
     child.kill('SIGINT');
     releaseLock(lock);
     process.exit(130);

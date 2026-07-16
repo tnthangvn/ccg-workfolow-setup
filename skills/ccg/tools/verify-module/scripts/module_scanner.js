@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { parseCliArgs, buildReport, hasFatal } = require(path.join(__dirname, '..', '..', 'lib', 'shared.js'));
 
-const REQUIRED_FILES = { 'README.md': '模块说明文档', 'DESIGN.md': '设计决策文档' };
+const REQUIRED_FILES = { 'README.md': 'Module README documentation', 'DESIGN.md': 'Design decision documentation' };
 const ALT_SRC_DIRS = ['src', 'lib', 'pkg', 'internal', 'cmd', 'app'];
 const ALT_TEST_DIRS = ['tests', 'test', '__tests__', 'spec'];
 const ROOT_SCRIPT_FILES = new Set([
@@ -50,11 +50,11 @@ function scanModule(target) {
   const add = (severity, message, p) => issues.push({ severity, message, path: p || null });
 
   if (!fs.existsSync(modulePath)) {
-    add('error', `路径不存在: ${modulePath}`);
+    add('error', `Path does not exist: ${modulePath}`);
     return { modulePath, issues, structure: {} };
   }
   if (!fs.statSync(modulePath).isDirectory()) {
-    add('error', `不是目录: ${modulePath}`);
+    add('error', `Not a directory: ${modulePath}`);
     return { modulePath, issues, structure: {} };
   }
 
@@ -63,8 +63,8 @@ function scanModule(target) {
   // required files
   for (const [file, desc] of Object.entries(REQUIRED_FILES)) {
     const fp = path.join(modulePath, file);
-    if (!fs.existsSync(fp)) add('error', `缺少必需文档: ${file} (${desc})`, fp);
-    else if (fs.statSync(fp).size < 50) add('warning', `文档内容过少: ${file} (< 50 bytes)`, fp);
+    if (!fs.existsSync(fp)) add('error', `Missing required document: ${file} (${desc})`, fp);
+    else if (fs.statSync(fp).size < 50) add('warning', `Document content too short: ${file} (< 50 bytes)`, fp);
   }
 
   // source dirs
@@ -88,10 +88,10 @@ function scanModule(target) {
   if (rootCode.length || rootScript.length) {
     srcFound = true;
     if (rootCode.length > 5) {
-      add('warning', `根目录代码文件过多 (${rootCode.length}个)，建议整理到 src/ 目录`);
+      add('warning', `Too many code files in the root directory (${rootCode.length} files), recommending organizing into src/ directory`);
     }
   }
-  if (!srcFound) add('warning', '未找到源码目录或代码文件');
+  if (!srcFound) add('warning', 'Source directory or code files not found');
 
   // test dirs
   let testFound = ALT_TEST_DIRS.some(d => {
@@ -99,23 +99,23 @@ function scanModule(target) {
     catch { return false; }
   });
   if (!testFound) testFound = rglob(modulePath, n => TEST_PATTERNS.some(p => n.includes(p)));
-  if (!testFound) add('warning', '未找到测试目录或测试文件');
+  if (!testFound) add('warning', 'Test directory or test files not found');
 
   // doc quality
   const readme = path.join(modulePath, 'README.md');
   if (fs.existsSync(readme)) {
     const c = fs.readFileSync(readme, 'utf-8');
-    if (!c.includes('#')) add('warning', 'README.md 缺少标题', readme);
-    const docKeys = ['usage', 'install', '使用', '安装', 'example', '示例'];
+    if (!c.includes('#')) add('warning', 'README.md is missing a header', readme);
+    const docKeys = ['usage', 'install', 'how to use', 'example', 'setup'];
     if (!docKeys.some(k => c.toLowerCase().includes(k)))
-      add('info', 'README.md 建议添加使用说明或示例', readme);
+      add('info', 'README.md is recommended to include usage instructions or examples', readme);
   }
   const design = path.join(modulePath, 'DESIGN.md');
   if (fs.existsSync(design)) {
     const c = fs.readFileSync(design, 'utf-8');
-    const designKeys = ['决策', 'decision', '选择', 'choice', '权衡', 'trade'];
+    const designKeys = ['decision', 'choice', 'trade', 'trade-off', 'architecture'];
     if (!designKeys.some(k => c.toLowerCase().includes(k)))
-      add('info', 'DESIGN.md 建议记录设计决策和权衡', design);
+      add('info', 'DESIGN.md is recommended to record design decisions and trade-offs', design);
   }
 
   return { modulePath, issues, structure };
@@ -137,17 +137,17 @@ function formatReport(r, verbose) {
   const warns = r.issues.filter(i => i.severity === 'warning').length;
   const passed = !hasFatal(r.issues);
   const fields = {
-    '模块路径': r.modulePath,
-    '扫描结果': passed ? '\u2713 通过' : '\u2717 未通过',
-    '统计': `错误: ${errs} | 警告: ${warns}`,
+    'Module path': r.modulePath,
+    'Scan result': passed ? '\u2713 Passed' : '\u2717 Failed',
+    'Statistics': `Errors: ${errs} | Warnings: ${warns}`,
   };
   const issues = r.issues.map(i => ({
     severity: i.severity, message: i.message, path: i.path,
     file_path: i.path || '', line_number: null,
   }));
-  let report = buildReport('模块完整性扫描报告', fields, issues, verbose);
+  let report = buildReport('Module Integrity Scan Report', fields, issues, verbose);
   if (verbose && r.structure.name) {
-    report += '\n' + '-'.repeat(40) + '\n目录结构:\n' + '-'.repeat(40) + '\n' + formatStructure(r.structure);
+    report += '\n' + '-'.repeat(40) + '\nDirectory Structure:\n' + '-'.repeat(40) + '\n' + formatStructure(r.structure);
   }
   return report;
 }
